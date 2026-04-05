@@ -1,0 +1,33 @@
+.topBar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.catCard {
+  overflow: hidden;
+  transition: var(--transition);
+}
+.catCard:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+
+.catImage {
+  height: 140px;
+  background: var(--content-bg);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.catImage img { width: 100%; height: 100%; object-fit: cover; }
+.catEmoji { font-size: 52px; }
+
+.catBody { padding: 14px 16px 8px; }
+.catName { font-size: 15px; font-weight: 700; color: var(--text-dark); margin-bottom: 3px; }
+.catCount { font-size: 12px; color: var(--text-muted); }
+
+.catActions {
+  display: flex; gap: 8px; padding: 10px 16px 14px;
+}

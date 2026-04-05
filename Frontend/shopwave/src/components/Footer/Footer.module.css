@@ -1,0 +1,9 @@
+.foot-logo{height:52px;width:auto;object-fit:contain;margin-bottom:16px;filter:brightness(0) invert(1) sepia(1) saturate(.5) hue-rotate(5deg);}
+.foot-logo-text{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--gold-pale);}
+.foot-logo-text em{font-style:italic;color:var(--gold-bright);}
+.foot-markets{margin-top:20px;}
+.foot-market-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(245,230,192,.4);display:block;margin-bottom:10px;}
+.foot-market-row{display:flex;gap:8px;flex-wrap:wrap;}
+.foot-market-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(245,230,192,.15);padding:6px 10px;border-radius:4px;text-decoration:none;transition:all .3s;color:rgba(245,230,192,.7);font-size:10px;letter-spacing:1px;text-transform:uppercase;}
+.foot-market-btn:hover{border-color:rgba(245,230,192,.4);background:rgba(255,255,255,.12);color:var(--gold-pale);}
+.fmb-dot{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;}

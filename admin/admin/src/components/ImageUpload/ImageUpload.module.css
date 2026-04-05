@@ -1,0 +1,48 @@
+.wrap { display: flex; flex-direction: column; gap: 14px; }
+
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--content-bg);
+}
+
+.dropzone:hover { border-color: var(--primary); background: var(--primary-glow); }
+.dragging { border-color: var(--primary); background: var(--primary-glow); }
+
+.dropIcon { font-size: 36px; margin-bottom: 10px; }
+.dropText { font-size: 14px; color: var(--text-dark); }
+.dropText strong { color: var(--primary); }
+.dropSub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+.previewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 10px;
+}
+
+.previewItem {
+  position: relative;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  aspect-ratio: 1;
+  border: 2px solid var(--border);
+}
+
+.previewImg { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.removeBtn {
+  position: absolute; top: 4px; right: 4px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer;
+  transition: var(--transition);
+}
+.removeBtn:hover { background: var(--danger); }

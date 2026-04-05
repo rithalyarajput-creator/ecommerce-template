@@ -1,0 +1,33 @@
+.bn{position:relative;min-height:100vh;overflow:hidden;display:flex;align-items:center;}
+.bn-bg{position:absolute;inset:0;transition:opacity .8s ease;opacity:0;}
+.bn-bg-active{opacity:1;}
+.bn-content{position:relative;z-index:2;width:100%;padding:120px 80px 80px;display:flex;align-items:flex-end;justify-content:space-between;}
+.bn-left{max-width:600px;}
+.bn-tag{display:inline-flex;align-items:center;gap:10px;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--maroon);margin-bottom:28px;border:1px solid var(--border-dark);padding:8px 20px;}
+.bn-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:88px;font-weight:300;line-height:.95;letter-spacing:-1px;margin-bottom:28px;color:var(--text-dark);}
+.bn-title span{display:block;}
+.bn-title em{font-style:italic;color:var(--maroon);display:block;}
+.bn-title strong{color:var(--gold);font-weight:400;display:block;}
+.bn-sub{font-size:14px;line-height:1.9;color:var(--text-mid);font-weight:300;max-width:420px;margin-bottom:44px;}
+.bn-btns{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:56px;}
+.bn-stats{display:flex;gap:40px;align-items:center;}
+.bn-stat{}
+.bn-snum{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;color:var(--maroon);line-height:1;}
+.bn-slabel{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-top:4px;}
+.bn-sdiv{width:1px;height:48px;background:rgba(107,26,42,.2);}
+.bn-dots{display:flex;flex-direction:column;gap:10px;align-self:center;}
+.bn-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--maroon);background:transparent;cursor:pointer;transition:all .3s;padding:0;}
+.bn-dot.on{background:var(--maroon);width:10px;height:10px;}
+
+@media(max-width:768px){
+  .bn{min-height:85vh;}
+  .bn-content{padding:80px 20px 40px;flex-direction:column;align-items:flex-start;gap:32px;}
+  .bn-title{font-size:52px;}
+  .bn-dots{flex-direction:row;align-self:flex-start;}
+  .bn-stats{gap:24px;}
+  .bn-snum{font-size:28px;}
+}
+@media(max-width:480px){
+  .bn-title{font-size:40px;}
+  .bn-btns{flex-direction:column;}
+}

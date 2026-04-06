@@ -16,7 +16,7 @@ const SLIDES = [
   },
   {
     desktop: `${BACKEND}/uploads/banner2.png`,
-    mobile:  `${BACKEND}/uploads/banner2.png`,
+    mobile:  `${BACKEND}/uploads/banner2-mobile.png`,
   },
 ];
 

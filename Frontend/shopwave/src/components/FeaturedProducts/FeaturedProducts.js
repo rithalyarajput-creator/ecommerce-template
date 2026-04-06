@@ -17,10 +17,10 @@ const FeaturedProducts = ({ products = [], loading = false }) => {
 
   const getTabProducts = () => {
     switch (activeTab) {
-      case 'latest':        return [...products].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
-      case 'mostDemanding': return products.filter(p => p.mostDemanding || p.tags?.includes('most-demanding')).slice(0,8);
-      case 'highProfit':    return products.filter(p => p.highProfit || p.tags?.includes('high-profit')).slice(0,8);
-      default:              return products.slice(0,8);
+      case 'latest':        return products.filter(p => p.isLatest).slice(0, 12);
+      case 'mostDemanding': return products.filter(p => p.isMostDemanding).slice(0, 12);
+      case 'highProfit':    return products.filter(p => p.isHighProfit).slice(0, 12);
+      default:              return products.slice(0, 12);
     }
   };
 

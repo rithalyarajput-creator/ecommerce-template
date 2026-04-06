@@ -1,5 +1,5 @@
 // API base URL
-export const API_BASE = 'https://amshine-backend.onrender.com/api';
+export const API_BASE = process.env.REACT_APP_API_URL || 'https://amshine-backend.onrender.com/api';
 
 // Helper to get image URL
 export const getImageUrl = (images) => {

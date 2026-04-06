@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'https://amshine-backend.onrender.com/api',
+  baseURL: process.env.REACT_APP_API_URL || 'https://amshine-backend.onrender.com/api',
 });
 
 instance.interceptors.request.use(config => {

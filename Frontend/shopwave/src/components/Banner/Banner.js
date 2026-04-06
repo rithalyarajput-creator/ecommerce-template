@@ -15,8 +15,8 @@ const SLIDES = [
     mobile:  `${BACKEND}/uploads/banner1.png`,
   },
   {
-    desktop: 'https://i.ibb.co/qY666SXv/image.png',
-    mobile:  'https://i.ibb.co/S770zY85/image.png',
+    desktop: `${BACKEND}/uploads/banner2.png`,
+    mobile:  `${BACKEND}/uploads/banner2.png`,
   },
 ];
 

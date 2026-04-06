@@ -62,11 +62,11 @@ const Navbar = () => {
         <li><Link to="/about">About Us</Link></li>
         <li><Link to="/contact">Contact</Link></li>
       </ul>
+      <div className={styles['n-right']}>
       <form className={styles['n-search']} onSubmit={doSearch}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" value={q} onChange={e=>setQ(e.target.value)} placeholder={'Search for '+hint+'|'} className={styles['n-si']}/>
       </form>
-      <div className={styles['n-right']}>
         <button className={styles['n-icon']+' '+styles['n-mob']} onClick={()=>setMobileSearch(true)} aria-label="Search">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         </button>
@@ -91,15 +91,45 @@ const Navbar = () => {
     )}
 
     <div className={styles['n-drawer']+(menuOpen?' '+styles.open:'')}>
-      <button className={styles['n-drawer-x']} onClick={()=>setMenuOpen(false)}>x</button>
-      <Link to="/" className={styles['n-drawer-logo']} onClick={()=>setMenuOpen(false)}>
-        <img src={LOGO} alt="Amshine" onError={e=>e.target.style.display='none'}/>
-      </Link>
+      {/* Header */}
+      <div className={styles['n-drawer-head']}>
+        <Link to="/" className={styles['n-drawer-logo']} onClick={()=>setMenuOpen(false)}>
+          <img src={LOGO} alt="Amshine" onError={e=>e.target.style.display='none'}/>
+        </Link>
+        <button className={styles['n-drawer-x']} onClick={()=>setMenuOpen(false)}>✕</button>
+      </div>
+
+      {/* Nav Links */}
       <ul className={styles['n-drawer-links']}>
-        {[['/', 'Home'],['/products','Shop'],['/about','About Us'],['/contact','Contact'],['/cart','Cart ('+count+')']].map(([to,label])=>(
-          <li key={to}><Link to={to} onClick={()=>setMenuOpen(false)}>{label}</Link></li>
+        {[['/', 'Home'],['/products','Shop All'],['/about','About Us'],['/contact','Contact'],['/cart','Cart ('+count+')']].map(([to,label])=>(
+          <li key={to}>
+            <Link to={to} onClick={()=>setMenuOpen(false)}>
+              {label} <span className={styles['n-arr']}>→</span>
+            </Link>
+          </li>
         ))}
       </ul>
+
+      {/* Bottom Actions */}
+      <div className={styles['n-drawer-bottom']}>
+        <a href="/products?category=bridal" className={`${styles['n-drawer-cta']} ${styles['primary']}`} onClick={()=>setMenuOpen(false)}>
+          ✦ &nbsp;Shop Bridal Collection
+        </a>
+        <a href="/contact" className={`${styles['n-drawer-cta']} ${styles['secondary']}`} onClick={()=>setMenuOpen(false)}>
+          Book a Consultation
+        </a>
+        <div className={styles['n-drawer-social']}>
+          <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="https://wa.me/" target="_blank" rel="noreferrer" aria-label="WhatsApp">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          </a>
+        </div>
+      </div>
     </div>
     <div className={styles['n-overlay']+(menuOpen?' '+styles.open:'')} onClick={()=>setMenuOpen(false)}/>
   </>);

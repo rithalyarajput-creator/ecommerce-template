@@ -12,7 +12,7 @@ const BACKEND = process.env.REACT_APP_API_URL
 const SLIDES = [
   {
     desktop: `${BACKEND}/uploads/banner1.png`,
-    mobile:  `${BACKEND}/uploads/banner1.png`,
+    mobile:  `${BACKEND}/uploads/banner1-mobile.png`,
   },
   {
     desktop: `${BACKEND}/uploads/banner2.png`,
@@ -21,15 +21,8 @@ const SLIDES = [
 ];
 
 const Banner = () => {
-  const [active, setActive]   = useState(0);
-  const [isMob, setIsMob]     = useState(window.innerWidth <= 768);
+  const [active, setActive] = useState(0);
   const timer = useRef(null);
-
-  useEffect(() => {
-    const onResize = () => setIsMob(window.innerWidth <= 768);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
 
   useEffect(() => {
     timer.current = setInterval(() => setActive(a => (a + 1) % SLIDES.length), 4000);
@@ -37,7 +30,7 @@ const Banner = () => {
   }, []);
 
   return (
-    <section style={{ position:'relative', width:'100%', overflow:'hidden', lineHeight:0 }}>
+    <section style={{ position:'relative', width:'100%', overflow:'hidden', lineHeight:0, background:'#f5ede3' }}>
 
       {/* Slides */}
       {SLIDES.map((slide, i) => (
@@ -48,30 +41,21 @@ const Banner = () => {
           transition: 'opacity 0.8s ease',
           zIndex: i === active ? 1 : 0,
         }}>
-          <img
-            src={isMob ? slide.mobile : slide.desktop}
-            alt={`Banner ${i + 1}`}
-            style={{
-              width: '100%',
-              height: 'auto',
-              display: 'block',
-              objectFit: 'cover',
-            }}
-            onError={e => { e.target.src = slide.desktop; }}
-          />
+          <picture>
+            <source media="(max-width: 768px)" srcSet={slide.mobile} />
+            <img
+              src={slide.desktop}
+              alt={`Banner ${i + 1}`}
+              style={{
+                width: '100%',
+                height: 'auto',
+                display: 'block',
+              }}
+            />
+          </picture>
         </div>
       ))}
 
-      {/* Invisible spacer — keeps height from first slide */}
-      {SLIDES.length > 1 && (
-        <div style={{ visibility:'hidden', pointerEvents:'none', zIndex:0 }}>
-          <img
-            src={isMob ? SLIDES[0].mobile : SLIDES[0].desktop}
-            alt=""
-            style={{ width:'100%', height:'auto', display:'block' }}
-          />
-        </div>
-      )}
 
       {/* Dark overlay */}
       <div style={{

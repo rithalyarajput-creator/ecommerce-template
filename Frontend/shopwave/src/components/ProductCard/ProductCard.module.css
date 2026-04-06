@@ -29,3 +29,9 @@
 .pc-now{font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--maroon);font-weight:500;}
 .pc-was{font-size:13px;color:var(--text-muted);text-decoration:line-through;}
 .pc-off{font-size:9px;letter-spacing:1px;font-weight:700;background:var(--gold-pale);color:var(--gold);padding:2px 7px;border-radius:3px;}
+
+@media(max-width:768px){
+  .pc-actions{display:none;}
+  .pc-wish{opacity:1;transform:scale(1);}
+  .pc:hover{transform:none;box-shadow:none;}
+}

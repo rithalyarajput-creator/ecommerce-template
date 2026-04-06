@@ -476,9 +476,9 @@ a { color: inherit; text-decoration: none; }
   .nl-title { font-size: 24px; }
 }
 
-/* --- Product card: ATC always visible on touch/mobile --- */
+/* --- Product card: mobile --- */
 @media(max-width:768px) {
-  .pc-actions { transform: translateY(0); opacity: 1; }
+  .pc-actions { display: none; }
   .pc:hover { transform: none; }
   .pc-wish { opacity: 1; transform: scale(1); }
 }

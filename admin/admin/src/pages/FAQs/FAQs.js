@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../../components/Modal/Modal';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import { useToast } from '../../components/Toast/Toast';
+import api from '../../api/axios';
 
-const API = 'https://amshine-backend.onrender.com/api/faqs';
 const CATEGORIES = ['General', 'Product', 'Shipping', 'Returns', 'Payment', 'Care'];
 
 export default function FAQs() {
@@ -19,9 +19,8 @@ export default function FAQs() {
   const fetchFaqs = async () => {
     setLoading(true);
     try {
-      const res  = await fetch(API);
-      const data = await res.json();
-      if (data.success) setFaqs(data.faqs);
+      const res = await api.get('/faqs');
+      if (res.data.success) setFaqs(res.data.faqs);
     } catch { addToast('Failed to load FAQs', 'error'); }
     finally { setLoading(false); }
   };
@@ -44,22 +43,21 @@ export default function FAQs() {
     if (!form.question.trim() || !form.answer.trim()) { addToast('Question and answer required', 'error'); return; }
     setSaving(true);
     try {
-      const url    = editFaq ? `${API}/${editFaq._id}` : API;
-      const method = editFaq ? 'PUT' : 'POST';
-      const res    = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
-      const data   = await res.json();
-      if (data.success) {
+      const res = editFaq
+        ? await api.put(`/faqs/${editFaq._id}`, form)
+        : await api.post('/faqs', form);
+      if (res.data.success) {
         addToast(editFaq ? 'FAQ updated!' : 'FAQ added!', 'success');
         setModalOpen(false);
         fetchFaqs();
-      } else { addToast(data.message || 'Failed', 'error'); }
+      } else { addToast(res.data.message || 'Failed', 'error'); }
     } catch { addToast('Server error', 'error'); }
     finally { setSaving(false); }
   };
 
   const handleDelete = async () => {
     try {
-      await fetch(`${API}/${deleteId}`, { method: 'DELETE' });
+      await api.delete(`/faqs/${deleteId}`);
       addToast('FAQ deleted', 'success');
       setDeleteId(null);
       fetchFaqs();
@@ -68,9 +66,8 @@ export default function FAQs() {
 
   const toggleField = async (faq, field) => {
     try {
-      const res  = await fetch(`${API}/${faq._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...faq, [field]: !faq[field] }) });
-      const data = await res.json();
-      if (data.success) setFaqs(prev => prev.map(f => f._id === faq._id ? data.faq : f));
+      const res = await api.put(`/faqs/${faq._id}`, { ...faq, [field]: !faq[field] });
+      if (res.data.success) setFaqs(prev => prev.map(f => f._id === faq._id ? res.data.faq : f));
     } catch { addToast('Update failed', 'error'); }
   };
 

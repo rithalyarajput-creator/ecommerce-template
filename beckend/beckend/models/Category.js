@@ -10,6 +10,7 @@ const categorySchema = new mongoose.Schema({
   image: {
     type: String,
   },
+  emoji: { type: String, default: '💍' },
   isActive: {
     type: Boolean,
     default: true,

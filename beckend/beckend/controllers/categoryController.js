@@ -86,4 +86,16 @@ const deleteCategory = async (req, res) => {
   }
 };
 
-module.exports = { getCategories, createCategory, updateCategory, deleteCategory };
+const uploadCategoryImage = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ success: false, message: "No file uploaded." });
+    const imagePath = `/uploads/${req.file.filename}`;
+    const category = await Category.findByIdAndUpdate(req.params.id, { image: imagePath }, { new: true });
+    if (!category) return res.status(404).json({ success: false, message: "Category not found." });
+    res.status(200).json({ success: true, data: category });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { getCategories, createCategory, updateCategory, deleteCategory, uploadCategoryImage };

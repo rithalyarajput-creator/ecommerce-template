@@ -13,6 +13,8 @@ const orderRoutes = require("./routes/orderRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const couponRoutes = require("./routes/couponRoutes");
 const leadRoutes = require("./routes/leadRoutes");
+const faqRoutes = require("./routes/faqRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 // Connect to MongoDB
 connectDB();
@@ -40,6 +42,8 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/leads", leadRoutes);
+app.use("/api/faqs", faqRoutes);
+app.use("/api/users", userRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

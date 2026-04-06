@@ -1,23 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const {
-  getCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} = require("../controllers/categoryController");
+const { getCategories, createCategory, updateCategory, deleteCategory, uploadCategoryImage } = require("../controllers/categoryController");
 const { protect, admin } = require("../middleware/auth");
+const upload = require("../middleware/upload");
 
-// GET /api/categories  — public
 router.get("/", getCategories);
-
-// POST /api/categories  — admin only
 router.post("/", protect, admin, createCategory);
-
-// PUT /api/categories/:id  — admin only
 router.put("/:id", protect, admin, updateCategory);
-
-// DELETE /api/categories/:id  — admin only
 router.delete("/:id", protect, admin, deleteCategory);
+router.post("/:id/upload", protect, admin, upload.single("image"), uploadCategoryImage);
 
 module.exports = router;

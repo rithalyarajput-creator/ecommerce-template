@@ -1,6 +1,16 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 
+const BACKEND = process.env.REACT_APP_API_URL
+  ? process.env.REACT_APP_API_URL.replace('/api', '')
+  : 'https://amshine-backend.onrender.com';
+
+const getImgUrl = (img) => {
+  if (!img) return null;
+  if (img.startsWith('http')) return img;
+  return `${BACKEND}${img}`;
+};
+
 const FALLBACK_COLORS = [
   '#4A1020','#1A3A6A','#8B2A3A','#2A4A1A','#3A1A4A',
   '#4A3A1A','#2A1A4A','#1A4A3A','#5A2A1A','#1A2A5A',
@@ -24,7 +34,7 @@ const CategorySection = ({ categories = [] }) => {
   const cats = categories.length > 0
     ? categories.map((c, i) => ({
         name: c.name,
-        image: c.image || null,
+        image: getImgUrl(c.image),
         emoji: c.emoji || '💍',
         slug: c.name,
         color: FALLBACK_COLORS[i % FALLBACK_COLORS.length],

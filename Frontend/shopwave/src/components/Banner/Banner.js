@@ -7,8 +7,8 @@ import React, { useState, useEffect, useRef } from 'react';
 // =============================================
 const SLIDES = [
   {
-    desktop: 'https://i.ibb.co/qYkSKP83/image.png',
-    mobile:  'https://i.ibb.co/S770zY85/image.png',
+    desktop: 'https://drive.google.com/uc?export=view&id=1tyze2lGA65OKbZCBjOMNjKq8PNpUfPTS',
+    mobile:  'https://drive.google.com/uc?export=view&id=1tyze2lGA65OKbZCBjOMNjKq8PNpUfPTS',
   },
   {
     desktop: 'https://i.ibb.co/qY666SXv/image.png',

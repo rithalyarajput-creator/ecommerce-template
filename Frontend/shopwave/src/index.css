@@ -449,3 +449,107 @@ a { color: inherit; text-decoration: none; }
   opacity: 1;
   left: -8px;
 }
+/* ============================================
+   COMPREHENSIVE MOBILE RESPONSIVE FIXES
+   ============================================ */
+
+/* --- Banner auto-fit on all screens --- */
+.bn { height: clamp(260px, 55vw, 600px); }
+@media(max-width:768px) { .bn { height: clamp(240px, 56vw, 500px); } }
+@media(max-width:480px) { .bn { height: clamp(220px, 60vw, 380px); } }
+@media(max-width:360px) { .bn { height: 240px; } }
+
+/* --- Newsletter mobile fonts --- */
+@media(max-width:768px) {
+  .nl-title { font-size: 34px; }
+  .newsletter { gap: 32px; }
+}
+@media(max-width:480px) {
+  .nl-title { font-size: 28px; }
+  .sec-title { font-size: 30px; }
+  .section { padding: 40px 16px; }
+  .trust { padding: 28px 16px; }
+  .newsletter { padding: 40px 16px; }
+}
+@media(max-width:360px) {
+  .sec-title { font-size: 26px; }
+  .nl-title { font-size: 24px; }
+}
+
+/* --- Product card: ATC always visible on touch/mobile --- */
+@media(max-width:768px) {
+  .pc-actions { transform: translateY(0); opacity: 1; }
+  .pc:hover { transform: none; }
+  .pc-wish { opacity: 1; transform: scale(1); }
+}
+
+/* --- Category circles ultra small --- */
+@media(max-width:360px) {
+  .cat-circles { gap: 10px; }
+  .cat-circle-wrap { width: 72px; height: 72px; }
+  .cat-circle-emoji { font-size: 24px; }
+  .cat-circle-name { font-size: 8px; letter-spacing: 1px; }
+}
+
+/* --- Featured product carousel card size --- */
+@media(max-width:360px) { .fp-card-wrap { min-width: 140px; max-width: 140px; } }
+
+/* --- Trust grid: 2 cols on mobile --- */
+@media(max-width:480px) {
+  .trust-grid { grid-template-columns: repeat(2,1fr); gap: 0; }
+  .trust-item { padding: 20px 10px; }
+  .trust-title { font-size: 16px; }
+  .trust-desc { font-size: 10px; }
+}
+
+/* --- Footer ultra small --- */
+@media(max-width:480px) {
+  .foot-main { padding: 32px 16px 20px !important; }
+  .foot-bottom { padding: 14px 16px; font-size: 9px; }
+  .scroll-top { bottom: 20px; right: 16px; width: 38px; height: 38px; }
+}
+
+/* --- Product listing grid: 2 cols always on mobile --- */
+@media(max-width:480px) {
+  .grid { grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
+  .pc-info { padding: 8px 10px 12px; }
+  .pc-name { font-size: 14px; min-height: 2.5em; }
+  .pc-now { font-size: 17px; }
+  .pc-was { font-size: 11px; }
+}
+@media(max-width:360px) {
+  .grid { grid-template-columns: repeat(2,1fr) !important; gap: 6px !important; }
+  .pc-name { font-size: 13px; }
+}
+
+/* --- Product detail page mobile --- */
+@media(max-width:480px) {
+  .pd-page { padding: 64px 16px 32px; }
+  .pd-title { font-size: 22px; }
+  .pd-sale-price { font-size: 28px; }
+  .pd-sim-card { min-width: 170px; width: 170px; }
+  .pd-cta { flex-direction: column; }
+  .pd-atc, .pd-buynow { padding: 13px 16px; }
+}
+
+/* --- Cart mobile --- */
+@media(max-width:480px) {
+  .cart-page { padding: 64px 12px 100px; }
+  .ci-img { height: 160px; }
+}
+
+/* --- Contact & About pages --- */
+@media(max-width:480px) {
+  .contact-grid, .about-grid { grid-template-columns: 1fr !important; }
+}
+
+/* --- Testimonials: scroll snap on mobile --- */
+@media(max-width:480px) {
+  .tcard { min-width: 90vw; padding: 24px 20px; }
+  .tcard-text { font-size: 15px; }
+}
+
+/* --- Prevent horizontal overflow everywhere --- */
+* { max-width: 100%; }
+img, video, iframe { max-width: 100%; }
+

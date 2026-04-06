@@ -5,10 +5,14 @@ import React, { useState, useEffect, useRef } from 'react';
 // Desktop size: 1920 x 600px (wide landscape)
 // Mobile size:  768 x 500px
 // =============================================
+const BACKEND = process.env.REACT_APP_API_URL
+  ? process.env.REACT_APP_API_URL.replace('/api', '')
+  : 'https://amshine-backend.onrender.com';
+
 const SLIDES = [
   {
-    desktop: 'https://drive.google.com/uc?export=view&id=1tyze2lGA65OKbZCBjOMNjKq8PNpUfPTS',
-    mobile:  'https://drive.google.com/uc?export=view&id=1tyze2lGA65OKbZCBjOMNjKq8PNpUfPTS',
+    desktop: `${BACKEND}/uploads/banner1.png`,
+    mobile:  `${BACKEND}/uploads/banner1.png`,
   },
   {
     desktop: 'https://i.ibb.co/qY666SXv/image.png',

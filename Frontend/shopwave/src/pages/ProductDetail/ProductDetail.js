@@ -116,16 +116,6 @@ const ProductDetail = () => {
               </div>
             )}
 
-            {/* Description BELOW image on left side */}
-            {product.description && (
-              <div className="pd-desc-section">
-                <h3 className="pd-desc-title">Description</h3>
-                {product.description.includes('<')
-                  ? <div className="pd-desc-body" dangerouslySetInnerHTML={{__html: product.description}}/>
-                  : <div className="pd-desc-body">{product.description}</div>
-                }
-              </div>
-            )}
           </div>
 
           {/* RIGHT: Info — sticky */}
@@ -172,6 +162,17 @@ const ProductDetail = () => {
                 {inStock ? 'Buy Now' : 'Unavailable'}
               </button>
             </div>
+
+            {/* Description */}
+            {product.description && (
+              <div className="pd-desc-section">
+                <h3 className="pd-desc-title">Description</h3>
+                {product.description.includes('<')
+                  ? <div className="pd-desc-body" dangerouslySetInnerHTML={{__html: product.description}}/>
+                  : <div className="pd-desc-body">{product.description}</div>
+                }
+              </div>
+            )}
 
             {/* Marketplace — only if admin added links */}
             {marketLinks.length > 0 && (

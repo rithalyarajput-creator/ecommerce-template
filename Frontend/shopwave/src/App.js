@@ -11,7 +11,7 @@ import About from './pages/About/About';
 import Contact from './pages/Contact/Contact';
 import Footer from './components/Footer/Footer';
 
-const API = 'https://amshine-backend.onrender.com/api';
+const API = process.env.REACT_APP_API_URL || 'https://amshine-backend.onrender.com/api';
 
 // ── Inline FAQs Page (no separate file needed) ────────────────
 const FAQChevron = ({ open }) => (
@@ -43,7 +43,7 @@ const FAQs = () => {
   const [search, setSearch] = useState('');
   useEffect(() => {
     window.scrollTo(0,0);
-    fetch('https://amshine-backend.onrender.com/api/faqs/active').then(r=>r.json()).then(d=>{ if(d.success){setFaqs(d.faqs);setFiltered(d.faqs);} }).catch(()=>{}).finally(()=>setLoading(false));
+    fetch(`${API}/faqs/active`).then(r=>r.json()).then(d=>{ if(d.success){setFaqs(d.faqs);setFiltered(d.faqs);} }).catch(()=>{}).finally(()=>setLoading(false));
   }, []);
   const cats = ['All', ...Array.from(new Set(faqs.map(f=>f.category)))];
   useEffect(() => {

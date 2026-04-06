@@ -5,7 +5,7 @@ import FeaturedProducts from '../../components/FeaturedProducts/FeaturedProducts
 import HomeFAQs from '../../components/HomeFAQs/HomeFAQs';
 import Footer from '../../components/Footer/Footer';
 
-const API_BASE = 'https://amshine-backend.onrender.com/api';
+const API_BASE = process.env.REACT_APP_API_URL || 'https://amshine-backend.onrender.com/api';
 
 const DEFAULT_TESTIMONIALS = [
   {_id:'1', text:'The bridal set was absolutely stunning. Every guest complimented it. The craftsmanship is extraordinary and the gold quality is exceptional.', name:'Priya Sharma', location:'Mumbai', rating:5},

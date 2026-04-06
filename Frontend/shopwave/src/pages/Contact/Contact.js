@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Footer from '../../components/Footer/Footer';
 import styles from './Contact.module.css';
 
-const API = 'https://amshine-backend.onrender.com/api';
+const API = process.env.REACT_APP_API_URL || 'https://amshine-backend.onrender.com/api';
 
 // Professional SVG Icons
 const IconPin = () => (

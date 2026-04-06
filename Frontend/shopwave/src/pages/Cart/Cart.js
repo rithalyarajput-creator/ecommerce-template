@@ -5,7 +5,7 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import AuthModal from '../../components/AuthModal/AuthModal';
 
-const API_BASE = 'https://amshine-backend.onrender.com/api';
+const API_BASE = process.env.REACT_APP_API_URL || 'https://amshine-backend.onrender.com/api';
 
 const Icon = ({ d, size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 
+const BACKEND = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api','') : 'https://amshine-backend.onrender.com';
+
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
   const navigate = useNavigate();
@@ -23,7 +25,7 @@ const ProductCard = ({ product }) => {
     if (!imgs || !imgs.length) return null;
     const i = imgs[0];
     if (typeof i === 'string' && i.startsWith('http')) return i;
-    if (typeof i === 'string') return `https://amshine-backend.onrender.com${i}`;
+    if (typeof i === 'string') return `${BACKEND}${i}`;
     return null;
   };
 

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Footer from '../../components/Footer/Footer';
 import styles from './About.module.css';
 
-const API = 'https://amshine-backend.onrender.com/api';
+const API = process.env.REACT_APP_API_URL || 'https://amshine-backend.onrender.com/api';
 
 const About = () => {
   const [cmsData, setCmsData] = useState(null);

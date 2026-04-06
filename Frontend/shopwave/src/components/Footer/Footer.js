@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const LOGO = 'https://i.ibb.co/k6vTPq7F/Untitled-design-2.png';
-const API = 'https://amshine-backend.onrender.com/api';
+const API = process.env.REACT_APP_API_URL || 'https://amshine-backend.onrender.com/api';
 
 const DEFAULT_FOOTER = {
   description: 'Handcrafted jewellery celebrating Indian heritage. Each piece crafted with love and 22K hallmarked gold.',

@@ -37,7 +37,8 @@ const Products = () => {
     rating: p.rating || 4.0,
     reviewCount: p.reviewCount || 0,
     discount: p.comparePrice ? Math.round(((p.comparePrice - p.price) / p.comparePrice) * 100) : 0,
-    category: p.category?.name || p.category || 'General',
+    categories: Array.isArray(p.category) ? p.category : (p.category ? [p.category?.name || p.category] : ['General']),
+    category: Array.isArray(p.category) ? (p.category[0] || 'General') : (p.category?.name || p.category || 'General'),
   });
 
   const searchQuery = searchParams.get('search') || '';
@@ -48,7 +49,7 @@ const Products = () => {
       const q = searchQuery.toLowerCase();
       r = r.filter(p => p.title?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q));
     }
-    if (selectedCategories.length > 0) r = r.filter(p => selectedCategories.includes(p.category));
+    if (selectedCategories.length > 0) r = r.filter(p => (p.categories || [p.category]).some(c => selectedCategories.includes(c)));
     r = r.filter(p => p.price <= maxPrice);
     switch (sortBy) {
       case 'price_asc': r.sort((a,b) => a.price - b.price); break;
@@ -62,7 +63,7 @@ const Products = () => {
 
   const catCounts = useMemo(() => {
     const c = {};
-    allProducts.forEach(p => { const n = p.category?.name || p.category || 'General'; c[n] = (c[n]||0)+1; });
+    allProducts.forEach(p => { const cats = Array.isArray(p.category) ? p.category : [p.category?.name || p.category || 'General']; cats.forEach(n => { c[n] = (c[n]||0)+1; }); });
     return c;
   }, [allProducts]);
 

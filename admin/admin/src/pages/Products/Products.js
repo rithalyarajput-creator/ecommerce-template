@@ -235,32 +235,114 @@ export default function Products() {
     } catch { addToast('Failed to update', 'error'); }
   };
 
+  const applyFetchedData = (d, url) => {
+    setForm(f => ({
+      ...f,
+      title: d.title || f.title,
+      description: d.description || f.description,
+      price: d.price || f.price,
+      rating: d.rating || f.rating,
+      meeshoLink: url.includes('meesho') ? url : f.meeshoLink,
+      flipkartLink: url.includes('flipkart') ? url : f.flipkartLink,
+      amazonLink: (url.includes('amazon') || url.includes('amzn')) ? url : f.amazonLink,
+    }));
+    if (d.images?.length) {
+      setImages(d.images.map(imgUrl => ({ preview: imgUrl, url: imgUrl, fromUrl: true })));
+    }
+    setUrlModalOpen(false);
+    setImportUrl('');
+    setModalOpen(true);
+  };
+
+  const scrapeFromBrowser = async (url) => {
+    const proxies = [
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+      `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    ];
+    for (const proxy of proxies) {
+      try {
+        const res = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
+        if (res.ok) {
+          const html = await res.text();
+          if (html && html.length > 500) return html;
+        }
+      } catch (_) {}
+    }
+    return null;
+  };
+
+  const parseHtml = (html, url) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    const getMeta = (prop) =>
+      doc.querySelector(`meta[property="${prop}"]`)?.content ||
+      doc.querySelector(`meta[name="${prop}"]`)?.content || '';
+
+    // JSON-LD (best source)
+    let jTitle = '', jDesc = '', jPrice = '', jImages = [], jRating = '';
+    doc.querySelectorAll('script[type="application/ld+json"]').forEach(s => {
+      try {
+        const d = JSON.parse(s.textContent);
+        const item = Array.isArray(d) ? d[0] : d;
+        if (item['@type'] === 'Product' || item.name) {
+          if (!jTitle) jTitle = item.name || '';
+          if (!jDesc) jDesc = item.description || '';
+          if (!jPrice && item.offers) {
+            const o = Array.isArray(item.offers) ? item.offers[0] : item.offers;
+            jPrice = String(o?.price || '');
+          }
+          if (!jRating && item.aggregateRating)
+            jRating = String(item.aggregateRating.ratingValue || '');
+          if (item.image) {
+            const imgs = Array.isArray(item.image) ? item.image : [item.image];
+            jImages.push(...imgs.filter(i => typeof i === 'string'));
+          }
+        }
+      } catch (_) {}
+    });
+
+    const ogImage = getMeta('og:image');
+    const images = [...new Set([...jImages, ...(ogImage ? [ogImage] : [])])].filter(Boolean).slice(0, 5);
+
+    const pageTitle = doc.title
+      .replace(/\s*[-|–]\s*(Meesho|Amazon|Flipkart|Buy Online).*/i, '').trim();
+
+    let scrapedPrice = '';
+    if (!jPrice) {
+      const bodyText = doc.body?.innerText || '';
+      const m = bodyText.match(/(?:₹|Rs\.?)\s*([0-9,]+)/);
+      if (m) scrapedPrice = m[1].replace(/,/g, '');
+    }
+
+    return {
+      title: (jTitle || getMeta('og:title') || getMeta('twitter:title') || pageTitle || '').trim().slice(0, 200),
+      description: (jDesc || getMeta('og:description') || getMeta('description') || '').trim().slice(0, 2000),
+      price: (jPrice || getMeta('og:price:amount') || scrapedPrice || '').replace(/[^0-9.]/g, ''),
+      images,
+      rating: jRating.replace(/[^0-9.]/g, ''),
+    };
+  };
+
   const handleFetchUrl = async () => {
-    if (!importUrl.trim()) { addToast('Please enter a URL', 'error'); return; }
+    const url = importUrl.trim();
+    if (!url) { addToast('Please enter a URL', 'error'); return; }
     setFetchingUrl(true);
     try {
-      const res = await api.post('/scrape', { url: importUrl.trim() });
-      const d = res.data.data;
-      setForm(f => ({
-        ...f,
-        title: d.title || f.title,
-        description: d.description || f.description,
-        price: d.price || f.price,
-        rating: d.rating || f.rating,
-        meeshoLink: importUrl.includes('meesho') ? importUrl : f.meeshoLink,
-        flipkartLink: importUrl.includes('flipkart') ? importUrl : f.flipkartLink,
-        amazonLink: importUrl.includes('amazon') ? importUrl : f.amazonLink,
-      }));
-      // Set fetched images as preview (URL-based, no file)
-      if (d.images?.length) {
-        setImages(d.images.map(url => ({ preview: url, url, fromUrl: true })));
+      const html = await scrapeFromBrowser(url);
+      if (html) {
+        const d = parseHtml(html, url);
+        applyFetchedData(d, url);
+        const hasData = d.title || d.price;
+        addToast(hasData ? 'Product details fetched! Review and save.' : 'Link saved! Fill in the details.', hasData ? 'success' : 'info');
+      } else {
+        applyFetchedData({ title: '', description: '', price: '', rating: '', images: [] }, url);
+        addToast('Link saved! Please fill in the product details.', 'info');
       }
-      setUrlModalOpen(false);
-      setImportUrl('');
-      setModalOpen(true);
-      addToast('Product details fetched! Review and save.', 'success');
-    } catch (err) {
-      addToast(err.response?.data?.message || 'Could not fetch URL. Try manually.', 'error');
+    } catch (_) {
+      applyFetchedData({ title: '', description: '', price: '', rating: '', images: [] }, url);
+      addToast('Link saved! Please fill in the product details.', 'info');
     } finally {
       setFetchingUrl(false);
     }

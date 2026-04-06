@@ -4,116 +4,122 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const { protect, admin } = require("../middleware/auth");
 
+const HEADERS = {
+  "User-Agent": "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  "Accept-Language": "en-IN,en;q=0.9,hi;q=0.8",
+  "Accept-Encoding": "gzip, deflate, br",
+  Referer: "https://www.google.com/",
+  "Cache-Control": "no-cache",
+};
+
+async function fetchHtml(url) {
+  // Strategy 1: Direct fetch
+  try {
+    const res = await axios.get(url, { timeout: 8000, headers: HEADERS, maxRedirects: 5 });
+    if (res.data && res.data.length > 500) return res.data;
+  } catch (_) {}
+
+  // Strategy 2: Via allorigins proxy
+  try {
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const res = await axios.get(proxyUrl, { timeout: 10000, headers: { "User-Agent": HEADERS["User-Agent"] } });
+    if (res.data && res.data.length > 500) return res.data;
+  } catch (_) {}
+
+  // Strategy 3: Via corsproxy
+  try {
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const res = await axios.get(proxyUrl, { timeout: 10000, headers: HEADERS });
+    if (res.data && res.data.length > 500) return res.data;
+  } catch (_) {}
+
+  return null;
+}
+
+function extractData(html, url) {
+  const $ = cheerio.load(html);
+
+  const getMeta = (prop) =>
+    $(`meta[property="${prop}"]`).attr("content") ||
+    $(`meta[name="${prop}"]`).attr("content") ||
+    "";
+
+  // ── JSON-LD (richest source) ────────────────────────────────
+  let jsonTitle = "", jsonDesc = "", jsonPrice = "", jsonImages = [], jsonRating = "";
+  $('script[type="application/ld+json"]').each((_, el) => {
+    try {
+      const data = JSON.parse($(el).html());
+      const item = Array.isArray(data) ? data[0] : data;
+      if (item["@type"] === "Product" || item.name) {
+        if (!jsonTitle && item.name) jsonTitle = item.name;
+        if (!jsonDesc && item.description) jsonDesc = item.description;
+        if (!jsonPrice && item.offers) {
+          const offer = Array.isArray(item.offers) ? item.offers[0] : item.offers;
+          jsonPrice = String(offer?.price || "");
+        }
+        if (!jsonRating && item.aggregateRating) {
+          jsonRating = String(item.aggregateRating.ratingValue || "");
+        }
+        if (item.image) {
+          const imgs = Array.isArray(item.image) ? item.image : [item.image];
+          jsonImages.push(...imgs.filter(i => typeof i === "string"));
+        }
+      }
+    } catch (_) {}
+  });
+
+  // ── Open Graph ──────────────────────────────────────────────
+  const ogTitle = getMeta("og:title") || getMeta("twitter:title");
+  const ogDesc = getMeta("og:description") || getMeta("description");
+  const ogImage = getMeta("og:image");
+  const ogPrice = getMeta("og:price:amount") || getMeta("product:price:amount");
+
+  // ── Page title fallback ─────────────────────────────────────
+  const pageTitle = $("title").text()
+    .replace(/\s*[-|–]\s*(Meesho|Amazon|Flipkart|Buy Online|Shop|Online).*/i, "")
+    .trim();
+
+  // ── Price fallback: scan visible text ──────────────────────
+  let scrapedPrice = "";
+  if (!jsonPrice && !ogPrice) {
+    const bodyText = $("body").text();
+    const match = bodyText.match(/(?:₹|Rs\.?)\s*([0-9,]+)/);
+    if (match) scrapedPrice = match[1].replace(/,/g, "");
+  }
+
+  // ── Images ─────────────────────────────────────────────────
+  const images = [...new Set([
+    ...jsonImages,
+    ...(ogImage ? [ogImage] : []),
+    ...$('meta[property="og:image"]').map((_, el) => $(el).attr("content")).get(),
+  ])].filter(Boolean).slice(0, 5);
+
+  return {
+    title: (jsonTitle || ogTitle || pageTitle || "").trim().slice(0, 200),
+    description: (jsonDesc || ogDesc || "").trim().slice(0, 2000),
+    price: (jsonPrice || ogPrice || scrapedPrice || "").replace(/[^0-9.]/g, ""),
+    images,
+    rating: (jsonRating || "").replace(/[^0-9.]/g, ""),
+  };
+}
+
 // POST /api/scrape  — admin only
-// Body: { url: "https://meesho.com/..." }
 router.post("/", protect, admin, async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ success: false, message: "URL is required" });
 
-  try {
-    const response = await axios.get(url, {
-      timeout: 10000,
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        Referer: "https://www.google.com/",
-      },
-      maxRedirects: 5,
+  const html = await fetchHtml(url);
+
+  if (!html) {
+    return res.status(502).json({
+      success: false,
+      message: "Could not fetch this page. Please fill details manually.",
     });
-
-    const html = response.data;
-    const $ = cheerio.load(html);
-
-    // ── Extract using Open Graph / meta tags ──────────────────
-    const getMeta = (name) =>
-      $(`meta[property="${name}"]`).attr("content") ||
-      $(`meta[name="${name}"]`).attr("content") ||
-      "";
-
-    const title =
-      getMeta("og:title") ||
-      getMeta("twitter:title") ||
-      $("title").text().split("|")[0].split("-")[0].trim() ||
-      "";
-
-    const description =
-      getMeta("og:description") ||
-      getMeta("description") ||
-      getMeta("twitter:description") ||
-      "";
-
-    // Price — try various patterns
-    const priceRaw =
-      getMeta("og:price:amount") ||
-      getMeta("product:price:amount") ||
-      getMeta("twitter:data1") ||
-      "";
-
-    let price = "";
-    if (priceRaw) {
-      price = priceRaw.replace(/[^0-9.]/g, "");
-    } else {
-      // Try to find price in text
-      const priceMatch = html.match(/[₹\$]\s*([0-9,]+(\.[0-9]+)?)/);
-      if (priceMatch) price = priceMatch[1].replace(/,/g, "");
-    }
-
-    // Images — collect up to 5
-    const images = [];
-    const ogImage = getMeta("og:image");
-    if (ogImage) images.push(ogImage);
-
-    $('meta[property="og:image"]').each((_, el) => {
-      const src = $(el).attr("content");
-      if (src && !images.includes(src)) images.push(src);
-    });
-
-    // Also try product image tags
-    $('img[src*="meesho"], img[src*="product"], img[src*="catalog"]').each((_, el) => {
-      const src = $(el).attr("src");
-      if (src && src.startsWith("http") && !images.includes(src)) images.push(src);
-    });
-
-    // Rating
-    const ratingRaw = getMeta("og:rating") || getMeta("twitter:data2") || "";
-    let rating = "";
-    if (ratingRaw) {
-      const rm = ratingRaw.match(/([0-9.]+)/);
-      if (rm) rating = rm[1];
-    }
-
-    // Clean title
-    const cleanTitle = title
-      .replace(/\s*[-|]\s*(Meesho|Amazon|Flipkart|Buy Online).*/i, "")
-      .trim();
-
-    res.json({
-      success: true,
-      data: {
-        title: cleanTitle,
-        description: description.trim(),
-        price: price || "",
-        images: images.slice(0, 5),
-        rating: rating,
-        sourceUrl: url,
-      },
-    });
-  } catch (err) {
-    let message = "Failed to fetch URL";
-    if (err.code === "ECONNABORTED" || err.message.includes("timeout")) {
-      message = "Request timed out. The website took too long to respond.";
-    } else if (err.response?.status === 403) {
-      message = "Website blocked the request (403 Forbidden). Try copying details manually.";
-    } else if (err.response?.status === 404) {
-      message = "Product page not found (404).";
-    } else if (err.message) {
-      message = err.message;
-    }
-    res.status(500).json({ success: false, message });
   }
+
+  const data = extractData(html, url);
+  res.json({ success: true, data: { ...data, sourceUrl: url } });
 });
 
 module.exports = router;

@@ -160,6 +160,8 @@ export default function Products() {
 
   const openAdd = () => { setForm(EMPTY_FORM); setImages([]); setEditProduct(null); setModalOpen(true); };
 
+  const BACKEND_URL = (process.env.REACT_APP_API_URL || 'https://amshine-backend.onrender.com/api').replace('/api', '');
+
   const openEdit = (product) => {
     setEditProduct(product);
     const cats = Array.isArray(product.category)
@@ -168,10 +170,10 @@ export default function Products() {
     setForm({
       title: product.title || '',
       description: product.description || '',
-      price: product.price || '',
-      comparePrice: product.comparePrice || '',
+      price: product.price ?? '',
+      comparePrice: product.comparePrice > 0 ? product.comparePrice : '',
       category: cats,
-      stock: product.stock || '',
+      stock: product.stock ?? '',
       isActive: product.isActive !== false,
       isFeatured: product.isFeatured || false,
       isLatest: product.isLatest !== false,
@@ -181,10 +183,14 @@ export default function Products() {
       meeshoLink: product.meeshoLink || '',
       flipkartLink: product.flipkartLink || '',
       amazonLink: product.amazonLink || '',
-      rating: product.rating || '',
-      reviewCount: product.reviewCount || '',
+      rating: product.rating > 0 ? product.rating : '',
+      reviewCount: product.reviewCount > 0 ? product.reviewCount : '',
     });
-    setImages((product.images || []).map(url => ({ preview: url.startsWith('http') ? url : `https://amshine-backend.onrender.com${url}`, url })));
+    // Keep original relative URL for saving; use full URL for preview
+    setImages((product.images || []).map(url => ({
+      preview: url.startsWith('http') ? url : `${BACKEND_URL}${url}`,
+      url: url.startsWith('http') ? url.replace(BACKEND_URL, '') : url,
+    })));
     setModalOpen(true);
   };
 
@@ -193,6 +199,21 @@ export default function Products() {
     setSaving(true);
     try {
       const payload = { ...form };
+
+      // Strip empty strings for Number fields so DB values aren't overwritten with 0
+      ['comparePrice', 'stock', 'rating', 'reviewCount'].forEach(k => {
+        if (payload[k] === '' || payload[k] === null) delete payload[k];
+      });
+
+      // On edit: include existing image paths so they aren't wiped
+      if (editProduct) {
+        payload.images = images
+          .filter(img => !img.file)
+          .map(img => img.url || img.preview)
+          .filter(Boolean)
+          .map(u => u.startsWith('http') ? u.replace(BACKEND_URL, '') : u);
+      }
+
       let savedProduct;
       if (editProduct) {
         const res = await api.put(`/products/${editProduct._id}`, payload);

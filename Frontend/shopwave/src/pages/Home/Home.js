@@ -120,19 +120,63 @@ const Home = () => {
       <CategorySection categories={categories}/>
       <FeaturedProducts products={products} loading={loading}/>
 
-      {/* Trust Bar */}
-      <div className="trust">
-        <div className="trust-grid">
+      {/* Brand Promise Section */}
+      <div style={{background:'var(--maroon-dark)',overflow:'hidden'}}>
+        {/* Marquee Strip */}
+        <div style={{background:'var(--gold)',padding:'10px 0',overflow:'hidden'}}>
+          <div style={{display:'inline-flex',gap:0,animation:'ticker 25s linear infinite',whiteSpace:'nowrap'}}>
+            {['✦ SINCE 2010','HANDCRAFTED IN INDIA','BIS HALLMARKED','10,000+ HAPPY CUSTOMERS','FREE SHIPPING ₹5,000+','22K & 18K GOLD CERTIFIED','30-DAY RETURNS','COD AVAILABLE',
+              '✦ SINCE 2010','HANDCRAFTED IN INDIA','BIS HALLMARKED','10,000+ HAPPY CUSTOMERS','FREE SHIPPING ₹5,000+','22K & 18K GOLD CERTIFIED','30-DAY RETURNS','COD AVAILABLE'].map((t,i)=>(
+              <span key={i} style={{fontSize:'10px',letterSpacing:'3px',fontWeight:'700',color:'var(--maroon-dark)',padding:'0 28px',fontFamily:"'Jost',sans-serif",textTransform:'uppercase'}}>{t}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Stats + Promise */}
+        <div style={{padding:'clamp(40px,6vw,72px) clamp(20px,5vw,64px)',display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'0',alignItems:'center'}}>
           {[
-            {icon:'🏆', title:'BIS Hallmarked', desc:'All gold pieces certified with BIS hallmark, guaranteeing 22K or 18K purity.'},
-            {icon:'🚚', title:'Free Delivery', desc:'Free insured shipping above ₹5,000 across India.'},
-            {icon:'✨', title:'Lifetime Polish', desc:'Free cleaning and minor repairs for the lifetime of your jewellery.'},
-            {icon:'🔄', title:'30-Day Returns', desc:'Hassle-free returns and exchanges within 30 days.'},
+            {num:'10K+', label:'Happy Customers', sub:'Across India'},
+            {num:'500+', label:'Unique Designs', sub:'New arrivals every season'},
+            {num:'15+', label:'Years of Craft', sub:'Legacy since 2010'},
+            {num:'100%', label:'Certified Gold', sub:'BIS Hallmarked'},
           ].map((item,i)=>(
-            <div key={i} className="trust-item">
-              <div className="trust-icon">{item.icon}</div>
-              <div className="trust-title">{item.title}</div>
-              <div className="trust-desc">{item.desc}</div>
+            <div key={i} style={{textAlign:'center',padding:'20px 16px',borderLeft: i>0 ? '1px solid rgba(245,230,192,0.1)' : 'none'}}>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'clamp(36px,4vw,52px)',fontWeight:'300',color:'var(--gold-bright)',lineHeight:1,marginBottom:'10px',letterSpacing:'-1px'}}>{item.num}</div>
+              <div style={{fontSize:'clamp(9px,1.5vw,12px)',letterSpacing:'2px',textTransform:'uppercase',color:'var(--gold-pale)',fontWeight:'600',marginBottom:'6px'}}>{item.label}</div>
+              <div style={{fontSize:'11px',color:'rgba(245,230,192,0.4)'}}>{item.sub}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Divider */}
+        <div style={{height:'1px',background:'rgba(245,230,192,0.08)',margin:'0 clamp(20px,5vw,64px)'}}/>
+
+        {/* 3 Promise Cards */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:0,padding:'0 clamp(20px,5vw,64px) clamp(40px,6vw,72px)'}}>
+          {[
+            {
+              icon:'◈',
+              title:'Pure by Promise',
+              desc:'Every piece we craft carries a BIS hallmark — your guarantee of 22K or 18K gold purity. We believe luxury begins with honesty.',
+            },
+            {
+              icon:'◇',
+              title:'Artisan Craftsmanship',
+              desc:'Shaped by the hands of master artisans with decades of experience. Each jewel is a story of patience, precision, and passion.',
+            },
+            {
+              icon:'◉',
+              title:'Timeless Heritage',
+              desc:'Rooted in India\'s rich jewellery tradition, our designs celebrate the beauty of our culture — from bridal classics to everyday elegance.',
+            },
+          ].map((card,i)=>(
+            <div key={i} style={{padding:'clamp(28px,4vw,48px) clamp(20px,3vw,40px)',borderLeft: i>0 ? '1px solid rgba(245,230,192,0.08)' : 'none',transition:'background .3s'}}
+              onMouseEnter={e=>e.currentTarget.style.background='rgba(245,230,192,0.04)'}
+              onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'32px',color:'var(--gold)',marginBottom:'20px',lineHeight:1}}>{card.icon}</div>
+              <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'24px',fontWeight:'400',color:'var(--gold-pale)',marginBottom:'14px',letterSpacing:'0.5px'}}>{card.title}</div>
+              <div style={{width:'32px',height:'1px',background:'var(--gold)',marginBottom:'16px',opacity:0.6}}/>
+              <div style={{fontSize:'13px',color:'rgba(245,230,192,0.5)',lineHeight:'1.9',fontWeight:'300'}}>{card.desc}</div>
             </div>
           ))}
         </div>

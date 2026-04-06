@@ -124,6 +124,9 @@ export default function Products() {
   const [deleting, setDeleting] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const importFileRef = useRef();
+  const [urlModalOpen, setUrlModalOpen] = useState(false);
+  const [importUrl, setImportUrl] = useState('');
+  const [fetchingUrl, setFetchingUrl] = useState(false);
   const { addToast } = useToast();
 
   const fetchProducts = useCallback(async () => {
@@ -232,6 +235,37 @@ export default function Products() {
     } catch { addToast('Failed to update', 'error'); }
   };
 
+  const handleFetchUrl = async () => {
+    if (!importUrl.trim()) { addToast('Please enter a URL', 'error'); return; }
+    setFetchingUrl(true);
+    try {
+      const res = await api.post('/scrape', { url: importUrl.trim() });
+      const d = res.data.data;
+      setForm(f => ({
+        ...f,
+        title: d.title || f.title,
+        description: d.description || f.description,
+        price: d.price || f.price,
+        rating: d.rating || f.rating,
+        meeshoLink: importUrl.includes('meesho') ? importUrl : f.meeshoLink,
+        flipkartLink: importUrl.includes('flipkart') ? importUrl : f.flipkartLink,
+        amazonLink: importUrl.includes('amazon') ? importUrl : f.amazonLink,
+      }));
+      // Set fetched images as preview (URL-based, no file)
+      if (d.images?.length) {
+        setImages(d.images.map(url => ({ preview: url, url, fromUrl: true })));
+      }
+      setUrlModalOpen(false);
+      setImportUrl('');
+      setModalOpen(true);
+      addToast('Product details fetched! Review and save.', 'success');
+    } catch (err) {
+      addToast(err.response?.data?.message || 'Could not fetch URL. Try manually.', 'error');
+    } finally {
+      setFetchingUrl(false);
+    }
+  };
+
   const handleExport = () => {
     const headers = ['Title', 'Price', 'Compare Price', 'Stock', 'Category', 'Rating', 'Reviews', 'Status', 'Meesho Link', 'Flipkart Link'];
     const rows = products.map(p => [p.title, p.price, p.comparePrice || '', p.stock, p.category?.name || '', p.rating || '', p.reviewCount || '', p.isActive ? 'Active' : 'Inactive', p.meeshoLink || '', p.flipkartLink || '']);
@@ -324,8 +358,12 @@ export default function Products() {
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn btn-ghost btn-sm" onClick={handleDownloadTemplate}>📥 Template</button>
-          <button className="btn btn-ghost btn-sm" onClick={() => setImportModalOpen(true)}>📤 Import</button>
-          <button className="btn btn-ghost btn-sm" onClick={handleExport}>📊 Export CSV</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => setImportModalOpen(true)}>📤 Import CSV</button>
+          <button className="btn btn-ghost btn-sm" onClick={handleExport}>📊 Export</button>
+          <button className="btn btn-secondary" onClick={() => { setForm(EMPTY_FORM); setImages([]); setEditProduct(null); setImportUrl(''); setUrlModalOpen(true); }}
+            style={{ background: '#7C3AED', color: '#fff', border: 'none' }}>
+            🔗 Import from URL
+          </button>
           <button className="btn btn-primary" onClick={openAdd}>＋ Add Product</button>
         </div>
       </div>
@@ -483,6 +521,53 @@ export default function Products() {
             <div style={{ fontSize: 32, marginBottom: 8 }}>📁</div>
             <div style={{ fontSize: 14, fontWeight: 600 }}>Click to select CSV file</div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>Supports .csv and .xlsx</div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── Import from URL Modal ── */}
+      <Modal isOpen={urlModalOpen} onClose={() => setUrlModalOpen(false)} title="🔗 Import Product from URL" size="sm"
+        footer={
+          <>
+            <button className="btn btn-ghost" onClick={() => setUrlModalOpen(false)}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleFetchUrl} disabled={fetchingUrl}>
+              {fetchingUrl ? <><span className="spinner" /> Fetching...</> : '✨ Fetch & Auto-Fill'}
+            </button>
+          </>
+        }
+      >
+        <div style={{ padding: '8px 0' }}>
+          <div style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: 10, padding: '14px 16px', marginBottom: 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#7C3AED', marginBottom: 6 }}>How it works:</div>
+            <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.7 }}>
+              1. Copy any product link from Meesho, Amazon, or Flipkart<br/>
+              2. Paste it below and click Fetch<br/>
+              3. Title, price, description &amp; images will auto-fill<br/>
+              4. Review and click Save
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Product URL</label>
+            <input
+              className="form-control"
+              value={importUrl}
+              onChange={e => setImportUrl(e.target.value)}
+              placeholder="https://meesho.com/product-name/p/123456"
+              autoFocus
+              onKeyDown={e => e.key === 'Enter' && handleFetchUrl()}
+            />
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
+              Supports: Meesho · Amazon · Flipkart · any product page
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+            {['meesho.com', 'amazon.in', 'flipkart.com'].map(site => (
+              <span key={site} style={{ fontSize: 11, background: '#F3F4F6', border: '1px solid var(--border)', borderRadius: 20, padding: '3px 10px', color: 'var(--text-muted)' }}>
+                {site}
+              </span>
+            ))}
           </div>
         </div>
       </Modal>

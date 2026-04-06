@@ -15,6 +15,7 @@ const couponRoutes = require("./routes/couponRoutes");
 const leadRoutes = require("./routes/leadRoutes");
 const faqRoutes = require("./routes/faqRoutes");
 const userRoutes = require("./routes/userRoutes");
+const scrapeRoutes = require("./routes/scrapeRoutes");
 
 // Connect to MongoDB
 connectDB();
@@ -44,6 +45,7 @@ app.use("/api/coupons", couponRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/faqs", faqRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/scrape", scrapeRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

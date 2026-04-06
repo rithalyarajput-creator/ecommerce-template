@@ -32,7 +32,7 @@ const Banner = () => {
   }, []);
 
   useEffect(() => {
-    timer.current = setInterval(() => setActive(a => (a + 1) % SLIDES.length), 4500);
+    timer.current = setInterval(() => setActive(a => (a + 1) % SLIDES.length), 4000);
     return () => clearInterval(timer.current);
   }, []);
 

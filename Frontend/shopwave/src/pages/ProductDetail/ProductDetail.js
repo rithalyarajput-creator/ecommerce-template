@@ -163,17 +163,6 @@ const ProductDetail = () => {
               </button>
             </div>
 
-            {/* Description */}
-            {product.description && (
-              <div className="pd-desc-section">
-                <h3 className="pd-desc-title">Description</h3>
-                {product.description.includes('<')
-                  ? <div className="pd-desc-body" dangerouslySetInnerHTML={{__html: product.description}}/>
-                  : <div className="pd-desc-body">{product.description}</div>
-                }
-              </div>
-            )}
-
             {/* Marketplace — only if admin added links */}
             {marketLinks.length > 0 && (
               <div className="pd-market-box">
@@ -193,6 +182,17 @@ const ProductDetail = () => {
                     </a>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Description — always last */}
+            {product.description && (
+              <div className="pd-desc-section">
+                <h3 className="pd-desc-title">Description</h3>
+                {product.description.includes('<')
+                  ? <div className="pd-desc-body" dangerouslySetInnerHTML={{__html: product.description}}/>
+                  : <div className="pd-desc-body">{product.description}</div>
+                }
               </div>
             )}
           </div>

@@ -37,7 +37,7 @@ const TestimonialsCarousel = ({ testimonials }) => {
     if (total <= 1) return;
     startTimer();
     return () => clearInterval(timerRef.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line
   }, [total]);
 
   const slideTo = (direction) => {

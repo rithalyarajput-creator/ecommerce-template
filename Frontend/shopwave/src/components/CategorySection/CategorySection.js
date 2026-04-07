@@ -47,7 +47,7 @@ const CategorySection = ({ categories = [] }) => {
   };
 
   return (
-    <section className="cat-sec section">
+    <section className="cat-sec section" style={{paddingTop:'40px'}}>
       <div className="sec-head" style={{ flexDirection:'column', alignItems:'center', textAlign:'center', marginBottom:'52px' }}>
         <div className="sec-eyebrow">Browse</div>
         <h2 className="sec-title">All <em>Categories</em></h2>

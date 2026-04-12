@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FiUsers, FiPackage, FiShoppingBag, FiDollarSign, FiPlus, FiTrash2, FiEdit, FiTag, FiHome, FiCheckCircle, FiDownload, FiGift, FiUserCheck, FiClock, FiAlertTriangle, FiTrendingUp, FiFilter, FiEye, FiX, FiSearch } from 'react-icons/fi';
+import { FiUsers, FiPackage, FiShoppingBag, FiDollarSign, FiPlus, FiTrash2, FiEdit, FiTag, FiHome, FiCheckCircle, FiDownload, FiGift, FiUserCheck, FiClock, FiAlertTriangle, FiTrendingUp, FiFilter, FiEye, FiX, FiSearch, FiChevronRight, FiChevronDown, FiFolder, FiFolderPlus } from 'react-icons/fi';
 import API, { API_URL } from '../../utils/api';
 import { toast } from 'react-toastify';
 import './Admin.css';
@@ -33,10 +33,12 @@ const Admin = () => {
     const [editProductImages, setEditProductImages] = useState([]);
     const [editMainImage, setEditMainImage] = useState('');
 
-    // Category form
-    const [showCatForm, setShowCatForm] = useState(false);
-    const [catForm, setCatForm] = useState({ name: '', description: '' });
-    const [catImage, setCatImage] = useState(null);
+    // Category tree + form
+    const [categoryTree, setCategoryTree] = useState([]);
+    const [expandedCats, setExpandedCats] = useState({});
+    const [expandedSubs, setExpandedSubs] = useState({});
+    // catNodeForm: { level: 'cat'|'sub'|'subsub', mode: 'create'|'edit', id, parentId, name, description, image, currentImage }
+    const [catNodeForm, setCatNodeForm] = useState(null);
 
     // Coupons
     const [showCoupForm, setShowCoupForm] = useState(false);
@@ -63,6 +65,9 @@ const Admin = () => {
     };
     const fetchCategories = async () => {
         try { const { data } = await API.get('/api/categories.php?action=list'); setCategories(data); } catch (err) { console.error(err); }
+    };
+    const fetchCategoryTree = async () => {
+        try { const { data } = await API.get('/api/categories.php?action=tree'); setCategoryTree(data); } catch (err) { console.error(err); }
     };
     const fetchSubcategories = async (catId) => {
         if (!catId) return setSubcategories([]);
@@ -110,7 +115,7 @@ const Admin = () => {
         if (tab === 'products') { fetchProducts(); fetchCategories(); fetchProductStats(); }
         if (tab === 'orders') { fetchOrders(); fetchOrderAnalytics(); }
         if (tab === 'users') fetchUsers();
-        if (tab === 'categories') fetchCategories();
+        if (tab === 'categories') { fetchCategories(); fetchCategoryTree(); }
         if (tab === 'coupons') fetchCoupons();
         if (tab === 'leads') { fetchLeads(); fetchLeadStats(); }
     }, [tab, fetchOrders, fetchOrderAnalytics, fetchLeads]);
@@ -199,26 +204,67 @@ const Admin = () => {
         } catch (err) { toast.error('Error uploading'); }
     };
 
-    // --- Categories ---
-    const handleCategorySubmit = async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('name', catForm.name);
-        formData.append('description', catForm.description);
-        if (catImage) formData.append('image', catImage);
-        try {
-            await API.post('/api/categories.php?action=create', formData);
-            toast.success('Category added!');
-            setShowCatForm(false); setCatForm({ name: '', description: '' }); setCatImage(null);
-            fetchCategories();
-        } catch (err) { toast.error('Error'); }
+    // --- Categories (tree CRUD) ---
+    const toggleCat = (id) => setExpandedCats(s => ({ ...s, [id]: !s[id] }));
+    const toggleSub = (id) => setExpandedSubs(s => ({ ...s, [id]: !s[id] }));
+
+    const openCatForm = (level, mode, parentId = null, node = null) => {
+        setCatNodeForm({
+            level, mode,
+            id: node ? node.id : null,
+            parentId,
+            name: node ? node.name : '',
+            description: node ? node.description || '' : '',
+            image: null,
+            currentImage: node ? node.image || '' : ''
+        });
     };
 
-    const deleteCategory = async (id) => {
-        if (!window.confirm('Delete this category?')) return;
-        await API.delete(`/api/categories.php?action=delete&id=${id}`);
-        toast.success('Category deleted!');
-        fetchCategories();
+    const submitCatNode = async (e) => {
+        e.preventDefault();
+        const f = catNodeForm;
+        const fd = new FormData();
+        fd.append('name', f.name);
+        fd.append('description', f.description);
+        if (f.image) fd.append('image', f.image);
+
+        let url = '';
+        if (f.level === 'cat') {
+            url = f.mode === 'create'
+                ? '/api/categories.php?action=create'
+                : `/api/categories.php?action=update&id=${f.id}`;
+        } else if (f.level === 'sub') {
+            if (f.mode === 'create') { fd.append('category_id', f.parentId); url = '/api/subcategories.php?action=create-sub'; }
+            else { url = `/api/subcategories.php?action=update-sub&id=${f.id}`; }
+        } else {
+            if (f.mode === 'create') { fd.append('subcategory_id', f.parentId); url = '/api/subcategories.php?action=create-sub-sub'; }
+            else { url = `/api/subcategories.php?action=update-sub-sub&id=${f.id}`; }
+        }
+
+        try {
+            await API.post(url, fd);
+            toast.success(f.mode === 'create' ? 'Added successfully!' : 'Updated successfully!');
+            setCatNodeForm(null);
+            fetchCategoryTree();
+            if (f.level === 'cat') fetchCategories();
+        } catch (err) { toast.error('Error saving'); }
+    };
+
+    const deleteCategoryNode = async (level, id, productCount) => {
+        const levelName = level === 'cat' ? 'category' : level === 'sub' ? 'subcategory' : 'sub-subcategory';
+        let msg = `Delete this ${levelName}?`;
+        if (productCount > 0) msg += `\n\nWarning: ${productCount} product(s) are linked. Their ${levelName} will be unset.`;
+        if (!window.confirm(msg)) return;
+
+        let url = '';
+        if (level === 'cat') url = `/api/categories.php?action=delete&id=${id}`;
+        else if (level === 'sub') url = `/api/subcategories.php?action=delete-sub&id=${id}`;
+        else url = `/api/subcategories.php?action=delete-sub-sub&id=${id}`;
+
+        await API.delete(url);
+        toast.success('Deleted!');
+        fetchCategoryTree();
+        if (level === 'cat') fetchCategories();
     };
 
     // --- Orders ---
@@ -621,39 +667,140 @@ const Admin = () => {
                 {tab === 'categories' && (
                     <div className="admin-content">
                         <div className="tab-header">
-                            <div><p className="tab-subtitle">{categories.length} categories total</p></div>
-                            <button className="btn-add" onClick={() => setShowCatForm(!showCatForm)}>
-                                <FiPlus /> {showCatForm ? 'Cancel' : 'Add Category'}
+                            <div>
+                                <p className="tab-subtitle">
+                                    {categoryTree.length} categories •{' '}
+                                    {categoryTree.reduce((n, c) => n + (c.subcategories?.length || 0), 0)} subcategories •{' '}
+                                    {categoryTree.reduce((n, c) => n + (c.subcategories || []).reduce((m, s) => m + (s.sub_subcategories?.length || 0), 0), 0)} sub-sub
+                                </p>
+                            </div>
+                            <button className="btn-add" onClick={() => openCatForm('cat', 'create')}>
+                                <FiPlus /> Add Category
                             </button>
                         </div>
 
-                        {showCatForm && (
-                            <div className="dashboard-card">
-                                <h3 className="card-title">Add New Category</h3>
-                                <form className="admin-form" onSubmit={handleCategorySubmit}>
-                                    <div className="form-group"><label>Category Name *</label>
-                                        <input placeholder="e.g., Jewellery" value={catForm.name} onChange={(e) => setCatForm({ ...catForm, name: e.target.value })} required /></div>
-                                    <div className="form-group"><label>Description</label>
-                                        <textarea placeholder="Category description..." value={catForm.description} onChange={(e) => setCatForm({ ...catForm, description: e.target.value })} /></div>
-                                    <div className="form-group"><label>Category Image</label>
-                                        <input type="file" accept="image/*" onChange={(e) => setCatImage(e.target.files[0])} /></div>
-                                    <button type="submit" className="btn-submit">Add Category</button>
-                                </form>
+                        <div className="dashboard-card">
+                            <div className="cat-tree">
+                                {categoryTree.length === 0 && <p className="empty-msg">No categories yet. Click "Add Category" to get started.</p>}
+
+                                {categoryTree.map(cat => (
+                                    <div key={cat.id} className="cat-tree-node level-1">
+                                        <div className="cat-row">
+                                            <button className="tree-toggle" onClick={() => toggleCat(cat.id)}>
+                                                {expandedCats[cat.id] ? <FiChevronDown /> : <FiChevronRight />}
+                                            </button>
+                                            <img className="cat-thumb" src={getImgUrl(cat.image)} alt="" />
+                                            <div className="cat-info">
+                                                <strong>{cat.name}</strong>
+                                                <small>{cat.description || 'No description'}</small>
+                                            </div>
+                                            <div className="cat-meta">
+                                                <span className="count-badge">{cat.product_count} products</span>
+                                                <span className="count-badge secondary">{cat.subcategories?.length || 0} subs</span>
+                                            </div>
+                                            <div className="cat-actions">
+                                                <button className="btn-action edit" title="Add Subcategory" onClick={() => openCatForm('sub', 'create', cat.id)}><FiFolderPlus /></button>
+                                                <button className="btn-action edit" title="Edit" onClick={() => openCatForm('cat', 'edit', null, cat)}><FiEdit /></button>
+                                                <button className="btn-action delete" title="Delete" onClick={() => deleteCategoryNode('cat', cat.id, cat.product_count)}><FiTrash2 /></button>
+                                            </div>
+                                        </div>
+
+                                        {expandedCats[cat.id] && (
+                                            <div className="cat-children">
+                                                {(cat.subcategories || []).length === 0 && (
+                                                    <p className="empty-branch">No subcategories. <button className="inline-link" onClick={() => openCatForm('sub', 'create', cat.id)}>+ Add one</button></p>
+                                                )}
+                                                {(cat.subcategories || []).map(sub => (
+                                                    <div key={sub.id} className="cat-tree-node level-2">
+                                                        <div className="cat-row">
+                                                            <button className="tree-toggle" onClick={() => toggleSub(sub.id)}>
+                                                                {expandedSubs[sub.id] ? <FiChevronDown /> : <FiChevronRight />}
+                                                            </button>
+                                                            <img className="cat-thumb small" src={getImgUrl(sub.image)} alt="" />
+                                                            <div className="cat-info">
+                                                                <strong>{sub.name}</strong>
+                                                                <small>{sub.description || '—'}</small>
+                                                            </div>
+                                                            <div className="cat-meta">
+                                                                <span className="count-badge">{sub.product_count} products</span>
+                                                                <span className="count-badge secondary">{sub.sub_subcategories?.length || 0} sub-sub</span>
+                                                            </div>
+                                                            <div className="cat-actions">
+                                                                <button className="btn-action edit" title="Add Sub-subcategory" onClick={() => openCatForm('subsub', 'create', sub.id)}><FiFolderPlus /></button>
+                                                                <button className="btn-action edit" title="Edit" onClick={() => openCatForm('sub', 'edit', cat.id, sub)}><FiEdit /></button>
+                                                                <button className="btn-action delete" title="Delete" onClick={() => deleteCategoryNode('sub', sub.id, sub.product_count)}><FiTrash2 /></button>
+                                                            </div>
+                                                        </div>
+
+                                                        {expandedSubs[sub.id] && (
+                                                            <div className="cat-children">
+                                                                {(sub.sub_subcategories || []).length === 0 && (
+                                                                    <p className="empty-branch">No sub-subcategories. <button className="inline-link" onClick={() => openCatForm('subsub', 'create', sub.id)}>+ Add one</button></p>
+                                                                )}
+                                                                {(sub.sub_subcategories || []).map(ss => (
+                                                                    <div key={ss.id} className="cat-tree-node level-3">
+                                                                        <div className="cat-row">
+                                                                            <FiFolder className="leaf-icon" />
+                                                                            <img className="cat-thumb small" src={getImgUrl(ss.image)} alt="" />
+                                                                            <div className="cat-info">
+                                                                                <strong>{ss.name}</strong>
+                                                                                <small>{ss.description || '—'}</small>
+                                                                            </div>
+                                                                            <div className="cat-meta">
+                                                                                <span className="count-badge">{ss.product_count} products</span>
+                                                                            </div>
+                                                                            <div className="cat-actions">
+                                                                                <button className="btn-action edit" title="Edit" onClick={() => openCatForm('subsub', 'edit', sub.id, ss)}><FiEdit /></button>
+                                                                                <button className="btn-action delete" title="Delete" onClick={() => deleteCategoryNode('subsub', ss.id, ss.product_count)}><FiTrash2 /></button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {catNodeForm && (
+                            <div className="modal-overlay" onClick={() => setCatNodeForm(null)}>
+                                <div className="modal" onClick={(e) => e.stopPropagation()}>
+                                    <div className="modal-header">
+                                        <h3>
+                                            {catNodeForm.mode === 'create' ? 'Add' : 'Edit'}{' '}
+                                            {catNodeForm.level === 'cat' ? 'Category' : catNodeForm.level === 'sub' ? 'Subcategory' : 'Sub-subcategory'}
+                                        </h3>
+                                        <button className="modal-close" onClick={() => setCatNodeForm(null)}><FiX /></button>
+                                    </div>
+                                    <form className="admin-form" style={{padding:'18px 22px'}} onSubmit={submitCatNode}>
+                                        <div className="form-group">
+                                            <label>Name *</label>
+                                            <input value={catNodeForm.name} onChange={(e) => setCatNodeForm({ ...catNodeForm, name: e.target.value })} required autoFocus />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Description</label>
+                                            <textarea value={catNodeForm.description} onChange={(e) => setCatNodeForm({ ...catNodeForm, description: e.target.value })} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Image {catNodeForm.mode === 'edit' && '(leave empty to keep current)'}</label>
+                                            <input type="file" accept="image/*" onChange={(e) => setCatNodeForm({ ...catNodeForm, image: e.target.files[0] })} />
+                                            {catNodeForm.currentImage && (
+                                                <img src={getImgUrl(catNodeForm.currentImage)} alt="" style={{width:'80px',height:'80px',objectFit:'cover',borderRadius:'4px',marginTop:'8px',border:'1px solid #e0e0e0'}} />
+                                            )}
+                                        </div>
+                                        <div style={{display:'flex',gap:'10px',justifyContent:'flex-end',marginTop:'10px'}}>
+                                            <button type="button" className="btn-action view" onClick={() => setCatNodeForm(null)}>Cancel</button>
+                                            <button type="submit" className="btn-submit">{catNodeForm.mode === 'create' ? 'Create' : 'Save Changes'}</button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         )}
-
-                        <div className="categories-admin-grid">
-                            {categories.map(cat => (
-                                <div key={cat.id} className="cat-admin-card">
-                                    <img src={getImgUrl(cat.image)} alt={cat.name} />
-                                    <div className="cat-admin-info">
-                                        <h4>{cat.name}</h4>
-                                        <p>{cat.description}</p>
-                                        <button className="btn-action delete" onClick={() => deleteCategory(cat.id)}><FiTrash2 /> Delete</button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
                     </div>
                 )}
 

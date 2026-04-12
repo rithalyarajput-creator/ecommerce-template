@@ -7,6 +7,47 @@ $db = (new Database())->connect();
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? 'list';
 
+// Save upload and convert to WebP for smaller size and faster loading
+function saveAsWebP($tmpPath, $origName) {
+    $uploadDir = '../uploads/products/';
+    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+
+    $filename = time() . '_' . bin2hex(random_bytes(4)) . '.webp';
+    $targetPath = $uploadDir . $filename;
+
+    $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+    $img = null;
+    if ($ext === 'jpg' || $ext === 'jpeg') {
+        $img = @imagecreatefromjpeg($tmpPath);
+    } elseif ($ext === 'png') {
+        $img = @imagecreatefrompng($tmpPath);
+        if ($img) {
+            imagepalettetotruecolor($img);
+            imagealphablending($img, true);
+            imagesavealpha($img, true);
+        }
+    } elseif ($ext === 'webp') {
+        // Already webp, just move
+        if (move_uploaded_file($tmpPath, $targetPath)) return '/uploads/products/' . $filename;
+        return null;
+    }
+
+    if ($img) {
+        if (imagewebp($img, $targetPath, 85)) {
+            imagedestroy($img);
+            return '/uploads/products/' . $filename;
+        }
+        imagedestroy($img);
+    }
+
+    // Fallback - save as-is
+    $fallbackName = time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+    if (move_uploaded_file($tmpPath, $uploadDir . $fallbackName)) {
+        return '/uploads/products/' . $fallbackName;
+    }
+    return null;
+}
+
 if ($method === 'GET' && $action === 'list') {
     $page = intval($_GET['page'] ?? 1);
     $limit = intval($_GET['limit'] ?? 12);
@@ -88,27 +129,24 @@ if ($method === 'POST' && $action === 'create') {
 
     $image = null;
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-        $filename = time() . '_' . rand(1000, 9999) . '.' . $ext;
-        move_uploaded_file($_FILES['image']['tmp_name'], '../uploads/' . $filename);
-        $image = '/uploads/' . $filename;
+        $image = saveAsWebP($_FILES['image']['tmp_name'], $_FILES['image']['name']);
     }
 
     $stmt = $db->prepare("INSERT INTO products (name, description, price, sale_price, category_id, subcategory_id, sub_subcategory_id, image, stock, featured, brand, meesho_link, flipkart_link, amazon_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([$name, $description, $price, $sale_price ?: null, $category_id ?: null, $subcategory_id ?: null, $sub_subcategory_id ?: null, $image, $stock, $featured, $brand, $meesho_link, $flipkart_link, $amazon_link]);
     $productId = $db->lastInsertId();
 
-    // Handle additional images
+    // Handle additional images - all converted to webp
     if (isset($_FILES['images'])) {
         $files = $_FILES['images'];
         $count = is_array($files['name']) ? count($files['name']) : 0;
         for ($i = 0; $i < $count; $i++) {
             if ($files['error'][$i] === 0) {
-                $ext = pathinfo($files['name'][$i], PATHINFO_EXTENSION);
-                $filename = time() . '_' . rand(1000, 9999) . '_' . $i . '.' . $ext;
-                move_uploaded_file($files['tmp_name'][$i], '../uploads/' . $filename);
-                $imgStmt = $db->prepare("INSERT INTO product_images (product_id, image_url, sort_order) VALUES (?, ?, ?)");
-                $imgStmt->execute([$productId, '/uploads/' . $filename, $i]);
+                $imgPath = saveAsWebP($files['tmp_name'][$i], $files['name'][$i]);
+                if ($imgPath) {
+                    $imgStmt = $db->prepare("INSERT INTO product_images (product_id, image_url, sort_order) VALUES (?, ?, ?)");
+                    $imgStmt->execute([$productId, $imgPath, $i]);
+                }
             }
         }
     }
@@ -135,10 +173,7 @@ if ($method === 'POST' && $action === 'update') {
     $amazon_link = $_POST['amazon_link'] ?? '';
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-        $filename = time() . '_' . rand(1000, 9999) . '.' . $ext;
-        move_uploaded_file($_FILES['image']['tmp_name'], '../uploads/' . $filename);
-        $image = '/uploads/' . $filename;
+        $image = saveAsWebP($_FILES['image']['tmp_name'], $_FILES['image']['name']);
         $stmt = $db->prepare("UPDATE products SET name=?, description=?, price=?, sale_price=?, category_id=?, subcategory_id=?, sub_subcategory_id=?, image=?, stock=?, featured=?, brand=?, meesho_link=?, flipkart_link=?, amazon_link=? WHERE id=?");
         $stmt->execute([$name, $description, $price, $sale_price ?: null, $category_id ?: null, $subcategory_id ?: null, $sub_subcategory_id ?: null, $image, $stock, $featured, $brand, $meesho_link, $flipkart_link, $amazon_link, $id]);
     } else {
@@ -199,11 +234,10 @@ if ($method === 'POST' && $action === 'add-images') {
 
         for ($i = 0; $i < $count; $i++) {
             if ($files['error'][$i] === 0) {
-                $ext = pathinfo($files['name'][$i], PATHINFO_EXTENSION);
-                $filename = time() . '_' . rand(1000, 9999) . '_' . $i . '.' . $ext;
-                if (move_uploaded_file($files['tmp_name'][$i], '../uploads/' . $filename)) {
+                $imgPath = saveAsWebP($files['tmp_name'][$i], $files['name'][$i]);
+                if ($imgPath) {
                     $imgStmt = $db->prepare("INSERT INTO product_images (product_id, image_url, sort_order) VALUES (?, ?, ?)");
-                    $imgStmt->execute([$productId, '/uploads/' . $filename, $nextOrder + $i]);
+                    $imgStmt->execute([$productId, $imgPath, $nextOrder + $i]);
                     $added++;
                 }
             }

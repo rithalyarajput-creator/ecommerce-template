@@ -68,3 +68,21 @@
     .detail-info h1 { font-size: 1.2rem; }
     .detail-price .price { font-size: 1.4rem; }
 }
+
+/* Enquire button + modal */
+.btn-enquire { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: #fff; color: #172337; border: 1px solid #172337; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.15s; }
+.btn-enquire:hover { background: #172337; color: #fff; }
+.enquire-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.enquire-modal { background: #fff; border-radius: 8px; width: 100%; max-width: 480px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+.enquire-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 18px 22px; border-bottom: 1px solid #eee; }
+.enquire-header h3 { color: #172337; font-size: 1.1rem; margin-bottom: 2px; }
+.enquire-header small { color: #878787; font-size: 0.8rem; }
+.enquire-close { background: none; border: none; cursor: pointer; color: #666; font-size: 1.2rem; display: flex; padding: 4px; }
+.enquire-close:hover { color: #e53935; }
+.enquire-form { padding: 18px 22px 22px; display: flex; flex-direction: column; gap: 10px; }
+.enquire-form input, .enquire-form textarea { padding: 11px 13px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; outline: none; font-family: inherit; }
+.enquire-form input:focus, .enquire-form textarea:focus { border-color: #2874f0; }
+.enquire-form textarea { resize: vertical; }
+.enquire-form button { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: #2874f0; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; margin-top: 4px; }
+.enquire-form button:hover { background: #1a5dc7; }
+.enquire-form button:disabled { background: #b3c6e8; cursor: not-allowed; }

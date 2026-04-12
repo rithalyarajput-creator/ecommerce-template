@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { FiShoppingCart, FiHeart, FiStar, FiMinus, FiPlus, FiExternalLink } from 'react-icons/fi';
+import { FiShoppingCart, FiHeart, FiStar, FiMinus, FiPlus, FiExternalLink, FiMessageCircle, FiX, FiSend } from 'react-icons/fi';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import API, { API_URL } from '../../utils/api';
+import { toast } from 'react-toastify';
 import './ProductDetail.css';
 
 const ProductDetail = () => {
@@ -12,6 +13,9 @@ const ProductDetail = () => {
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(0);
+    const [showEnquire, setShowEnquire] = useState(false);
+    const [enquireForm, setEnquireForm] = useState({ name: '', email: '', phone: '', message: '' });
+    const [submittingEnquire, setSubmittingEnquire] = useState(false);
     const { addToCart } = useCart();
     const { user } = useAuth();
 
@@ -44,6 +48,27 @@ const ProductDetail = () => {
         if (!user) return alert('Please login');
         await API.post('/api/wishlist.php?action=add', { product_id: product.id });
         alert('Added to wishlist!');
+    };
+
+    const submitEnquiry = async (e) => {
+        e.preventDefault();
+        if (!enquireForm.name || (!enquireForm.email && !enquireForm.phone)) {
+            toast.error('Please enter your name and email or phone'); return;
+        }
+        setSubmittingEnquire(true);
+        try {
+            await API.post('/api/leads.php?action=create', {
+                ...enquireForm,
+                source: 'product',
+                product_id: product.id
+            });
+            toast.success('Enquiry sent! We will contact you soon.');
+            setShowEnquire(false);
+            setEnquireForm({ name: '', email: '', phone: '', message: '' });
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Error sending enquiry');
+        }
+        setSubmittingEnquire(false);
     };
 
     const externalLinks = [
@@ -110,6 +135,7 @@ const ProductDetail = () => {
                             <FiShoppingCart /> Add to Cart
                         </button>
                         <button className="btn-wishlist" onClick={addWishlist}><FiHeart /> Wishlist</button>
+                        <button className="btn-enquire" onClick={() => setShowEnquire(true)}><FiMessageCircle /> Enquire</button>
                     </div>
 
                     {externalLinks.length > 0 && (
@@ -137,6 +163,27 @@ const ProductDetail = () => {
                     ))}
                 </div>
             </div>
+
+            {showEnquire && (
+                <div className="enquire-overlay" onClick={() => setShowEnquire(false)}>
+                    <div className="enquire-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="enquire-header">
+                            <div>
+                                <h3>Enquire about this product</h3>
+                                <small>{product.name}</small>
+                            </div>
+                            <button className="enquire-close" onClick={() => setShowEnquire(false)}><FiX /></button>
+                        </div>
+                        <form onSubmit={submitEnquiry} className="enquire-form">
+                            <input type="text" placeholder="Your Name *" value={enquireForm.name} onChange={(e) => setEnquireForm({ ...enquireForm, name: e.target.value })} required />
+                            <input type="email" placeholder="Email" value={enquireForm.email} onChange={(e) => setEnquireForm({ ...enquireForm, email: e.target.value })} />
+                            <input type="tel" placeholder="Phone Number" value={enquireForm.phone} onChange={(e) => setEnquireForm({ ...enquireForm, phone: e.target.value })} />
+                            <textarea placeholder="Your message / question about this product..." rows="4" value={enquireForm.message} onChange={(e) => setEnquireForm({ ...enquireForm, message: e.target.value })} />
+                            <button type="submit" disabled={submittingEnquire}><FiSend /> {submittingEnquire ? 'Sending...' : 'Send Enquiry'}</button>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {product.reviews && product.reviews.length > 0 && (
                 <div className="reviews-section">

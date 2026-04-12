@@ -14,5 +14,19 @@
 .order-summary { background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); height: fit-content; }
 .order-summary h3 { color: #1a1a2e; margin-bottom: 15px; }
 .summary-item { display: flex; justify-content: space-between; padding: 8px 0; color: #666; font-size: 0.9rem; border-bottom: 1px solid #f0f0f0; }
-.order-summary .summary-total { display: flex; justify-content: space-between; padding: 15px 0 0; font-size: 1.2rem; font-weight: 700; color: #1a1a2e; }
+.order-summary .summary-total { display: flex; justify-content: space-between; padding: 15px 0 0; font-size: 1.2rem; font-weight: 700; color: #1a1a2e; border-top: 1px dashed #e0e0e0; margin-top: 10px; }
+
+/* Coupon box in checkout */
+.order-summary .coupon-box { padding: 14px 0; border-bottom: 1px solid #f0f0f0; margin: 10px 0; }
+.order-summary .coupon-box label { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #424242; font-weight: 600; margin-bottom: 8px; }
+.order-summary .coupon-input { display: flex; gap: 6px; }
+.order-summary .coupon-input input { flex: 1; padding: 9px 11px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.88rem; outline: none; text-transform: uppercase; margin-bottom: 0; }
+.order-summary .coupon-input button { padding: 9px 14px; background: #2874f0; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+.order-summary .coupon-input button:disabled { background: #b3c6e8; cursor: not-allowed; }
+.order-summary .coupon-applied { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #e8f5e9; border: 1px dashed #388e3c; border-radius: 6px; }
+.order-summary .coupon-applied strong { color: #1b5e20; font-family: monospace; display: block; }
+.order-summary .coupon-applied small { color: #388e3c; font-size: 0.78rem; }
+.btn-remove-coupon { background: none; border: none; color: #c62828; cursor: pointer; padding: 4px; border-radius: 4px; display: flex; }
+.btn-remove-coupon:hover { background: #ffcdd2; }
+
 @media (max-width: 768px) { .checkout-layout { grid-template-columns: 1fr; } }

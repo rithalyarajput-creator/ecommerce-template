@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS wishlist (
 
 -- Default Admin (password: admin123)
 INSERT INTO users (name, email, password, role) VALUES
-('Admin', 'admin@topmtop.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+('Admin', 'admin@topmtop.com', '$2y$10$LqtASLndnG83iwecenhFt.eFktDdt6S.Nb5fAwSapr33STXVMbsVu', 'admin');
 
 -- Sample Categories
 INSERT INTO categories (name, description) VALUES

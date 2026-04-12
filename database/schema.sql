@@ -231,3 +231,96 @@ INSERT INTO product_images (product_id, image_url, sort_order) VALUES
 (5, '/uploads/products/p5_1.png', 0), (5, '/uploads/products/p5_2.png', 1), (5, '/uploads/products/p5_3.png', 2), (5, '/uploads/products/p5_4.png', 3),
 (6, '/uploads/products/p6_1.png', 0), (6, '/uploads/products/p6_2.png', 1), (6, '/uploads/products/p6_3.png', 2), (6, '/uploads/products/p6_4.png', 3),
 (7, '/uploads/products/p7_1.png', 0), (7, '/uploads/products/p7_2.png', 1), (7, '/uploads/products/p7_3.png', 2), (7, '/uploads/products/p7_4.png', 3);
+-- Add Bracelet subcategory and 12 new products (6 earrings + 6 bracelets)
+
+
+-- Add Bracelet subcategory (id 5)
+INSERT INTO subcategories (id, category_id, name, description, image) VALUES
+(5, 1, 'Bracelet', 'Elegant bracelets and bangles for women', '/uploads/products/b1_1.png');
+
+-- Add sub-subcategories for Earrings and Bracelets
+INSERT INTO sub_subcategories (subcategory_id, name, description) VALUES
+(2, 'Chandbali', 'Traditional chandbali style earrings'),
+(2, 'Jhumka', 'Classic jhumka earrings'),
+(2, 'Party Wear', 'Stylish party wear earrings'),
+(5, 'Kada Bangle', 'Traditional kada style bangles'),
+(5, 'Cuff Bracelet', 'Modern cuff bracelets'),
+(5, 'Flower Bracelet', 'Floral design bracelets');
+
+-- ===============================
+-- 6 EARRINGS
+-- ===============================
+INSERT INTO products (name, description, price, sale_price, category_id, subcategory_id, sub_subcategory_id, image, stock, rating, num_reviews, featured, brand, meesho_link, flipkart_link, amazon_link) VALUES
+
+('Gold Plated Kundan Chandbali Earrings with Pearl Drops',
+'Beautifully crafted kundan chandbali earrings featuring intricate stone work and hanging pearl drops. These traditional earrings are perfect for weddings, receptions, and festive occasions.\n\nTraditional Chandbali Design\nThe iconic chandbali shape is inspired by the crescent moon, a classic motif in Indian jewellery. Each earring features dome-shaped structures with detailed kundan work.\n\nPearl Drop Embellishments\nDelicate pearl drops hang from the bottom of each earring, adding movement and elegance. The pearls create a graceful contrast with the gold-plated base.\n\nPerfect for Special Occasions\n• Wedding ceremonies\n• Reception parties\n• Sangeet functions\n• Festival celebrations\n• Traditional events\n\nProduct Highlights\n• Gold plated finish\n• Kundan stone detailing\n• Multiple pearl drops\n• Traditional chandbali design\n• Secure back closure\n• Lightweight for comfortable wear\n\nCare Instructions\n• Store in jewellery box\n• Avoid water and perfume contact\n• Wipe with soft dry cloth\n• Keep separate from other jewellery',
+599.00, 299.00, 1, 2, 7, '/uploads/products/e1_1.png', 80, 4.7, 312, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Silver Oxidized Floral Jhumka Earrings with Hanging Bells',
+'Stunning silver oxidized earrings featuring a beautiful circular floral design with multiple small hanging jhumkas and bells. The vintage-inspired look makes these perfect for Indo-western and ethnic outfits.\n\nOxidized Silver Finish\nThe oxidized silver finish gives these earrings a vintage antique look that pairs beautifully with both traditional and fusion wear.\n\nMultiple Jhumka Drops\nEach earring features multiple mini jhumkas hanging from the circular base, creating movement and sound with every step.\n\nPerfect for Fusion Wear\n• Casual ethnic outings\n• Office wear with kurtis\n• Festivals and small events\n• Instagram photoshoots\n• College functions\n\nProduct Highlights\n• Silver oxidized finish\n• Circular floral design\n• Multiple hanging jhumkas\n• Large statement size\n• Hypoallergenic\n• Push-back closure\n\nCare Instructions\n• Keep in airtight pouch to prevent tarnishing\n• Avoid moisture\n• Clean with silver polish cloth\n• Do not use chemical cleaners',
+449.00, 249.00, 1, 2, 8, '/uploads/products/e2_1.png', 100, 4.5, 523, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Antique Gold Temple Chandbali Earrings with Red & Green Stones',
+'Exquisite antique gold chandbali earrings with traditional temple-inspired motifs and colorful stones. Features pearl beading at the bottom for added elegance.\n\nAntique Gold Finish\nThe antique gold plating gives these earrings a rich heritage look, perfect for traditional South Indian and North Indian bridal attire.\n\nColorful Stone Work\nRed and green kundan stones are set in intricate patterns, creating a vibrant and regal appearance suitable for all festive occasions.\n\nPerfect for Weddings\n• Bridal wear\n• Wedding ceremonies\n• Sangeet and mehendi\n• Festival celebrations\n• Traditional photoshoots\n\nProduct Highlights\n• Antique gold plated finish\n• Red and green colored stones\n• Temple-inspired design\n• Pearl bead embellishments\n• Large chandbali shape\n• Pierced ear style\n\nCare Instructions\n• Store in dry jewellery box\n• Handle stone area carefully\n• Avoid perfume and chemicals\n• Clean with soft microfiber cloth',
+649.00, 379.00, 1, 2, 7, '/uploads/products/e3_1.png', 60, 4.8, 267, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Oxidized Gold Victorian Jhumka Earrings with Ruby Green Stones',
+'Classic jhumka earrings with a Victorian-inspired design featuring dome-shaped drops and vibrant ruby red and emerald green stones. The traditional kundan stud top adds to the regal appeal.\n\nClassic Jhumka Structure\nThe iconic dome-shaped jhumka with carved detailing is a timeless design that never goes out of style.\n\nRegal Stone Combination\nThe stunning combination of ruby red and emerald green stones creates a royal look perfect for festivals and special occasions.\n\nPerfect for Festive Wear\n• Diwali celebrations\n• Karva Chauth\n• Wedding guest outfits\n• Cultural events\n• Office festive parties\n\nProduct Highlights\n• Oxidized gold finish\n• Ruby and emerald stone detailing\n• Traditional dome jhumka shape\n• Intricate stud design\n• Bead fringes at bottom\n• Secure push-back closure\n\nCare Instructions\n• Store in velvet pouch\n• Keep dry and away from moisture\n• Wipe gently after each use\n• Avoid chemical cleaners',
+549.00, 329.00, 1, 2, 8, '/uploads/products/e4_1.png', 75, 4.6, 189, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Silver Plated American Diamond Bridal Jhumka Earrings',
+'Elegant silver plated jhumka earrings featuring premium American diamond (zircon) stones. The delicate jhumka with beaded fringes is perfect for modern brides and party occasions.\n\nPremium Zircon Stones\nHigh-quality American diamond stones that shine like real diamonds, giving a luxurious sparkle to your look.\n\nElegant Jhumka Design\nThe slim, elongated jhumka shape with silver beaded fringes creates a sophisticated and modern traditional look.\n\nPerfect for Modern Brides\n• Reception ceremonies\n• Engagement parties\n• Cocktail evenings\n• Christian and Muslim weddings\n• Fusion wear occasions\n\nProduct Highlights\n• Silver plated finish\n• Premium AD/zircon stones\n• Elongated jhumka design\n• Silver bead fringes\n• Pearl top accent\n• Lightweight design\n\nCare Instructions\n• Store in velvet box\n• Handle with care\n• Avoid water contact\n• Clean with soft cloth',
+799.00, 499.00, 1, 2, 9, '/uploads/products/e5_1.png', 40, 4.9, 145, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Polki Style Kundan Danglers with Pastel Stone & Pearl Drops',
+'Sophisticated polki-style earrings featuring kundan work with beautiful pastel colored center stones and delicate pearl drop fringes. Perfect for elegant party wear.\n\nPolki-Inspired Design\nInspired by royal polki jewellery, these earrings feature uncut stone look with intricate goldwork detailing.\n\nPastel Stone Elegance\nThe soft pastel colored center stones add a modern touch to the traditional design, making these earrings versatile for various outfits.\n\nPerfect for Party Wear\n• Cocktail parties\n• Reception events\n• Anniversary dinners\n• Festival gatherings\n• Designer wear occasions\n\nProduct Highlights\n• Gold plated base\n• Polki-inspired kundan work\n• Pastel colored stones\n• Pearl drop fringes\n• Two-tier elegant design\n• Medium weight\n\nCare Instructions\n• Store in dry jewellery box\n• Protect pearl drops from moisture\n• Clean with dry soft cloth\n• Keep separate from other pieces',
+699.00, 399.00, 1, 2, 9, '/uploads/products/e6_1.png', 50, 4.7, 234, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in');
+
+-- ===============================
+-- 6 BRACELETS
+-- ===============================
+INSERT INTO products (name, description, price, sale_price, category_id, subcategory_id, sub_subcategory_id, image, stock, rating, num_reviews, featured, brand, meesho_link, flipkart_link, amazon_link) VALUES
+
+('Gold Plated Ruby Flower Kada Bangle',
+'Beautiful gold plated kada style bangle featuring a central ruby flower design with sparkling stones. The sleek band with bow-tie accent makes it perfect for both daily wear and special occasions.\n\nTraditional Kada Design\nThe classic kada shape with a modern twist - featuring a decorative central flower with a ruby centerpiece surrounded by small diamond-look stones.\n\nVersatile Styling\nThis bracelet can be worn with traditional Indian outfits as well as Indo-western wear, making it a versatile addition to any jewellery collection.\n\nPerfect for Daily & Special Wear\n• Office wear\n• Casual outings\n• Festival celebrations\n• Daily wear\n• Gift for loved ones\n\nProduct Highlights\n• Gold plated finish\n• Central ruby stone\n• Diamond-look surrounding stones\n• Sleek band design\n• Secure closure\n• Adjustable fit\n\nCare Instructions\n• Remove before bathing\n• Avoid perfume contact\n• Clean with soft cloth\n• Store in jewellery box',
+499.00, 279.00, 1, 5, 10, '/uploads/products/b1_1.png', 120, 4.6, 423, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Dual Layer Bangle with Swan Accent',
+'Elegant dual-layer gold plated bangle featuring a unique swan-inspired design with zircon stones. The adjustable fit makes it suitable for most wrist sizes.\n\nUnique Swan Design\nThe delicate swan motif at the top adds a touch of elegance and uniqueness. The small zircon stones add just the right amount of sparkle.\n\nDual Layer Sophistication\nThe two-layer design gives the illusion of wearing multiple bangles, offering more volume without compromising on elegance.\n\nPerfect for Everyday Elegance\n• Office and workplace\n• Brunches and lunches\n• Casual weekends\n• Light occasions\n• Gift for friends\n\nProduct Highlights\n• Gold plated dual band\n• Swan design accent\n• Delicate zircon stones\n• Adjustable fit\n• Lightweight and comfortable\n• Daily wear suitable\n\nCare Instructions\n• Avoid water contact\n• Remove during exercise\n• Clean with dry cloth\n• Keep in jewellery pouch',
+449.00, 249.00, 1, 5, 10, '/uploads/products/b2_1.png', 150, 4.5, 567, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Open Heart Cuff Bracelet',
+'Minimalist and stylish open cuff bracelet featuring a delicate heart design on one end and a small zircon stone on the other. Perfect for modern women who love understated elegance.\n\nModern Minimalist Design\nThe open cuff design allows for easy wearing and removal. The twisted gold rope pattern adds texture without being too flashy.\n\nHeart Accent Detail\nThe small heart on one end and the sparkling zircon stone on the other create an asymmetric design that is both modern and romantic.\n\nPerfect for Daily & Casual Wear\n• Office wear\n• Coffee dates\n• Casual evenings\n• Gift for girlfriend\n• Everyday elegance\n\nProduct Highlights\n• Gold plated finish\n• Open cuff design\n• Heart motif detail\n• Zircon stone accent\n• Twisted rope texture\n• Fits most wrist sizes\n\nCare Instructions\n• Avoid prolonged water exposure\n• Store in dry place\n• Polish gently if needed\n• Handle with care',
+399.00, 229.00, 1, 5, 11, '/uploads/products/b3_1.png', 200, 4.7, 789, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Dual Strand Flower Cuff Bracelet',
+'Charming dual-strand cuff bracelet featuring delicate flower motifs with zircon centers. The cuff style makes it easy to wear and perfect for layered jewellery looks.\n\nCharming Flower Design\nEach strand features small flower motifs with sparkling zircon stones at the center, creating a delicate and feminine look.\n\nDual Strand Elegance\nThe two strands of this cuff bracelet give dimension and make it look like you are wearing two separate bracelets.\n\nPerfect for Casual & Semi-formal\n• College wear\n• Casual parties\n• Indo-western outfits\n• Summer dresses\n• Gift for young women\n\nProduct Highlights\n• Gold plated finish\n• Dual strand cuff design\n• Flower motifs throughout\n• Small zircon stones\n• Adjustable open cuff\n• Lightweight construction\n\nCare Instructions\n• Store in soft pouch\n• Avoid chemicals and perfume\n• Clean with microfiber cloth\n• Handle gently',
+549.00, 329.00, 1, 5, 12, '/uploads/products/b4_1.png', 90, 4.6, 234, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Set of 2 Zircon Stone Bangles',
+'Set of 2 matching gold plated bangles featuring small zircon stones with a central medallion design. Perfect for doubling up or wearing separately for different looks.\n\nSet of Two\nYou get 2 matching bangles - wear them together for a statement look or pair them with other bracelets for a stacked style.\n\nElegant Medallion Design\nEach bangle features a central circular medallion with a beautiful cluster of small zircon stones, creating a delicate yet eye-catching design.\n\nPerfect for Multiple Occasions\n• Office wear\n• Weekend brunches\n• Traditional events\n• Fusion wear\n• Daily elegance\n\nProduct Highlights\n• Set of 2 bangles\n• Gold plated finish\n• Central medallion design\n• Cluster of zircon stones\n• Sleek band design\n• Stackable style\n\nCare Instructions\n• Store pair together\n• Keep away from moisture\n• Clean with soft cloth\n• Avoid perfume contact',
+699.00, 399.00, 1, 5, 10, '/uploads/products/b5_1.png', 75, 4.7, 345, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Pink Ruby Flower Open Cuff Bracelet',
+'Stunning open cuff bracelet featuring beautiful pink ruby flowers on one end and decorative gold balls on the other. The textured band design adds depth and visual appeal.\n\nVibrant Pink Ruby Flowers\nThe cluster of pink ruby-colored stones arranged in a floral pattern is the highlight of this bracelet, making it perfect for adding color to any outfit.\n\nTextured Band Detailing\nThe textured pattern on the gold band gives this bracelet a unique, artisanal feel that sets it apart from plain bangles.\n\nPerfect for Festive & Party Wear\n• Wedding functions\n• Festival celebrations\n• Party events\n• Anniversary dinners\n• Special occasions\n\nProduct Highlights\n• Gold plated finish\n• Pink ruby flower cluster\n• Gold ball accents\n• Textured band pattern\n• Open cuff design\n• Fits most wrist sizes\n\nCare Instructions\n• Store in jewellery box\n• Avoid water and perfume\n• Clean with soft dry cloth\n• Keep in dry place',
+749.00, 449.00, 1, 5, 12, '/uploads/products/b6_1.png', 60, 4.8, 178, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in');
+
+-- ===============================
+-- Product Images (4 per product)
+-- ===============================
+INSERT INTO product_images (product_id, image_url, sort_order) VALUES
+-- Earrings (products 8-13)
+(8, '/uploads/products/e1_1.png', 0), (8, '/uploads/products/e1_2.png', 1), (8, '/uploads/products/e1_3.png', 2), (8, '/uploads/products/e1_4.png', 3),
+(9, '/uploads/products/e2_1.png', 0), (9, '/uploads/products/e2_2.png', 1), (9, '/uploads/products/e2_3.png', 2), (9, '/uploads/products/e2_4.png', 3),
+(10, '/uploads/products/e3_1.png', 0), (10, '/uploads/products/e3_2.png', 1), (10, '/uploads/products/e3_3.png', 2), (10, '/uploads/products/e3_4.png', 3),
+(11, '/uploads/products/e4_1.png', 0), (11, '/uploads/products/e4_2.png', 1), (11, '/uploads/products/e4_3.png', 2), (11, '/uploads/products/e4_4.png', 3),
+(12, '/uploads/products/e5_1.png', 0), (12, '/uploads/products/e5_2.png', 1), (12, '/uploads/products/e5_3.png', 2), (12, '/uploads/products/e5_4.png', 3),
+(13, '/uploads/products/e6_1.png', 0), (13, '/uploads/products/e6_2.png', 1), (13, '/uploads/products/e6_3.png', 2), (13, '/uploads/products/e6_4.png', 3),
+-- Bracelets (products 14-19)
+(14, '/uploads/products/b1_1.png', 0), (14, '/uploads/products/b1_2.png', 1), (14, '/uploads/products/b1_3.png', 2), (14, '/uploads/products/b1_4.png', 3),
+(15, '/uploads/products/b2_1.png', 0), (15, '/uploads/products/b2_2.png', 1), (15, '/uploads/products/b2_3.png', 2), (15, '/uploads/products/b2_4.png', 3),
+(16, '/uploads/products/b3_1.png', 0), (16, '/uploads/products/b3_2.png', 1), (16, '/uploads/products/b3_3.png', 2), (16, '/uploads/products/b3_4.png', 3),
+(17, '/uploads/products/b4_1.png', 0), (17, '/uploads/products/b4_2.png', 1), (17, '/uploads/products/b4_3.png', 2), (17, '/uploads/products/b4_4.png', 3),
+(18, '/uploads/products/b5_1.png', 0), (18, '/uploads/products/b5_2.png', 1), (18, '/uploads/products/b5_3.png', 2), (18, '/uploads/products/b5_4.png', 3),
+(19, '/uploads/products/b6_1.png', 0), (19, '/uploads/products/b6_2.png', 1), (19, '/uploads/products/b6_3.png', 2), (19, '/uploads/products/b6_4.png', 3);
+

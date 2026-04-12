@@ -38,15 +38,14 @@ const ProductDetail = () => {
         <div className="product-detail">
             <div className="detail-container">
                 <div className="detail-image">
-                    <img src={product.image ? `${API_URL}${product.image}` : 'https://via.placeholder.com/500'} alt={product.name} />
+                    <img src={product.image ? (product.image.startsWith('http') ? product.image : `${API_URL}${product.image}`) : 'https://via.placeholder.com/500'} alt={product.name} />
                 </div>
                 <div className="detail-info">
                     <p className="detail-category">{product.category_name}</p>
                     <h1>{product.name}</h1>
                     <div className="detail-rating">
-                        <FiStar className="star-filled" />
-                        <span>{product.rating}</span>
-                        <span className="review-count">({product.num_reviews} reviews)</span>
+                        <span className="rating-box"><FiStar className="star-filled" /> {product.rating}</span>
+                        <span>({product.num_reviews} Reviews)</span>
                     </div>
                     <div className="detail-price">
                         {product.sale_price ? (

@@ -35,7 +35,7 @@ const Orders = () => {
                     <div className="order-items">
                         {order.items?.map(item => (
                             <div key={item.id} className="order-item">
-                                <img src={item.image ? `${API_URL}${item.image}` : 'https://via.placeholder.com/50'} alt={item.name} />
+                                <img src={item.image ? (item.image.startsWith('http') ? item.image : `${API_URL}${item.image}`) : 'https://via.placeholder.com/50'} alt={item.name} />
                                 <div>
                                     <p>{item.name}</p>
                                     <p className="item-detail">Qty: {item.quantity} x &#8377;{item.price}</p>

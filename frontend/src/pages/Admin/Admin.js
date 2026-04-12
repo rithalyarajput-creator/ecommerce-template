@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiUsers, FiPackage, FiShoppingBag, FiDollarSign, FiPlus, FiTrash2, FiEdit } from 'react-icons/fi';
+import { FiUsers, FiPackage, FiShoppingBag, FiDollarSign, FiPlus, FiTrash2, FiEdit, FiGrid, FiList, FiTag, FiBarChart2, FiHome } from 'react-icons/fi';
 import API, { API_URL } from '../../utils/api';
 import { toast } from 'react-toastify';
 import './Admin.css';
@@ -11,56 +11,67 @@ const Admin = () => {
     const [orders, setOrders] = useState([]);
     const [users, setUsers] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [showForm, setShowForm] = useState(false);
-    const [editId, setEditId] = useState(null);
-    const [form, setForm] = useState({ name: '', description: '', price: '', sale_price: '', category_id: '', stock: '', featured: false });
-    const [image, setImage] = useState(null);
+
+    // Product form
+    const [showProdForm, setShowProdForm] = useState(false);
+    const [editProdId, setEditProdId] = useState(null);
+    const [prodForm, setProdForm] = useState({ name: '', description: '', price: '', sale_price: '', category_id: '', stock: '', featured: false, brand: '' });
+    const [prodImage, setProdImage] = useState(null);
+
+    // Category form
+    const [showCatForm, setShowCatForm] = useState(false);
+    const [editCatId, setEditCatId] = useState(null);
+    const [catForm, setCatForm] = useState({ name: '', description: '' });
+    const [catImage, setCatImage] = useState(null);
 
     useEffect(() => {
         if (tab === 'dashboard') fetchDashboard();
         if (tab === 'products') { fetchProducts(); fetchCategories(); }
         if (tab === 'orders') fetchOrders();
         if (tab === 'users') fetchUsers();
+        if (tab === 'categories') fetchCategories();
     }, [tab]);
 
     const fetchDashboard = async () => {
-        try { const { data } = await API.get('/api/admin.php?action=dashboard'); setStats(data); }
-        catch (err) { console.error(err); }
+        try { const { data } = await API.get('/api/admin.php?action=dashboard'); setStats(data); } catch (err) { console.error(err); }
     };
     const fetchProducts = async () => {
-        try { const { data } = await API.get('/api/products.php?action=list&limit=100'); setProducts(data.products); }
-        catch (err) { console.error(err); }
+        try { const { data } = await API.get('/api/products.php?action=list&limit=100'); setProducts(data.products); } catch (err) { console.error(err); }
     };
     const fetchCategories = async () => {
-        try { const { data } = await API.get('/api/categories.php?action=list'); setCategories(data); }
-        catch (err) { console.error(err); }
+        try { const { data } = await API.get('/api/categories.php?action=list'); setCategories(data); } catch (err) { console.error(err); }
     };
     const fetchOrders = async () => {
-        try { const { data } = await API.get('/api/orders.php?action=all'); setOrders(data); }
-        catch (err) { console.error(err); }
+        try { const { data } = await API.get('/api/orders.php?action=all'); setOrders(data); } catch (err) { console.error(err); }
     };
     const fetchUsers = async () => {
-        try { const { data } = await API.get('/api/admin.php?action=users'); setUsers(data); }
-        catch (err) { console.error(err); }
+        try { const { data } = await API.get('/api/admin.php?action=users'); setUsers(data); } catch (err) { console.error(err); }
+    };
+
+    const getImgUrl = (path) => {
+        if (!path) return 'https://via.placeholder.com/60';
+        if (path.startsWith('http')) return path;
+        return `${API_URL}${path}`;
     };
 
     const handleProductSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData();
-        Object.keys(form).forEach(key => formData.append(key, form[key]));
-        if (image) formData.append('image', image);
+        Object.keys(prodForm).forEach(key => formData.append(key, prodForm[key]));
+        if (prodImage) formData.append('image', prodImage);
 
         try {
-            if (editId) {
-                await API.post(`/api/products.php?action=update&id=${editId}`, formData);
+            if (editProdId) {
+                await API.post(`/api/products.php?action=update&id=${editProdId}`, formData);
                 toast.success('Product updated!');
             } else {
                 await API.post('/api/products.php?action=create', formData);
                 toast.success('Product added!');
             }
-            setShowForm(false);
-            setEditId(null);
-            setForm({ name: '', description: '', price: '', sale_price: '', category_id: '', stock: '', featured: false });
+            setShowProdForm(false);
+            setEditProdId(null);
+            setProdForm({ name: '', description: '', price: '', sale_price: '', category_id: '', stock: '', featured: false, brand: '' });
+            setProdImage(null);
             fetchProducts();
         } catch (err) { toast.error('Error saving product'); }
     };
@@ -68,7 +79,40 @@ const Admin = () => {
     const deleteProduct = async (id) => {
         if (window.confirm('Delete this product?')) {
             await API.delete(`/api/products.php?action=delete&id=${id}`);
+            toast.success('Product deleted!');
             fetchProducts();
+        }
+    };
+
+    const editProduct = (p) => {
+        setProdForm({ name: p.name, description: p.description || '', price: p.price, sale_price: p.sale_price || '', category_id: p.category_id || '', stock: p.stock, featured: p.featured === '1' || p.featured === 1, brand: p.brand || '' });
+        setEditProdId(p.id);
+        setShowProdForm(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleCategorySubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('name', catForm.name);
+        formData.append('description', catForm.description);
+        if (catImage) formData.append('image', catImage);
+
+        try {
+            await API.post('/api/categories.php?action=create', formData);
+            toast.success('Category added!');
+            setShowCatForm(false);
+            setCatForm({ name: '', description: '' });
+            setCatImage(null);
+            fetchCategories();
+        } catch (err) { toast.error('Error'); }
+    };
+
+    const deleteCategory = async (id) => {
+        if (window.confirm('Delete this category?')) {
+            await API.delete(`/api/categories.php?action=delete&id=${id}`);
+            toast.success('Category deleted!');
+            fetchCategories();
         }
     };
 
@@ -78,143 +122,283 @@ const Admin = () => {
         fetchOrders();
     };
 
-    const editProduct = (p) => {
-        setForm({ name: p.name, description: p.description || '', price: p.price, sale_price: p.sale_price || '', category_id: p.category_id || '', stock: p.stock, featured: p.featured === '1' || p.featured === 1 });
-        setEditId(p.id);
-        setShowForm(true);
+    const deleteUser = async (id) => {
+        if (window.confirm('Delete this user?')) {
+            await API.delete(`/api/admin.php?action=delete-user&id=${id}`);
+            toast.success('User deleted!');
+            fetchUsers();
+        }
     };
 
     return (
         <div className="admin-page">
             <aside className="admin-sidebar">
-                <h3>Admin Panel</h3>
-                <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}>Dashboard</button>
-                <button className={tab === 'products' ? 'active' : ''} onClick={() => setTab('products')}>Products</button>
-                <button className={tab === 'orders' ? 'active' : ''} onClick={() => setTab('orders')}>Orders</button>
-                <button className={tab === 'users' ? 'active' : ''} onClick={() => setTab('users')}>Users</button>
+                <div className="admin-brand">
+                    <h3>TopMTop Admin</h3>
+                    <span>Dashboard Panel</span>
+                </div>
+                <nav className="admin-nav">
+                    <button className={tab === 'dashboard' ? 'active' : ''} onClick={() => setTab('dashboard')}><FiHome /> Dashboard</button>
+                    <button className={tab === 'products' ? 'active' : ''} onClick={() => setTab('products')}><FiPackage /> Products</button>
+                    <button className={tab === 'categories' ? 'active' : ''} onClick={() => setTab('categories')}><FiTag /> Categories</button>
+                    <button className={tab === 'orders' ? 'active' : ''} onClick={() => setTab('orders')}><FiShoppingBag /> Orders</button>
+                    <button className={tab === 'users' ? 'active' : ''} onClick={() => setTab('users')}><FiUsers /> Users</button>
+                </nav>
             </aside>
+
             <main className="admin-main">
+                <header className="admin-header">
+                    <h1>{tab.charAt(0).toUpperCase() + tab.slice(1)}</h1>
+                    <div className="admin-user">
+                        <span>Welcome, Admin 👋</span>
+                    </div>
+                </header>
+
                 {tab === 'dashboard' && (
-                    <div>
-                        <h2>Dashboard</h2>
+                    <div className="admin-content">
                         <div className="stats-grid">
-                            <div className="stat-card"><FiUsers /><div><h3>{stats.totalUsers || 0}</h3><p>Users</p></div></div>
-                            <div className="stat-card"><FiPackage /><div><h3>{stats.totalProducts || 0}</h3><p>Products</p></div></div>
-                            <div className="stat-card"><FiShoppingBag /><div><h3>{stats.totalOrders || 0}</h3><p>Orders</p></div></div>
-                            <div className="stat-card"><FiDollarSign /><div><h3>&#8377;{stats.totalRevenue || 0}</h3><p>Revenue</p></div></div>
+                            <div className="stat-card blue">
+                                <div className="stat-icon"><FiUsers /></div>
+                                <div><h3>{stats.totalUsers || 0}</h3><p>Total Users</p></div>
+                            </div>
+                            <div className="stat-card green">
+                                <div className="stat-icon"><FiPackage /></div>
+                                <div><h3>{stats.totalProducts || 0}</h3><p>Total Products</p></div>
+                            </div>
+                            <div className="stat-card orange">
+                                <div className="stat-icon"><FiShoppingBag /></div>
+                                <div><h3>{stats.totalOrders || 0}</h3><p>Total Orders</p></div>
+                            </div>
+                            <div className="stat-card purple">
+                                <div className="stat-icon"><FiDollarSign /></div>
+                                <div><h3>₹{parseFloat(stats.totalRevenue || 0).toLocaleString('en-IN')}</h3><p>Total Revenue</p></div>
+                            </div>
                         </div>
-                        <h3 style={{ marginTop: 30 }}>Recent Orders</h3>
-                        <table className="admin-table">
-                            <thead><tr><th>ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
-                            <tbody>
-                                {stats.recentOrders?.map(o => (
-                                    <tr key={o.id}>
-                                        <td>#{o.id}</td><td>{o.user_name}</td><td>&#8377;{o.total_amount}</td>
-                                        <td><span className={`status ${o.order_status}`}>{o.order_status}</span></td>
-                                        <td>{new Date(o.created_at).toLocaleDateString()}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+
+                        <div className="dashboard-card">
+                            <h3 className="card-title">Recent Orders</h3>
+                            {stats.recentOrders?.length > 0 ? (
+                                <table className="admin-table">
+                                    <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+                                    <tbody>
+                                        {stats.recentOrders.map(o => (
+                                            <tr key={o.id}>
+                                                <td><strong>#{o.id}</strong></td>
+                                                <td>{o.user_name}</td>
+                                                <td><strong>₹{parseFloat(o.total_amount).toLocaleString('en-IN')}</strong></td>
+                                                <td><span className={`status ${o.order_status}`}>{o.order_status}</span></td>
+                                                <td>{new Date(o.created_at).toLocaleDateString()}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : <p className="empty-msg">No orders yet</p>}
+                        </div>
                     </div>
                 )}
 
                 {tab === 'products' && (
-                    <div>
+                    <div className="admin-content">
                         <div className="tab-header">
-                            <h2>Products</h2>
-                            <button className="btn-add" onClick={() => { setShowForm(!showForm); setEditId(null); }}><FiPlus /> Add Product</button>
+                            <div><p className="tab-subtitle">{products.length} products in store</p></div>
+                            <button className="btn-add" onClick={() => { setShowProdForm(!showProdForm); setEditProdId(null); setProdForm({ name: '', description: '', price: '', sale_price: '', category_id: '', stock: '', featured: false, brand: '' }); }}>
+                                <FiPlus /> {showProdForm ? 'Cancel' : 'Add Product'}
+                            </button>
                         </div>
-                        {showForm && (
-                            <form className="admin-form" onSubmit={handleProductSubmit}>
-                                <input placeholder="Product Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-                                <textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-                                <div className="form-row">
-                                    <input type="number" placeholder="Price" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
-                                    <input type="number" placeholder="Sale Price" value={form.sale_price} onChange={(e) => setForm({ ...form, sale_price: e.target.value })} />
-                                </div>
-                                <div className="form-row">
-                                    <select value={form.category_id} onChange={(e) => setForm({ ...form, category_id: e.target.value })}>
-                                        <option value="">Select Category</option>
-                                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                    </select>
-                                    <input type="number" placeholder="Stock" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
-                                </div>
-                                <div className="form-row">
-                                    <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
-                                    <label><input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} /> Featured</label>
-                                </div>
-                                <button type="submit">{editId ? 'Update' : 'Add'} Product</button>
-                            </form>
+
+                        {showProdForm && (
+                            <div className="dashboard-card">
+                                <h3 className="card-title">{editProdId ? 'Edit Product' : 'Add New Product'}</h3>
+                                <form className="admin-form" onSubmit={handleProductSubmit}>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>Product Name *</label>
+                                            <input placeholder="e.g., iPhone 15 Pro" value={prodForm.name} onChange={(e) => setProdForm({ ...prodForm, name: e.target.value })} required />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Brand</label>
+                                            <input placeholder="e.g., Apple" value={prodForm.brand} onChange={(e) => setProdForm({ ...prodForm, brand: e.target.value })} />
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Description</label>
+                                        <textarea placeholder="Product description..." value={prodForm.description} onChange={(e) => setProdForm({ ...prodForm, description: e.target.value })} />
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>Price (₹) *</label>
+                                            <input type="number" placeholder="Original price" value={prodForm.price} onChange={(e) => setProdForm({ ...prodForm, price: e.target.value })} required />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Sale Price (₹)</label>
+                                            <input type="number" placeholder="Discounted price" value={prodForm.sale_price} onChange={(e) => setProdForm({ ...prodForm, sale_price: e.target.value })} />
+                                        </div>
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>Category</label>
+                                            <select value={prodForm.category_id} onChange={(e) => setProdForm({ ...prodForm, category_id: e.target.value })}>
+                                                <option value="">Select Category</option>
+                                                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Stock</label>
+                                            <input type="number" placeholder="Available quantity" value={prodForm.stock} onChange={(e) => setProdForm({ ...prodForm, stock: e.target.value })} />
+                                        </div>
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>Product Image</label>
+                                            <input type="file" accept="image/*" onChange={(e) => setProdImage(e.target.files[0])} />
+                                        </div>
+                                        <div className="form-group checkbox-group">
+                                            <label><input type="checkbox" checked={prodForm.featured} onChange={(e) => setProdForm({ ...prodForm, featured: e.target.checked })} /> Mark as Featured</label>
+                                        </div>
+                                    </div>
+                                    <button type="submit" className="btn-submit">{editProdId ? 'Update Product' : 'Add Product'}</button>
+                                </form>
+                            </div>
                         )}
-                        <table className="admin-table">
-                            <thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Stock</th><th>Category</th><th>Actions</th></tr></thead>
-                            <tbody>
-                                {products.map(p => (
-                                    <tr key={p.id}>
-                                        <td><img src={p.image ? `${API_URL}${p.image}` : 'https://via.placeholder.com/40'} alt="" className="table-img" /></td>
-                                        <td>{p.name}</td><td>&#8377;{p.sale_price || p.price}</td><td>{p.stock}</td><td>{p.category_name}</td>
-                                        <td>
-                                            <button className="btn-edit" onClick={() => editProduct(p)}><FiEdit /></button>
-                                            <button className="btn-delete" onClick={() => deleteProduct(p.id)}><FiTrash2 /></button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+
+                        <div className="dashboard-card">
+                            <table className="admin-table">
+                                <thead><tr><th>Image</th><th>Name</th><th>Brand</th><th>Price</th><th>Stock</th><th>Category</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    {products.map(p => (
+                                        <tr key={p.id}>
+                                            <td><img src={getImgUrl(p.image)} alt="" className="table-img" /></td>
+                                            <td>{p.name}</td>
+                                            <td>{p.brand || '-'}</td>
+                                            <td><strong>₹{parseFloat(p.sale_price || p.price).toLocaleString('en-IN')}</strong></td>
+                                            <td><span className={`stock-badge ${p.stock > 10 ? 'good' : p.stock > 0 ? 'low' : 'out'}`}>{p.stock}</span></td>
+                                            <td>{p.category_name}</td>
+                                            <td className="actions-cell">
+                                                <button className="btn-action edit" onClick={() => editProduct(p)}><FiEdit /></button>
+                                                <button className="btn-action delete" onClick={() => deleteProduct(p.id)}><FiTrash2 /></button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {tab === 'categories' && (
+                    <div className="admin-content">
+                        <div className="tab-header">
+                            <div><p className="tab-subtitle">{categories.length} categories total</p></div>
+                            <button className="btn-add" onClick={() => setShowCatForm(!showCatForm)}>
+                                <FiPlus /> {showCatForm ? 'Cancel' : 'Add Category'}
+                            </button>
+                        </div>
+
+                        {showCatForm && (
+                            <div className="dashboard-card">
+                                <h3 className="card-title">Add New Category</h3>
+                                <form className="admin-form" onSubmit={handleCategorySubmit}>
+                                    <div className="form-group">
+                                        <label>Category Name *</label>
+                                        <input placeholder="e.g., Electronics" value={catForm.name} onChange={(e) => setCatForm({ ...catForm, name: e.target.value })} required />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Description</label>
+                                        <textarea placeholder="Category description..." value={catForm.description} onChange={(e) => setCatForm({ ...catForm, description: e.target.value })} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Category Image</label>
+                                        <input type="file" accept="image/*" onChange={(e) => setCatImage(e.target.files[0])} />
+                                    </div>
+                                    <button type="submit" className="btn-submit">Add Category</button>
+                                </form>
+                            </div>
+                        )}
+
+                        <div className="categories-admin-grid">
+                            {categories.map(cat => (
+                                <div key={cat.id} className="cat-admin-card">
+                                    <img src={getImgUrl(cat.image)} alt={cat.name} />
+                                    <div className="cat-admin-info">
+                                        <h4>{cat.name}</h4>
+                                        <p>{cat.description}</p>
+                                        <button className="btn-action delete" onClick={() => deleteCategory(cat.id)}><FiTrash2 /> Delete</button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
 
                 {tab === 'orders' && (
-                    <div>
-                        <h2>Orders</h2>
-                        <table className="admin-table">
-                            <thead><tr><th>ID</th><th>Customer</th><th>Amount</th><th>Order Status</th><th>Payment</th><th>Date</th></tr></thead>
-                            <tbody>
-                                {orders.map(o => (
-                                    <tr key={o.id}>
-                                        <td>#{o.id}</td>
-                                        <td>{o.user_name}<br /><small>{o.user_email}</small></td>
-                                        <td>&#8377;{o.total_amount}</td>
-                                        <td>
-                                            <select value={o.order_status} onChange={(e) => updateOrderStatus(o.id, e.target.value, o.payment_status)}>
-                                                <option value="pending">Pending</option>
-                                                <option value="confirmed">Confirmed</option>
-                                                <option value="shipped">Shipped</option>
-                                                <option value="delivered">Delivered</option>
-                                                <option value="cancelled">Cancelled</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <select value={o.payment_status} onChange={(e) => updateOrderStatus(o.id, o.order_status, e.target.value)}>
-                                                <option value="pending">Pending</option>
-                                                <option value="paid">Paid</option>
-                                                <option value="failed">Failed</option>
-                                            </select>
-                                        </td>
-                                        <td>{new Date(o.created_at).toLocaleDateString()}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div className="admin-content">
+                        <div className="tab-header">
+                            <p className="tab-subtitle">{orders.length} total orders</p>
+                        </div>
+                        <div className="dashboard-card">
+                            <table className="admin-table">
+                                <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Order Status</th><th>Payment</th><th>Date</th></tr></thead>
+                                <tbody>
+                                    {orders.map(o => (
+                                        <tr key={o.id}>
+                                            <td><strong>#{o.id}</strong></td>
+                                            <td>
+                                                <div className="user-cell">
+                                                    <strong>{o.user_name}</strong>
+                                                    <small>{o.user_email}</small>
+                                                </div>
+                                            </td>
+                                            <td><strong>₹{parseFloat(o.total_amount).toLocaleString('en-IN')}</strong></td>
+                                            <td>
+                                                <select value={o.order_status} onChange={(e) => updateOrderStatus(o.id, e.target.value, o.payment_status)} className={`status-select ${o.order_status}`}>
+                                                    <option value="pending">Pending</option>
+                                                    <option value="confirmed">Confirmed</option>
+                                                    <option value="shipped">Shipped</option>
+                                                    <option value="delivered">Delivered</option>
+                                                    <option value="cancelled">Cancelled</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select value={o.payment_status} onChange={(e) => updateOrderStatus(o.id, o.order_status, e.target.value)} className={`status-select ${o.payment_status}`}>
+                                                    <option value="pending">Pending</option>
+                                                    <option value="paid">Paid</option>
+                                                    <option value="failed">Failed</option>
+                                                </select>
+                                            </td>
+                                            <td>{new Date(o.created_at).toLocaleDateString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 
                 {tab === 'users' && (
-                    <div>
-                        <h2>Users</h2>
-                        <table className="admin-table">
-                            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th></tr></thead>
-                            <tbody>
-                                {users.map(u => (
-                                    <tr key={u.id}>
-                                        <td>{u.id}</td><td>{u.name}</td><td>{u.email}</td><td>{u.phone || '-'}</td>
-                                        <td><span className={`role ${u.role}`}>{u.role}</span></td>
-                                        <td>{new Date(u.created_at).toLocaleDateString()}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div className="admin-content">
+                        <div className="tab-header">
+                            <p className="tab-subtitle">{users.length} registered users</p>
+                        </div>
+                        <div className="dashboard-card">
+                            <table className="admin-table">
+                                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    {users.map(u => (
+                                        <tr key={u.id}>
+                                            <td>#{u.id}</td>
+                                            <td><strong>{u.name}</strong></td>
+                                            <td>{u.email}</td>
+                                            <td>{u.phone || '-'}</td>
+                                            <td><span className={`role ${u.role}`}>{u.role}</span></td>
+                                            <td>{new Date(u.created_at).toLocaleDateString()}</td>
+                                            <td className="actions-cell">
+                                                {u.role !== 'admin' && <button className="btn-action delete" onClick={() => deleteUser(u.id)}><FiTrash2 /></button>}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </main>

@@ -23,7 +23,7 @@ const Cart = () => {
                 <div className="cart-items">
                     {cartItems.map(item => (
                         <div key={item.id} className="cart-item">
-                            <img src={item.image ? `${API_URL}${item.image}` : 'https://via.placeholder.com/100'} alt={item.name} />
+                            <img src={item.image ? (item.image.startsWith('http') ? item.image : `${API_URL}${item.image}`) : 'https://via.placeholder.com/100'} alt={item.name} />
                             <div className="item-info">
                                 <Link to={`/product/${item.product_id}`}><h3>{item.name}</h3></Link>
                                 <p className="item-price">&#8377;{item.sale_price || item.price}</p>

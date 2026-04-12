@@ -71,6 +71,7 @@ if ($method === 'POST' && $action === 'create') {
     $category_id = $_POST['category_id'] ?? null;
     $stock = $_POST['stock'] ?? 0;
     $featured = isset($_POST['featured']) && $_POST['featured'] === 'true' ? 1 : 0;
+    $brand = $_POST['brand'] ?? '';
 
     $image = null;
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
@@ -80,8 +81,8 @@ if ($method === 'POST' && $action === 'create') {
         $image = '/uploads/' . $filename;
     }
 
-    $stmt = $db->prepare("INSERT INTO products (name, description, price, sale_price, category_id, image, stock, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$name, $description, $price, $sale_price ?: null, $category_id ?: null, $image, $stock, $featured]);
+    $stmt = $db->prepare("INSERT INTO products (name, description, price, sale_price, category_id, image, stock, featured, brand) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$name, $description, $price, $sale_price ?: null, $category_id ?: null, $image, $stock, $featured, $brand]);
     echo json_encode(['message' => 'Product added', 'id' => $db->lastInsertId()]);
     exit();
 }
@@ -96,17 +97,18 @@ if ($method === 'POST' && $action === 'update') {
     $category_id = $_POST['category_id'] ?? null;
     $stock = $_POST['stock'] ?? 0;
     $featured = isset($_POST['featured']) && $_POST['featured'] === 'true' ? 1 : 0;
+    $brand = $_POST['brand'] ?? '';
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
         $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
         $filename = time() . '.' . $ext;
         move_uploaded_file($_FILES['image']['tmp_name'], '../uploads/' . $filename);
         $image = '/uploads/' . $filename;
-        $stmt = $db->prepare("UPDATE products SET name=?, description=?, price=?, sale_price=?, category_id=?, image=?, stock=?, featured=? WHERE id=?");
-        $stmt->execute([$name, $description, $price, $sale_price ?: null, $category_id ?: null, $image, $stock, $featured, $id]);
+        $stmt = $db->prepare("UPDATE products SET name=?, description=?, price=?, sale_price=?, category_id=?, image=?, stock=?, featured=?, brand=? WHERE id=?");
+        $stmt->execute([$name, $description, $price, $sale_price ?: null, $category_id ?: null, $image, $stock, $featured, $brand, $id]);
     } else {
-        $stmt = $db->prepare("UPDATE products SET name=?, description=?, price=?, sale_price=?, category_id=?, stock=?, featured=? WHERE id=?");
-        $stmt->execute([$name, $description, $price, $sale_price ?: null, $category_id ?: null, $stock, $featured, $id]);
+        $stmt = $db->prepare("UPDATE products SET name=?, description=?, price=?, sale_price=?, category_id=?, stock=?, featured=?, brand=? WHERE id=?");
+        $stmt->execute([$name, $description, $price, $sale_price ?: null, $category_id ?: null, $stock, $featured, $brand, $id]);
     }
     echo json_encode(['message' => 'Product updated']);
     exit();

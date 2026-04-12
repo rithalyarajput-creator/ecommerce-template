@@ -213,6 +213,7 @@ const Admin = () => {
             level, mode,
             id: node ? node.id : null,
             parentId,
+            parentCatId: level === 'subsub' ? (categoryTree.find(c => (c.subcategories || []).some(s => s.id === parentId))?.id || '') : '',
             name: node ? node.name : '',
             description: node ? node.description || '' : '',
             image: null,
@@ -223,6 +224,15 @@ const Admin = () => {
     const submitCatNode = async (e) => {
         e.preventDefault();
         const f = catNodeForm;
+
+        // Validation for nested levels
+        if (f.mode === 'create' && f.level === 'sub' && !f.parentId) {
+            return toast.error('Please select a parent category');
+        }
+        if (f.mode === 'create' && f.level === 'subsub' && !f.parentId) {
+            return toast.error('Please select a parent subcategory');
+        }
+
         const fd = new FormData();
         fd.append('name', f.name);
         fd.append('description', f.description);
@@ -379,7 +389,23 @@ const Admin = () => {
     };
 
     // --- Coupons ---
-    const resetCoupForm = () => { setCoupForm(emptyCoup); setEditCoupId(null); setShowCoupForm(false); };
+    const resetCoupForm = () => { setCoupForm(emptyCoup); setEditCoupId(null); };
+    const closeCoupForm = () => { resetCoupForm(); setShowCoupForm(false); };
+
+    const generateCouponCode = () => {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        // Optional prefix based on discount type/value for readability
+        if (coupForm.discount_value && coupForm.discount_type === 'percent') {
+            code = `SAVE${Math.round(parseFloat(coupForm.discount_value))}`;
+        } else if (coupForm.discount_value && coupForm.discount_type === 'flat') {
+            code = `FLAT${Math.round(parseFloat(coupForm.discount_value))}`;
+        } else {
+            code = 'OFFER';
+        }
+        for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+        setCoupForm({ ...coupForm, code });
+    };
 
     const handleCouponSubmit = async (e) => {
         e.preventDefault();
@@ -391,7 +417,7 @@ const Admin = () => {
                 await API.post('/api/coupons.php?action=create', coupForm);
                 toast.success('Coupon created!');
             }
-            resetCoupForm(); fetchCoupons();
+            closeCoupForm(); fetchCoupons();
         } catch (err) { toast.error(err.response?.data?.message || 'Error saving coupon'); }
     };
 
@@ -675,7 +701,7 @@ const Admin = () => {
                                 </p>
                             </div>
                             <button className="btn-add" onClick={() => openCatForm('cat', 'create')}>
-                                <FiPlus /> Add Category
+                                <FiPlus /> Add New
                             </button>
                         </div>
 
@@ -778,6 +804,57 @@ const Admin = () => {
                                         <button className="modal-close" onClick={() => setCatNodeForm(null)}><FiX /></button>
                                     </div>
                                     <form className="admin-form" style={{padding:'18px 22px'}} onSubmit={submitCatNode}>
+                                        {catNodeForm.mode === 'create' && (
+                                            <div className="form-group">
+                                                <label>Type * — where to save this?</label>
+                                                <div className="type-selector">
+                                                    <label className={`type-option ${catNodeForm.level === 'cat' ? 'active' : ''}`}>
+                                                        <input type="radio" name="catLevel" checked={catNodeForm.level === 'cat'} onChange={() => setCatNodeForm({ ...catNodeForm, level: 'cat', parentId: null, parentCatId: '' })} />
+                                                        <div><strong>Category</strong><small>Top-level (e.g. Jewellery)</small></div>
+                                                    </label>
+                                                    <label className={`type-option ${catNodeForm.level === 'sub' ? 'active' : ''}`}>
+                                                        <input type="radio" name="catLevel" checked={catNodeForm.level === 'sub'} onChange={() => setCatNodeForm({ ...catNodeForm, level: 'sub', parentId: catNodeForm.parentId && categoryTree.some(c => c.id === catNodeForm.parentId) ? catNodeForm.parentId : '' })} />
+                                                        <div><strong>Subcategory</strong><small>Under a category (e.g. Necklaces)</small></div>
+                                                    </label>
+                                                    <label className={`type-option ${catNodeForm.level === 'subsub' ? 'active' : ''}`}>
+                                                        <input type="radio" name="catLevel" checked={catNodeForm.level === 'subsub'} onChange={() => setCatNodeForm({ ...catNodeForm, level: 'subsub', parentId: '', parentCatId: '' })} />
+                                                        <div><strong>Sub-subcategory</strong><small>Under a subcategory (e.g. Chokers)</small></div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {catNodeForm.mode === 'create' && catNodeForm.level === 'sub' && (
+                                            <div className="form-group">
+                                                <label>Parent Category *</label>
+                                                <select value={catNodeForm.parentId || ''} onChange={(e) => setCatNodeForm({ ...catNodeForm, parentId: parseInt(e.target.value) || null })} required>
+                                                    <option value="">Select a category</option>
+                                                    {categoryTree.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                                </select>
+                                            </div>
+                                        )}
+
+                                        {catNodeForm.mode === 'create' && catNodeForm.level === 'subsub' && (
+                                            <div className="form-row">
+                                                <div className="form-group">
+                                                    <label>Parent Category *</label>
+                                                    <select value={catNodeForm.parentCatId || ''} onChange={(e) => setCatNodeForm({ ...catNodeForm, parentCatId: parseInt(e.target.value) || '', parentId: null })} required>
+                                                        <option value="">Select a category</option>
+                                                        {categoryTree.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                                    </select>
+                                                </div>
+                                                <div className="form-group">
+                                                    <label>Parent Subcategory *</label>
+                                                    <select value={catNodeForm.parentId || ''} onChange={(e) => setCatNodeForm({ ...catNodeForm, parentId: parseInt(e.target.value) || null })} required disabled={!catNodeForm.parentCatId}>
+                                                        <option value="">{catNodeForm.parentCatId ? 'Select a subcategory' : 'Pick category first'}</option>
+                                                        {(categoryTree.find(c => c.id === catNodeForm.parentCatId)?.subcategories || []).map(s => (
+                                                            <option key={s.id} value={s.id}>{s.name}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="form-group">
                                             <label>Name *</label>
                                             <input value={catNodeForm.name} onChange={(e) => setCatNodeForm({ ...catNodeForm, name: e.target.value })} required autoFocus />
@@ -795,7 +872,11 @@ const Admin = () => {
                                         </div>
                                         <div style={{display:'flex',gap:'10px',justifyContent:'flex-end',marginTop:'10px'}}>
                                             <button type="button" className="btn-action view" onClick={() => setCatNodeForm(null)}>Cancel</button>
-                                            <button type="submit" className="btn-submit">{catNodeForm.mode === 'create' ? 'Create' : 'Save Changes'}</button>
+                                            <button type="submit" className="btn-submit">
+                                                {catNodeForm.mode === 'create'
+                                                    ? `Create ${catNodeForm.level === 'cat' ? 'Category' : catNodeForm.level === 'sub' ? 'Subcategory' : 'Sub-subcategory'}`
+                                                    : 'Save Changes'}
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
@@ -973,7 +1054,10 @@ const Admin = () => {
                     <div className="admin-content">
                         <div className="tab-header">
                             <div><p className="tab-subtitle">{coupons.length} coupons • {coupons.filter(c => parseInt(c.active) === 1).length} active</p></div>
-                            <button className="btn-add" onClick={() => { setShowCoupForm(!showCoupForm); resetCoupForm(); }}>
+                            <button className="btn-add" onClick={() => {
+                                if (showCoupForm) { closeCoupForm(); }
+                                else { resetCoupForm(); setShowCoupForm(true); }
+                            }}>
                                 <FiPlus /> {showCoupForm ? 'Cancel' : 'Create Coupon'}
                             </button>
                         </div>
@@ -983,8 +1067,15 @@ const Admin = () => {
                                 <h3 className="card-title">{editCoupId ? 'Edit Coupon' : 'New Coupon'}</h3>
                                 <form className="admin-form" onSubmit={handleCouponSubmit}>
                                     <div className="form-row">
-                                        <div className="form-group"><label>Code * (e.g. WELCOME10)</label>
-                                            <input value={coupForm.code} onChange={(e) => setCoupForm({ ...coupForm, code: e.target.value.toUpperCase() })} required disabled={!!editCoupId} /></div>
+                                        <div className="form-group"><label>Code * (type or generate)</label>
+                                            <div className="input-with-btn">
+                                                <input value={coupForm.code} onChange={(e) => setCoupForm({ ...coupForm, code: e.target.value.toUpperCase() })} placeholder="e.g. WELCOME10" required disabled={!!editCoupId} />
+                                                {!editCoupId && (
+                                                    <button type="button" className="btn-generate" onClick={generateCouponCode} title="Generate random code">
+                                                        ⚡ Generate
+                                                    </button>
+                                                )}
+                                            </div></div>
                                         <div className="form-group"><label>Description (shown to customer)</label>
                                             <input value={coupForm.description} onChange={(e) => setCoupForm({ ...coupForm, description: e.target.value })} placeholder="10% off on first order" /></div>
                                     </div>

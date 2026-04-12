@@ -5,6 +5,7 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import API, { API_URL } from '../../utils/api';
 import { toast } from 'react-toastify';
+import ProductCard from '../../components/ProductCard/ProductCard';
 import './ProductDetail.css';
 
 const ProductDetail = () => {
@@ -16,15 +17,24 @@ const ProductDetail = () => {
     const [showEnquire, setShowEnquire] = useState(false);
     const [enquireForm, setEnquireForm] = useState({ name: '', email: '', phone: '', message: '' });
     const [submittingEnquire, setSubmittingEnquire] = useState(false);
+    const [similarProducts, setSimilarProducts] = useState([]);
     const { addToCart } = useCart();
     const { user } = useAuth();
 
     useEffect(() => {
         const fetch = async () => {
+            setLoading(true);
             try {
                 const { data } = await API.get(`/api/products.php?action=detail&id=${id}`);
                 setProduct(data);
                 setSelectedImage(0);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                // Fetch similar products
+                try {
+                    const { data: sim } = await API.get(`/api/products.php?action=similar&product_id=${id}&limit=8`);
+                    setSimilarProducts(sim || []);
+                } catch (e) { setSimilarProducts([]); }
             } catch (err) { console.error(err); }
             setLoading(false);
         };
@@ -197,6 +207,17 @@ const ProductDetail = () => {
                             <p>{r.comment}</p>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {similarProducts.length > 0 && (
+                <div className="similar-products-section">
+                    <h2>Similar Products You May Like</h2>
+                    <div className="similar-products-grid">
+                        {similarProducts.map(p => (
+                            <ProductCard key={p.id} product={p} />
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

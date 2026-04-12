@@ -84,6 +84,64 @@ if ($method === 'GET' && $action === 'list') {
     exit();
 }
 
+if ($method === 'GET' && $action === 'similar') {
+    $productId = intval($_GET['product_id'] ?? 0);
+    $limit = intval($_GET['limit'] ?? 8);
+
+    // Get current product's subcategory and category
+    $current = $db->prepare("SELECT category_id, subcategory_id FROM products WHERE id = ?");
+    $current->execute([$productId]);
+    $cur = $current->fetch(PDO::FETCH_ASSOC);
+
+    if (!$cur) {
+        echo json_encode([]);
+        exit();
+    }
+
+    // Try same subcategory first
+    if ($cur['subcategory_id']) {
+        $stmt = $db->prepare("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.subcategory_id = ? AND p.id != ? ORDER BY p.rating DESC, p.num_reviews DESC LIMIT ?");
+        $stmt->bindValue(1, $cur['subcategory_id'], PDO::PARAM_INT);
+        $stmt->bindValue(2, $productId, PDO::PARAM_INT);
+        $stmt->bindValue(3, $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // If less than requested, fill with same category
+        if (count($results) < $limit && $cur['category_id']) {
+            $excludeIds = array_column($results, 'id');
+            $excludeIds[] = $productId;
+            $placeholders = implode(',', array_fill(0, count($excludeIds), '?'));
+            $needed = $limit - count($results);
+            $extra = $db->prepare("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.category_id = ? AND p.id NOT IN ($placeholders) ORDER BY p.rating DESC LIMIT ?");
+            $extra->bindValue(1, $cur['category_id'], PDO::PARAM_INT);
+            foreach ($excludeIds as $i => $eid) {
+                $extra->bindValue($i + 2, $eid, PDO::PARAM_INT);
+            }
+            $extra->bindValue(count($excludeIds) + 2, $needed, PDO::PARAM_INT);
+            $extra->execute();
+            $results = array_merge($results, $extra->fetchAll(PDO::FETCH_ASSOC));
+        }
+
+        echo json_encode($results);
+        exit();
+    }
+
+    // Fallback: same category
+    if ($cur['category_id']) {
+        $stmt = $db->prepare("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.category_id = ? AND p.id != ? ORDER BY p.rating DESC LIMIT ?");
+        $stmt->bindValue(1, $cur['category_id'], PDO::PARAM_INT);
+        $stmt->bindValue(2, $productId, PDO::PARAM_INT);
+        $stmt->bindValue(3, $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        exit();
+    }
+
+    echo json_encode([]);
+    exit();
+}
+
 if ($method === 'GET' && $action === 'featured') {
     $stmt = $db->prepare("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.featured = 1 LIMIT 8");
     $stmt->execute();

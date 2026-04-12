@@ -86,3 +86,14 @@
 .enquire-form button { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: #2874f0; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95rem; margin-top: 4px; }
 .enquire-form button:hover { background: #1a5dc7; }
 .enquire-form button:disabled { background: #b3c6e8; cursor: not-allowed; }
+
+/* Similar Products Section */
+.similar-products-section { background: #fff; padding: 24px; border-radius: 4px; margin-top: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+.similar-products-section h2 { font-size: 1.25rem; color: #212121; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; font-weight: 600; }
+.similar-products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+
+@media (max-width: 768px) {
+    .similar-products-section { padding: 16px; }
+    .similar-products-section h2 { font-size: 1.05rem; }
+    .similar-products-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}

@@ -229,3 +229,18 @@
     .cat-info small { display: none; }
     .cat-children { padding-left: 20px; }
 }
+
+/* Type selector (Add modal — pick level) */
+.type-selector { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+.type-option { display: flex; align-items: center; gap: 10px; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; cursor: pointer; transition: all 0.15s; background: #fff; }
+.type-option:hover { border-color: #90caf9; background: #f5faff; }
+.type-option.active { border-color: #2874f0; background: #e3f2fd; box-shadow: 0 0 0 2px rgba(40,116,240,0.1); }
+.type-option input[type="radio"] { margin: 0; accent-color: #2874f0; }
+.type-option strong { display: block; color: #172337; font-size: 0.88rem; font-weight: 600; }
+.type-option small { display: block; color: #878787; font-size: 0.74rem; margin-top: 2px; }
+
+/* Input with inline button (e.g. Generate coupon code) */
+.input-with-btn { display: flex; gap: 6px; }
+.input-with-btn input { flex: 1; }
+.btn-generate { padding: 0 14px; background: #ff9f00; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.82rem; white-space: nowrap; transition: background 0.15s; }
+.btn-generate:hover { background: #f57c00; }

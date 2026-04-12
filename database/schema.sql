@@ -324,3 +324,137 @@ INSERT INTO product_images (product_id, image_url, sort_order) VALUES
 (18, '/uploads/products/b5_1.png', 0), (18, '/uploads/products/b5_2.png', 1), (18, '/uploads/products/b5_3.png', 2), (18, '/uploads/products/b5_4.png', 3),
 (19, '/uploads/products/b6_1.png', 0), (19, '/uploads/products/b6_2.png', 1), (19, '/uploads/products/b6_3.png', 2), (19, '/uploads/products/b6_4.png', 3);
 
+
+
+-- Add Ring subcategory (id 6)
+INSERT INTO subcategories (id, category_id, name, description, image) VALUES
+(6, 1, 'Ring', 'Beautiful rings and adjustable finger jewellery', '/uploads/products/r1_1.png');
+
+-- Add sub-subcategories
+INSERT INTO sub_subcategories (subcategory_id, name, description) VALUES
+(6, 'Floral Ring', 'Flower design rings'),
+(6, 'Victorian Ring', 'Royal Victorian style rings'),
+(6, 'Kundan Ring', 'Traditional kundan stone rings'),
+(3, 'Heart Mangalsutra', 'Heart shape pendant mangalsutra'),
+(3, 'Leaf Mangalsutra', 'Leaf pattern mangalsutra'),
+(3, 'Single Line Mangalsutra', 'Simple single chain mangalsutra'),
+(3, 'Double Chain Mangalsutra', 'Double layered mangalsutra'),
+(3, 'Diamond Mangalsutra', 'Diamond studded mangalsutra');
+
+-- ==============================
+-- 5 RINGS (products 20-24)
+-- ==============================
+INSERT INTO products (name, description, price, sale_price, category_id, subcategory_id, sub_subcategory_id, image, stock, rating, num_reviews, featured, brand, meesho_link, flipkart_link, amazon_link) VALUES
+
+('Gold Plated Traditional Floral Ring with Ruby Stones',
+'Elegant adjustable ring featuring a round floral medallion design with ruby red stone accents and beaded detailing. Perfect for traditional wear and festive occasions.\n\nTraditional Indian Design\nThe classic round disk with intricate filigree work and flower motifs makes this ring a timeless piece of Indian jewellery.\n\nAdjustable Comfort Fit\nThe open-ended adjustable design ensures a perfect fit for any finger size, making it easy to gift and comfortable to wear.\n\nPerfect for Traditional Occasions\n• Festivals and pujas\n• Wedding ceremonies\n• Traditional functions\n• Cultural events\n• Daily ethnic wear\n\nProduct Highlights\n• Gold plated finish\n• Floral medallion design\n• Ruby red stone accents\n• Adjustable open band\n• Beaded border detailing\n• Comfortable lightweight\n\nCare Instructions\n• Remove before washing hands\n• Avoid chemicals and perfume\n• Clean with soft dry cloth\n• Store in jewellery box',
+499.00, 279.00, 1, 6, 13, '/uploads/products/r1_1.png', 100, 4.7, 234, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Floral Statement Ring with Multi-Color Stones',
+'Bold statement ring featuring an intricate floral design with colorful red and green stones. The large floral top makes it a perfect statement piece for any outfit.\n\nStatement Floral Design\nThe oversized floral top with detailed petal work and colored stones creates a bold, eye-catching look perfect for special occasions.\n\nColorful Accents\nThe combination of red and green stones in the center adds a royal touch reminiscent of traditional temple jewellery.\n\nPerfect for Parties & Events\n• Wedding guest wear\n• Reception events\n• Festival celebrations\n• Party wear\n• Ethnic gatherings\n\nProduct Highlights\n• Gold plated finish\n• Large floral statement design\n• Red and green enamel stones\n• Adjustable band\n• Textured petal detailing\n• High quality finish\n\nCare Instructions\n• Remove before sleeping\n• Avoid water contact\n• Wipe with soft cloth\n• Store separately',
+449.00, 249.00, 1, 6, 13, '/uploads/products/r2_1.png', 80, 4.6, 189, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Victorian Temple Ring with Ruby Centerpiece',
+'Regal Victorian-inspired ring with a large round medallion featuring intricate temple-style detailing and a central ruby stone. Perfect for adding royal elegance to traditional outfits.\n\nVictorian Royal Design\nInspired by Victorian-era jewellery, this ring features multi-layered goldwork with ornate details that exude royal elegance.\n\nCentral Ruby Stone\nThe ruby red central stone adds a luxurious touch, while the surrounding goldwork creates a halo effect that enhances its appeal.\n\nPerfect for Bridal & Festive Wear\n• Bridal functions\n• Wedding parties\n• Diwali and major festivals\n• Traditional photoshoots\n• Royal-themed events\n\nProduct Highlights\n• Gold plated antique finish\n• Large round Victorian design\n• Ruby red center stone\n• Scalloped edge pattern\n• Adjustable ring band\n• Heirloom-quality look\n\nCare Instructions\n• Store in velvet pouch\n• Handle with care\n• Avoid moisture\n• Clean with microfiber cloth',
+599.00, 349.00, 1, 6, 14, '/uploads/products/r3_1.png', 60, 4.8, 156, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Kundan Flower Ring with Ruby & Emerald Stones',
+'Traditional kundan-style ring featuring a beautiful flower design with ruby and emerald stones. The scalloped border adds a vintage touch to this elegant piece.\n\nKundan Craftsmanship\nThe traditional kundan setting holds the stones securely while showcasing the beautiful details of the flower design.\n\nMulti-Stone Elegance\nThe combination of ruby red and emerald green stones creates a royal look that complements traditional Indian outfits beautifully.\n\nPerfect for Traditional Events\n• Wedding ceremonies\n• Sangeet functions\n• Karva Chauth\n• Festival celebrations\n• Family gatherings\n\nProduct Highlights\n• Gold plated base\n• Kundan-style stone setting\n• Ruby and emerald stones\n• Scalloped flower design\n• Adjustable ring\n• Traditional Indian look\n\nCare Instructions\n• Remove before household chores\n• Avoid soap and chemicals\n• Clean with dry cloth\n• Store in jewellery box',
+549.00, 299.00, 1, 6, 15, '/uploads/products/r4_1.png', 70, 4.7, 201, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Peacock Design Ring with Ruby Stone',
+'Unique peacock-inspired ring with intricate feather detailing and a small ruby stone accent. The scalloped border and detailed design make it a conversation starter.\n\nPeacock Motif Design\nThe peacock is a traditional Indian motif symbolizing beauty and grace. This ring captures that essence with beautiful feather-like patterns.\n\nDelicate Ruby Accent\nA small ruby stone adds just the right touch of color, complementing the gold finish without overwhelming the intricate design.\n\nPerfect for Cultural Events\n• Traditional pujas\n• Dance performances\n• Festival wear\n• Cultural programs\n• Heritage events\n\nProduct Highlights\n• Gold plated finish\n• Peacock motif design\n• Small ruby stone accent\n• Scalloped border\n• Adjustable band\n• Unique conversation piece\n\nCare Instructions\n• Handle gently\n• Avoid scratching surfaces\n• Wipe with soft cloth\n• Store carefully',
+499.00, 279.00, 1, 6, 13, '/uploads/products/r5_1.png', 85, 4.6, 167, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in');
+
+-- ==============================
+-- 15 MANGALSUTRAS (products 25-39)
+-- ==============================
+INSERT INTO products (name, description, price, sale_price, category_id, subcategory_id, sub_subcategory_id, image, stock, rating, num_reviews, featured, brand, meesho_link, flipkart_link, amazon_link) VALUES
+
+('Gold Plated Single Line Mangalsutra with Sunflower Pendant',
+'Elegant single chain mangalsutra featuring a beautiful sunflower-inspired pendant with zircon stones and a pearl centerpiece. Perfect for daily wear.\n\nDesigned for elegance and tradition, this lightweight mangalsutra offers perfect blend of modern aesthetics with cultural significance. The black beaded chain with gold accents completes the traditional mangalsutra look.\n\nProduct Highlights\n• Gold plated finish\n• Single chain design\n• Sunflower pendant with zircon stones\n• Black bead accents\n• Pearl centerpiece\n• Lightweight daily wear\n\nPerfect For\n• Daily wear\n• Office wear\n• Traditional events\n• Festival celebrations\n• Anniversary gifts\n\nCare Instructions\n• Remove before sleeping\n• Avoid water and perfume\n• Clean with soft cloth\n• Store in jewellery box',
+499.00, 279.00, 1, 3, 17, '/uploads/products/m1_1.png', 100, 4.7, 345, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Mangalsutra with Heart Floral Pendant',
+'Romantic heart-shaped floral pendant mangalsutra with zircon stones. The delicate heart design symbolizes love and unity in marriage.\n\nProduct Highlights\n• Gold plated chain and pendant\n• Heart floral design with zircon\n• Traditional black bead accents\n• Lightweight wear\n• Romantic design\n\nPerfect For\n• Daily wear\n• Anniversary wear\n• Valentine''s Day gift\n• Romantic occasions\n• Gift for wife\n\nCare Instructions\n• Store dry\n• Clean with soft cloth\n• Avoid chemicals\n• Handle with care',
+549.00, 299.00, 1, 3, 16, '/uploads/products/m2_1.png', 90, 4.8, 432, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Mangalsutra with Crystal Leaf Pendant',
+'Delicate leaf-inspired pendant mangalsutra with sparkling crystals. The modern design combines tradition with contemporary styling.\n\nProduct Highlights\n• Gold plated finish\n• Leaf pendant with crystals\n• Small pearl drop accent\n• Traditional mangalsutra beads\n• Modern minimalist design\n\nPerfect For\n• Office wear\n• Daily wear\n• Casual occasions\n• Traditional events\n• Modern bride\n\nCare Instructions\n• Avoid moisture\n• Store separately\n• Clean gently\n• Handle leaf pattern carefully',
+449.00, 249.00, 1, 3, 17, '/uploads/products/m3_1.png', 110, 4.6, 278, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Mangalsutra with Stylish Pendant Design',
+'Beautiful mangalsutra with a stylish modern pendant featuring intricate goldwork and sparkling stones. Perfect for modern married women.\n\nProduct Highlights\n• Gold plated finish\n• Modern pendant design\n• Intricate detailing\n• Black bead accents\n• Lightweight wear\n\nPerfect For\n• Daily wear\n• Office wear\n• Festive occasions\n• Social gatherings\n\nCare Instructions\n• Remove before bath\n• Store dry\n• Clean gently\n• Avoid perfume',
+499.00, 279.00, 1, 3, 17, '/uploads/products/m4_1.png', 95, 4.7, 198, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Designer Mangalsutra with Crystal Accents',
+'Elegant designer mangalsutra featuring a unique pendant with crystal accents. The contemporary design is perfect for the modern woman.\n\nProduct Highlights\n• Gold plated finish\n• Designer pendant style\n• Crystal detailing\n• Traditional bead chain\n• Modern look\n\nPerfect For\n• Daily wear\n• Festive wear\n• Office occasions\n• Modern bridal look\n\nCare Instructions\n• Store carefully\n• Clean with soft cloth\n• Avoid water\n• Handle gently',
+599.00, 349.00, 1, 3, 17, '/uploads/products/m5_1.png', 75, 4.5, 156, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Double Chain Mangalsutra with Designer Pendant',
+'Traditional double-chain mangalsutra with a statement pendant. The double layer of black beads creates a classic mangalsutra look preferred in many regions of India.\n\nProduct Highlights\n• Gold plated finish\n• Double chain design\n• Designer pendant\n• Traditional black beads\n• Statement look\n\nPerfect For\n• Traditional brides\n• Wedding functions\n• Daily traditional wear\n• Festival celebrations\n\nCare Instructions\n• Store in dry box\n• Avoid moisture\n• Clean gently\n• Protect pendant',
+699.00, 399.00, 1, 3, 18, '/uploads/products/m6_1.png', 60, 4.8, 234, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Elegant Mangalsutra with Floral Pendant',
+'Beautiful mangalsutra with an elegant floral pendant design. Perfect for brides and married women who appreciate classic jewellery.\n\nProduct Highlights\n• Gold plated chain\n• Elegant floral pendant\n• Small zircon accents\n• Traditional look\n• Lightweight design\n\nPerfect For\n• Daily wear\n• Office wear\n• Traditional events\n• Anniversary\n\nCare Instructions\n• Remove before water activities\n• Store dry\n• Clean with soft cloth\n• Handle pendant carefully',
+449.00, 249.00, 1, 3, 17, '/uploads/products/m7_1.png', 105, 4.6, 321, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Mangalsutra with Statement Pendant',
+'Statement mangalsutra with a bold pendant design that stands out. Perfect for modern brides wanting to make a statement.\n\nProduct Highlights\n• Gold plated finish\n• Bold statement pendant\n• Traditional mangalsutra beads\n• Modern design\n• Eye-catching look\n\nPerfect For\n• Wedding day wear\n• Reception\n• Special occasions\n• Anniversary\n\nCare Instructions\n• Store carefully\n• Clean regularly\n• Avoid chemicals\n• Handle with care',
+799.00, 449.00, 1, 3, 17, '/uploads/products/m8_1.png', 50, 4.7, 187, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated American Diamond Box Mangalsutra',
+'Premium American Diamond (AD) mangalsutra with a box-shaped pendant featuring high-quality zircon stones. A luxurious option for modern brides.\n\nProduct Highlights\n• Gold plated finish\n• American Diamond (AD) stones\n• Box pendant shape\n• Premium quality\n• Sparkling finish\n\nPerfect For\n• Reception wear\n• Party occasions\n• Anniversary\n• Wedding events\n• Gift for wife\n\nCare Instructions\n• Store in velvet pouch\n• Avoid perfume\n• Clean with AD polish\n• Handle with care',
+899.00, 499.00, 1, 3, 19, '/uploads/products/m9_1.png', 45, 4.8, 145, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Mangalsutra with Fish Scale Pendant Design',
+'Unique mangalsutra with a pendant featuring fish scale pattern encrusted with zircon stones. The geometric modern design is perfect for fashion-forward brides.\n\nProduct Highlights\n• Gold plated finish\n• Fish scale pattern pendant\n• Zircon stone encrusted\n• Modern geometric design\n• Elegant look\n\nPerfect For\n• Modern brides\n• Office wear\n• Social events\n• Daily wear\n\nCare Instructions\n• Store dry\n• Clean gently\n• Avoid chemicals\n• Handle geometric edges carefully',
+549.00, 299.00, 1, 3, 19, '/uploads/products/m10_1.png', 85, 4.7, 212, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Heart Shape Mangalsutra with AD Stones',
+'Romantic heart-shaped mangalsutra pendant with premium American Diamond stones. The heart design symbolizes eternal love.\n\nProduct Highlights\n• Gold plated chain\n• Heart shape pendant\n• AD stone work\n• Small drop accent\n• Romantic design\n\nPerfect For\n• Anniversary wear\n• Valentine gift\n• Romantic occasions\n• Daily wear by married women\n\nCare Instructions\n• Store in velvet pouch\n• Clean with soft cloth\n• Avoid water\n• Handle with care',
+649.00, 349.00, 1, 3, 16, '/uploads/products/m11_1.png', 70, 4.9, 298, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Kalash Design Mangalsutra with Pearl Drop',
+'Traditional Kalash-inspired mangalsutra with sacred symbolism. The circular pendant with floral top and pearl drop is perfect for religious married women.\n\nProduct Highlights\n• Gold plated finish\n• Kalash-inspired circular design\n• Floral top detail\n• Pearl drop accent\n• Religious symbolism\n\nPerfect For\n• Religious ceremonies\n• Temple visits\n• Traditional pujas\n• Cultural events\n\nCare Instructions\n• Keep sacred\n• Store respectfully\n• Clean gently\n• Handle pearl carefully',
+579.00, 319.00, 1, 3, 17, '/uploads/products/m12_1.png', 80, 4.8, 267, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Delicate Leaf Mangalsutra with AD Stones',
+'Graceful leaf-patterned mangalsutra with sparkling American Diamond stones. The leaf design is accented by a small heart drop for added sweetness.\n\nProduct Highlights\n• Gold plated finish\n• Delicate leaf pattern\n• Premium AD stones\n• Heart drop accent\n• Graceful design\n\nPerfect For\n• Daily wear\n• Office wear\n• Casual occasions\n• Modern married women\n\nCare Instructions\n• Store carefully\n• Clean with dry cloth\n• Avoid moisture\n• Handle pattern gently',
+499.00, 279.00, 1, 3, 17, '/uploads/products/m13_1.png', 95, 4.7, 189, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Round Medallion Mangalsutra',
+'Classic round medallion mangalsutra with intricate goldwork. The circular pendant is a timeless choice for traditional married women.\n\nProduct Highlights\n• Gold plated finish\n• Round medallion pendant\n• Intricate goldwork\n• Traditional design\n• Classic look\n\nPerfect For\n• Traditional wear\n• Daily wear\n• Festival occasions\n• Wedding functions\n\nCare Instructions\n• Store dry\n• Clean with soft cloth\n• Avoid chemicals\n• Regular polish',
+549.00, 299.00, 1, 3, 17, '/uploads/products/m14_1.png', 75, 4.6, 176, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+('Gold Plated Round Statement Mangalsutra with Crystal',
+'Statement round mangalsutra with a crystal centerpiece. Perfect for modern married women who love classic designs with a contemporary twist.\n\nProduct Highlights\n• Gold plated finish\n• Round statement pendant\n• Crystal centerpiece\n• Traditional beads\n• Modern classic design\n\nPerfect For\n• Wedding day\n• Reception\n• Anniversary\n• Special occasions\n\nCare Instructions\n• Handle with care\n• Store in box\n• Clean gently\n• Avoid hard surfaces',
+699.00, 399.00, 1, 3, 19, '/uploads/products/m15_1.png', 55, 4.8, 201, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in');
+
+-- ==============================
+-- Product Images (4 per product, 19 products already exist)
+-- Rings: 20-24, Mangalsutra: 25-39
+-- ==============================
+INSERT INTO product_images (product_id, image_url, sort_order) VALUES
+-- Rings (20-24)
+(20, '/uploads/products/r1_1.png', 0), (20, '/uploads/products/r1_2.png', 1), (20, '/uploads/products/r1_3.png', 2), (20, '/uploads/products/r1_4.png', 3),
+(21, '/uploads/products/r2_1.png', 0), (21, '/uploads/products/r2_2.png', 1), (21, '/uploads/products/r2_3.png', 2), (21, '/uploads/products/r2_4.png', 3),
+(22, '/uploads/products/r3_1.png', 0), (22, '/uploads/products/r3_2.png', 1), (22, '/uploads/products/r3_3.png', 2), (22, '/uploads/products/r3_4.jpeg', 3),
+(23, '/uploads/products/r4_1.png', 0), (23, '/uploads/products/r4_2.png', 1), (23, '/uploads/products/r4_3.png', 2), (23, '/uploads/products/r4_4.png', 3),
+(24, '/uploads/products/r5_1.png', 0), (24, '/uploads/products/r5_2.png', 1), (24, '/uploads/products/r5_3.jpeg', 2),
+-- Mangalsutras (25-39)
+(25, '/uploads/products/m1_1.png', 0), (25, '/uploads/products/m1_2.png', 1), (25, '/uploads/products/m1_3.png', 2), (25, '/uploads/products/m1_4.png', 3),
+(26, '/uploads/products/m2_1.png', 0), (26, '/uploads/products/m2_2.png', 1), (26, '/uploads/products/m2_3.png', 2), (26, '/uploads/products/m2_4.png', 3),
+(27, '/uploads/products/m3_1.png', 0), (27, '/uploads/products/m3_2.png', 1), (27, '/uploads/products/m3_3.png', 2), (27, '/uploads/products/m3_4.png', 3),
+(28, '/uploads/products/m4_1.png', 0), (28, '/uploads/products/m4_2.png', 1), (28, '/uploads/products/m4_3.png', 2), (28, '/uploads/products/m4_4.png', 3),
+(29, '/uploads/products/m5_1.png', 0), (29, '/uploads/products/m5_2.png', 1), (29, '/uploads/products/m5_3.png', 2), (29, '/uploads/products/m5_4.png', 3),
+(30, '/uploads/products/m6_1.png', 0), (30, '/uploads/products/m6_2.png', 1), (30, '/uploads/products/m6_3.png', 2), (30, '/uploads/products/m6_4.png', 3),
+(31, '/uploads/products/m7_1.png', 0), (31, '/uploads/products/m7_2.png', 1), (31, '/uploads/products/m7_3.png', 2), (31, '/uploads/products/m7_4.png', 3),
+(32, '/uploads/products/m8_1.png', 0), (32, '/uploads/products/m8_2.png', 1), (32, '/uploads/products/m8_3.png', 2), (32, '/uploads/products/m8_4.png', 3),
+(33, '/uploads/products/m9_1.png', 0), (33, '/uploads/products/m9_2.png', 1), (33, '/uploads/products/m9_3.png', 2), (33, '/uploads/products/m9_4.png', 3),
+(34, '/uploads/products/m10_1.png', 0), (34, '/uploads/products/m10_2.png', 1), (34, '/uploads/products/m10_3.png', 2), (34, '/uploads/products/m10_4.png', 3),
+(35, '/uploads/products/m11_1.png', 0), (35, '/uploads/products/m11_2.png', 1), (35, '/uploads/products/m11_3.png', 2), (35, '/uploads/products/m11_4.png', 3),
+(36, '/uploads/products/m12_1.png', 0), (36, '/uploads/products/m12_2.png', 1), (36, '/uploads/products/m12_3.png', 2), (36, '/uploads/products/m12_4.png', 3),
+(37, '/uploads/products/m13_1.png', 0), (37, '/uploads/products/m13_2.png', 1), (37, '/uploads/products/m13_3.png', 2), (37, '/uploads/products/m13_4.png', 3),
+(38, '/uploads/products/m14_1.png', 0), (38, '/uploads/products/m14_2.png', 1), (38, '/uploads/products/m14_3.png', 2), (38, '/uploads/products/m14_4.png', 3),
+(39, '/uploads/products/m15_1.png', 0), (39, '/uploads/products/m15_2.png', 1), (39, '/uploads/products/m15_3.png', 2), (39, '/uploads/products/m15_4.png', 3);

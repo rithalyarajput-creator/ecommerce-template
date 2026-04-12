@@ -154,6 +154,61 @@ if ($method === 'DELETE' && $action === 'delete') {
     exit();
 }
 
+if ($method === 'GET' && $action === 'list-images') {
+    $productId = $_GET['product_id'] ?? 0;
+    $stmt = $db->prepare("SELECT id, image_url, sort_order FROM product_images WHERE product_id = ? ORDER BY sort_order ASC");
+    $stmt->execute([$productId]);
+    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+    exit();
+}
+
+if ($method === 'DELETE' && $action === 'delete-image') {
+    requireAdmin();
+    $imgId = $_GET['image_id'] ?? 0;
+    $stmt = $db->prepare("DELETE FROM product_images WHERE id = ?");
+    $stmt->execute([$imgId]);
+    echo json_encode(['message' => 'Image deleted']);
+    exit();
+}
+
+if ($method === 'POST' && $action === 'set-primary-image') {
+    requireAdmin();
+    $productId = $_GET['product_id'] ?? 0;
+    $imageUrl = $_POST['image_url'] ?? '';
+    $stmt = $db->prepare("UPDATE products SET image = ? WHERE id = ?");
+    $stmt->execute([$imageUrl, $productId]);
+    echo json_encode(['message' => 'Primary image updated']);
+    exit();
+}
+
+if ($method === 'POST' && $action === 'add-images') {
+    requireAdmin();
+    $productId = $_GET['product_id'] ?? 0;
+    $added = 0;
+    if (isset($_FILES['images'])) {
+        $files = $_FILES['images'];
+        $count = is_array($files['name']) ? count($files['name']) : 0;
+
+        $stmt = $db->prepare("SELECT COALESCE(MAX(sort_order), -1) + 1 as next FROM product_images WHERE product_id = ?");
+        $stmt->execute([$productId]);
+        $nextOrder = $stmt->fetch(PDO::FETCH_ASSOC)['next'];
+
+        for ($i = 0; $i < $count; $i++) {
+            if ($files['error'][$i] === 0) {
+                $ext = pathinfo($files['name'][$i], PATHINFO_EXTENSION);
+                $filename = time() . '_' . rand(1000, 9999) . '_' . $i . '.' . $ext;
+                if (move_uploaded_file($files['tmp_name'][$i], '../uploads/' . $filename)) {
+                    $imgStmt = $db->prepare("INSERT INTO product_images (product_id, image_url, sort_order) VALUES (?, ?, ?)");
+                    $imgStmt->execute([$productId, '/uploads/' . $filename, $nextOrder + $i]);
+                    $added++;
+                }
+            }
+        }
+    }
+    echo json_encode(['message' => "Added $added images"]);
+    exit();
+}
+
 http_response_code(404);
 echo json_encode(['message' => 'Not found']);
 ?>

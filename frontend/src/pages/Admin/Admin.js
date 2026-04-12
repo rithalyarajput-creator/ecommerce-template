@@ -20,6 +20,8 @@ const Admin = () => {
     const [prodExtraImages, setProdExtraImages] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
     const [subSubcategories, setSubSubcategories] = useState([]);
+    const [editProductImages, setEditProductImages] = useState([]);
+    const [editMainImage, setEditMainImage] = useState('');
 
     // Category form
     const [showCatForm, setShowCatForm] = useState(false);
@@ -99,7 +101,7 @@ const Admin = () => {
         }
     };
 
-    const editProduct = (p) => {
+    const editProduct = async (p) => {
         setProdForm({
             name: p.name,
             description: p.description || '',
@@ -116,10 +118,55 @@ const Admin = () => {
             amazon_link: p.amazon_link || ''
         });
         setEditProdId(p.id);
+        setEditMainImage(p.image || '');
         setShowProdForm(true);
         if (p.category_id) fetchSubcategories(p.category_id);
         if (p.subcategory_id) fetchSubSubcategories(p.subcategory_id);
+        // Fetch existing product images
+        try {
+            const { data } = await API.get(`/api/products.php?action=detail&id=${p.id}`);
+            const imgs = [];
+            // Get all product_images with ids from a separate query
+            const { data: fullImgs } = await API.get(`/api/products.php?action=list-images&product_id=${p.id}`);
+            setEditProductImages(fullImgs || []);
+        } catch (err) {
+            setEditProductImages([]);
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const deleteExistingImage = async (imgId) => {
+        if (!window.confirm('Delete this image?')) return;
+        try {
+            await API.delete(`/api/products.php?action=delete-image&image_id=${imgId}`);
+            toast.success('Image deleted');
+            // Refresh images
+            const { data } = await API.get(`/api/products.php?action=list-images&product_id=${editProdId}`);
+            setEditProductImages(data || []);
+        } catch (err) { toast.error('Error deleting image'); }
+    };
+
+    const setAsPrimaryImage = async (imageUrl) => {
+        try {
+            const fd = new FormData();
+            fd.append('image_url', imageUrl);
+            await API.post(`/api/products.php?action=set-primary-image&product_id=${editProdId}`, fd);
+            setEditMainImage(imageUrl);
+            toast.success('Primary image updated');
+            fetchProducts();
+        } catch (err) { toast.error('Error updating primary image'); }
+    };
+
+    const uploadAdditionalImages = async (files) => {
+        if (!files || files.length === 0) return;
+        const fd = new FormData();
+        Array.from(files).forEach(f => fd.append('images[]', f));
+        try {
+            await API.post(`/api/products.php?action=add-images&product_id=${editProdId}`, fd);
+            toast.success('Images uploaded');
+            const { data } = await API.get(`/api/products.php?action=list-images&product_id=${editProdId}`);
+            setEditProductImages(data || []);
+        } catch (err) { toast.error('Error uploading'); }
     };
 
     const handleCategorySubmit = async (e) => {
@@ -296,14 +343,43 @@ const Admin = () => {
                                     </div>
                                     <div className="form-row">
                                         <div className="form-group">
-                                            <label>Main Product Image</label>
+                                            <label>Main Product Image {editProdId && '(Leave empty to keep current)'}</label>
                                             <input type="file" accept="image/*" onChange={(e) => setProdImage(e.target.files[0])} />
                                         </div>
                                         <div className="form-group">
-                                            <label>Additional Images (multiple)</label>
-                                            <input type="file" accept="image/*" multiple onChange={(e) => setProdExtraImages(Array.from(e.target.files))} />
+                                            <label>Additional Images {editProdId ? '(Will add to existing)' : '(Multiple)'}</label>
+                                            <input type="file" accept="image/*" multiple onChange={(e) => {
+                                                if (editProdId) { uploadAdditionalImages(e.target.files); e.target.value = ''; }
+                                                else setProdExtraImages(Array.from(e.target.files));
+                                            }} />
                                         </div>
                                     </div>
+
+                                    {editProdId && (
+                                        <div className="existing-images">
+                                            <h4 style={{margin: '12px 0', color: '#212121', fontWeight: 600, fontSize: '0.95rem'}}>
+                                                Current Product Images ({editProductImages.length})
+                                            </h4>
+                                            {editProductImages.length === 0 ? (
+                                                <p style={{color: '#878787', fontSize: '0.85rem'}}>No images yet. Upload using the field above.</p>
+                                            ) : (
+                                                <div className="existing-images-grid">
+                                                    {editProductImages.map((img) => (
+                                                        <div key={img.id} className={`existing-img-card ${editMainImage === img.image_url ? 'is-primary' : ''}`}>
+                                                            <img src={img.image_url.startsWith('http') ? img.image_url : `${API_URL}${img.image_url}`} alt="" />
+                                                            {editMainImage === img.image_url && <span className="primary-badge">Primary</span>}
+                                                            <div className="existing-img-actions">
+                                                                {editMainImage !== img.image_url && (
+                                                                    <button type="button" className="btn-set-primary" onClick={() => setAsPrimaryImage(img.image_url)} title="Set as primary">★ Set Primary</button>
+                                                                )}
+                                                                <button type="button" className="btn-delete-img" onClick={() => deleteExistingImage(img.id)} title="Delete image"><FiTrash2 /></button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                     <div className="form-group checkbox-group">
                                         <label><input type="checkbox" checked={prodForm.featured} onChange={(e) => setProdForm({ ...prodForm, featured: e.target.checked })} /> Mark as Featured Product</label>
                                     </div>

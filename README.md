@@ -1,306 +1,248 @@
-# 🛒 TopMTop - Full Stack E-Commerce Website
+# 🛒 TopMTop - Amshine Jewellery E-Commerce Website
 
-A fully functional e-commerce website built with **React** (Frontend), **PHP** (Backend), and **MySQL** (Database). Complete with user authentication, product management, shopping cart, order processing, wishlist, reviews, and admin panel.
+Full-stack jewellery e-commerce website built with **React** (Frontend), **PHP** (Backend), and **MySQL** (Database). Features 3-level category hierarchy, multiple product images, external shopping links (Meesho, Flipkart, Amazon), and professional admin panel.
+
+---
+
+## ✨ Features
+
+### 🛍️ Customer Features
+- **User Registration & Login** - Secure JWT authentication
+- **Product Browsing** - Search, filter by category, sort
+- **Multiple Product Images** - Gallery with thumbnails
+- **3-Level Categories** - Category > Subcategory > Sub-subcategory
+- **External Shopping Links** - Direct buy links for Meesho, Flipkart, Amazon
+- **Shopping Cart** - Add, update, remove
+- **Wishlist** - Save favorite items
+- **Checkout** - Order placement (COD/Online)
+- **Order Tracking** - View order history
+
+### 👨‍💼 Admin Features
+- **Dashboard** - Stats (Users, Products, Orders, Revenue)
+- **Product Management** - Add with multiple images, subcategories, external links
+- **Category Management** - Manage 3-level category hierarchy
+- **Order Management** - Update order/payment status
+- **User Management** - View/delete users
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer        | Technology                        |
-|-------------|-----------------------------------|
-| **Frontend** | React.js, React Router, Axios, React Icons, React Toastify |
-| **Backend**  | PHP (7.4+), PDO                   |
-| **Database** | MySQL                             |
-| **Auth**     | JWT (custom implementation), bcrypt password hashing |
-| **API**      | RESTful API (PHP)                 |
-
----
-
-## 📸 Features
-
-### 🛍️ Customer Features
-- **User Registration & Login** - Secure JWT-based authentication
-- **Product Browsing** - Browse products with search, category filter, sorting
-- **Product Details** - Detailed view with images, ratings, reviews
-- **Shopping Cart** - Add, update, remove products
-- **Wishlist** - Save favorite products
-- **Checkout** - Place orders (COD & Online)
-- **Order Tracking** - View order history with status
-- **User Profile** - Manage personal details
-- **Responsive Design** - Mobile, tablet, desktop
-
-### 👨‍💼 Admin Features
-- **Dashboard** - Stats: total users, products, orders, revenue
-- **Product Management** - Add, edit, delete with image upload
-- **Order Management** - View & update order/payment status
-- **User Management** - View all users
-- **Category Management** - Manage product categories
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 19, React Router, Axios, React Icons, React Toastify |
+| **Backend** | PHP 8.3, PDO MySQL |
+| **Database** | MySQL / MariaDB |
+| **Auth** | JWT (custom), bcrypt |
 
 ---
 
 ## 📁 Project Structure
 
 ```
-TopMTop/
-├── frontend/                 # React Frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/       # Navbar, Footer, Hero, ProductCard
-│   │   ├── context/          # AuthContext, CartContext
-│   │   ├── pages/            # Home, Products, Cart, Checkout, etc.
-│   │   ├── utils/api.js      # Axios config
-│   │   ├── App.js
-│   │   └── index.js
-│   └── package.json
+ecommerce-template/
+├── frontend/              # React Frontend
+│   └── src/
+│       ├── components/   # Navbar, Footer, Hero, ProductCard
+│       ├── context/      # AuthContext, CartContext
+│       ├── pages/        # Home, Products, ProductDetail, Admin, etc.
+│       └── utils/        # api.js
 │
-├── backend/                  # PHP Backend
-│   ├── config/
-│   │   ├── database.php      # MySQL PDO connection
-│   │   ├── cors.php          # CORS headers
-│   │   └── auth.php          # JWT functions
-│   ├── api/
-│   │   ├── auth.php          # Register, Login, Profile
-│   │   ├── products.php      # Products CRUD
-│   │   ├── categories.php    # Categories CRUD
-│   │   ├── cart.php          # Cart operations
-│   │   ├── orders.php        # Order placement & admin
-│   │   ├── wishlist.php      # Wishlist operations
-│   │   ├── reviews.php       # Product reviews
-│   │   └── admin.php         # Admin dashboard
-│   ├── uploads/              # Image uploads
-│   ├── index.php             # API entry
-│   └── .htaccess
+├── backend/              # PHP Backend
+│   ├── config/           # database.php, cors.php, auth.php
+│   ├── api/              # auth, products, cart, orders, admin, subcategories
+│   ├── uploads/products/ # Product images (7 jewellery products, 28 images)
+│   ├── index.php         # API entry
+│   └── fix-admin.php     # One-time admin password fix
 │
 ├── database/
-│   └── schema.sql            # MySQL schema with sample data
+│   └── schema.sql        # Complete DB with 7 products, categories
 │
-└── README.md
+└── necklesh/             # Source product images
 ```
 
 ---
 
-## 🚀 Installation & Setup
+## 🗄️ Database Schema
+
+### Tables:
+| Table | Purpose |
+|-------|---------|
+| `users` | User accounts (admin/user roles) |
+| `categories` | Main categories (e.g., Jewellery) |
+| `subcategories` | Level 2 (Necklace, Earrings, Mangalsutra, Bridal Sets) |
+| `sub_subcategories` | Level 3 (Kundan, Temple, Zircon, Meenakari, etc.) |
+| `products` | Products with brand, prices, external links (meesho_link, flipkart_link, amazon_link) |
+| `product_images` | Multiple images per product |
+| `cart` | Shopping cart items |
+| `orders` | Order records |
+| `order_items` | Items per order |
+| `reviews` | Product reviews |
+| `wishlist` | User wishlist |
+
+### Sample Data Included:
+- 1 Admin user (`admin@topmtop.com` / `admin123`)
+- 1 Category: **Jewellery**
+- 4 Subcategories: Necklace, Earrings, Mangalsutra, Bridal Sets
+- 6 Sub-subcategories: Kundan, Temple, Zircon/Diamond, Meenakari, Traditional Mangalsutra, Wedding Set
+- **7 Amshine Jewellery Products** (with 4 images each = 28 images total):
+  1. Gold Plated Kundan Jhumka Necklace Set (Red & Green)
+  2. Silver Plated Double Layer Zircon Necklace
+  3. Lotus Meenakari Enamel Necklace
+  4. Antique Gold Temple Necklace with Pearls
+  5. Silver Plated Bridal Zircon Leaf Necklace
+  6. Traditional Gold Plated Mangalsutra
+  7. Gold Plated Bridal Zircon Set with Maang Tikka
+
+---
+
+## 🚀 Local Setup (XAMPP)
 
 ### Prerequisites
-- **XAMPP / WAMP / LAMP** (Apache + PHP + MySQL)
-- **Node.js** (v14 or higher) - [Download](https://nodejs.org/)
-- **npm** (comes with Node.js)
+- **XAMPP** (Apache + MySQL + PHP) - [Download](https://www.apachefriends.org/)
+- **Node.js** v16+ - [Download](https://nodejs.org/)
 
-### Step 1: Clone the Repository
+### Step 1: Database Setup
+1. Start **Apache** and **MySQL** in XAMPP
+2. Open `http://localhost/phpmyadmin`
+3. Click **Import** → select `database/schema.sql` → Go
+4. Database `topmtop_db` will be created with all sample data
 
-```bash
-git clone https://github.com/rithalyarajput-creator/ecommerce-template.git
-cd ecommerce-template
-```
+### Step 2: Backend Setup
+1. Copy `backend/` folder to `C:\xampp\htdocs\` (or Mac/Linux equivalent)
+2. Edit `backend/config/database.php` if needed (default: root with no password)
+3. Test: `http://localhost/backend/` should return JSON
 
-### Step 2: Setup Database
-
-1. Start MySQL (via XAMPP / command line)
-2. Open phpMyAdmin or MySQL CLI
-3. Import the schema file:
-
-```bash
-mysql -u root -p < database/schema.sql
-```
-
-Or in phpMyAdmin: **Import** > Choose `database/schema.sql` > Go
-
-This creates:
-- Database `topmtop_db`
-- All tables (users, products, categories, cart, orders, etc.)
-- Sample categories and products
-- Default admin user
-
-### Step 3: Setup PHP Backend
-
-1. Copy the `backend/` folder to your web server's document root:
-   - **XAMPP:** `C:\xampp\htdocs\backend\`
-   - **WAMP:** `C:\wamp64\www\backend\`
-   - **LAMP:** `/var/www/html/backend/`
-
-2. Edit database credentials in `backend/config/database.php`:
-
-```php
-private $host = "localhost";
-private $db_name = "topmtop_db";
-private $username = "root";
-private $password = "";  // Your MySQL password
-```
-
-3. Make sure the `backend/uploads/` folder is writable:
-
-```bash
-chmod 777 backend/uploads
-```
-
-4. Make sure Apache's `mod_rewrite` is enabled (for `.htaccess`)
-
-5. Test the API: Open `http://localhost/backend/` in browser - you should see JSON response.
-
-### Step 4: Setup React Frontend
-
+### Step 3: Frontend Setup
 ```bash
 cd frontend
 npm install
 ```
 
-Create `.env` file in frontend folder:
-
-```env
+Create `.env` file:
+```
 REACT_APP_API_URL=http://localhost/backend
 ```
 
-Start the frontend:
-
+Start:
 ```bash
 npm start
 ```
 
-Frontend runs on: `http://localhost:3000`
+Open: `http://localhost:3000`
 
 ---
 
-## 🔑 Default Login Credentials
+## 🔑 Default Login
 
-### Admin Account
-- **Email:** admin@topmtop.com
-- **Password:** admin123
+- **Email:** `admin@topmtop.com`
+- **Password:** `admin123`
 
-Login at `/login` and access the Admin Panel at `/admin`.
+If login fails, visit `http://localhost/backend/fix-admin.php` once to reset admin password.
 
 ---
 
 ## 📡 API Endpoints
 
-All PHP endpoints follow this pattern: `/api/{file}.php?action={action}`
-
-### Authentication (`/api/auth.php`)
-| Method | Action | Description |
-|--------|--------|-------------|
-| POST   | register | Register new user |
-| POST   | login    | Login user |
-| GET    | profile  | Get user profile (auth required) |
-| PUT    | profile  | Update profile (auth required) |
-
 ### Products (`/api/products.php`)
-| Method | Action | Description |
+| Action | Method | Description |
 |--------|--------|-------------|
-| GET    | list     | Get products (filter/search/sort/paginate) |
-| GET    | featured | Get featured products |
-| GET    | detail   | Get single product with reviews |
-| POST   | create   | Add product (admin) |
-| POST   | update   | Update product (admin) |
-| DELETE | delete   | Delete product (admin) |
+| `list` | GET | List products (filter/search/sort/paginate) |
+| `featured` | GET | Featured products |
+| `detail` | GET | Product with all images + reviews |
+| `create` | POST | Add product (admin) - supports multiple images |
+| `update` | POST | Update product (admin) |
+| `delete` | DELETE | Delete product (admin) |
 
 ### Categories (`/api/categories.php`)
-| Method | Action | Description |
-|--------|--------|-------------|
-| GET    | list   | Get all categories |
-| POST   | create | Add category (admin) |
-| DELETE | delete | Delete category (admin) |
+- `list`, `create`, `delete`
+
+### Subcategories (`/api/subcategories.php`)
+- `list` (by category_id), `sub-sub` (by subcategory_id)
+- `create-sub`, `create-sub-sub`
+- `delete-sub`, `delete-sub-sub`
+
+### Auth (`/api/auth.php`)
+- `register`, `login`, `profile`
 
 ### Cart (`/api/cart.php`) — Auth required
-| Method | Action | Description |
-|--------|--------|-------------|
-| GET    | list   | Get cart items |
-| POST   | add    | Add to cart |
-| PUT    | update | Update quantity |
-| DELETE | remove | Remove item |
-| DELETE | clear  | Clear cart |
+- `list`, `add`, `update`, `remove`, `clear`
 
 ### Orders (`/api/orders.php`)
-| Method | Action | Description |
-|--------|--------|-------------|
-| POST   | create         | Place order (auth) |
-| GET    | my-orders      | Get user's orders (auth) |
-| GET    | all            | Get all orders (admin) |
-| PUT    | update-status  | Update order status (admin) |
+- `create` (user), `my-orders` (user), `all` (admin), `update-status` (admin)
 
 ### Wishlist (`/api/wishlist.php`) — Auth required
-| Method | Action | Description |
-|--------|--------|-------------|
-| GET    | list   | Get wishlist |
-| POST   | add    | Add to wishlist |
-| DELETE | remove | Remove from wishlist |
+- `list`, `add`, `remove`
 
 ### Reviews (`/api/reviews.php`)
-| Method | Action | Description |
-|--------|--------|-------------|
-| POST   | add     | Add review (auth) |
-| GET    | product | Get product reviews |
+- `add`, `product`
 
 ### Admin (`/api/admin.php`) — Admin only
-| Method | Action | Description |
-|--------|--------|-------------|
-| GET    | dashboard   | Get dashboard stats |
-| GET    | users       | Get all users |
-| DELETE | delete-user | Delete user |
+- `dashboard`, `users`, `delete-user`
 
 ---
 
-## 🗄️ Database Tables
+## 🎨 Product Features
 
-| Table | Description |
-|-------|-------------|
-| `users` | User accounts (name, email, password, address, role) |
-| `categories` | Product categories |
-| `products` | Products (name, price, stock, rating, featured) |
-| `cart` | User shopping cart items |
-| `orders` | Orders with shipping & payment details |
-| `order_items` | Items in each order |
-| `reviews` | Product reviews with ratings |
-| `wishlist` | User wishlist |
+### Multiple Images
+Each product supports multiple images (gallery style). Main image + additional images stored in `product_images` table.
 
----
+### External Shopping Links
+Each product can have links to:
+- 🛒 **Meesho** (`meesho_link`)
+- 🛍️ **Flipkart** (`flipkart_link`)
+- 📦 **Amazon** (`amazon_link`)
 
-## 🎨 Design Theme
+These show as colored buttons on product detail page.
 
-- **Primary Dark:** `#1a1a2e`
-- **Secondary:** `#16213e`  
-- **Accent:** `#e94560` (Red/Pink)
-- **Blue:** `#0f3460`
-- **Text Light:** `#ccd6f6`
-
-Modern, clean design with dark navbar and light content areas. Fully responsive.
-
----
-
-## 🔒 Security Features
-
-- **Password Hashing** - PHP `password_hash()` (bcrypt)
-- **JWT Authentication** - Custom JWT with 7-day expiry
-- **Protected Routes** - Frontend route guards
-- **Admin Authorization** - Separate admin middleware
-- **File Validation** - Image-only uploads
-- **SQL Injection Prevention** - PDO prepared statements
-- **CORS Headers** - Configurable origin policy
-
----
-
-## 🚀 Deployment
-
-### Backend (PHP)
-Deploy on any PHP hosting:
-- **Shared Hosting** (Hostinger, GoDaddy, Bluehost)
-- **VPS** (DigitalOcean, Linode, AWS EC2)
-- Upload `backend/` folder via FTP/cPanel
-
-### Frontend (React)
-Build and deploy:
-```bash
-cd frontend
-npm run build
+### 3-Level Category Hierarchy
+```
+Jewellery (Category)
+├── Necklace (Subcategory)
+│   ├── Kundan Necklace (Sub-subcategory)
+│   ├── Temple Jewellery
+│   ├── Zircon/Diamond
+│   └── Enamel/Meenakari
+├── Earrings
+├── Mangalsutra
+│   └── Traditional Mangalsutra
+└── Bridal Sets
+    └── Wedding Set
 ```
 
-Upload the `build/` folder to:
-- **Netlify** (free)
-- **Vercel** (free)
-- **GitHub Pages**
-- Or host on same server in a subfolder
+---
 
-### Database
-- Use hosting's phpMyAdmin to import `schema.sql`
-- Update `backend/config/database.php` with live credentials
+## 🎨 Theme
+
+- **Primary Blue:** `#2874f0` (Flipkart-style)
+- **Orange Accent:** `#ff9f00`, `#fb641b`
+- **Light Background:** `#f1f3f6`
+- **Dark Text:** `#212121`
+- **Gray Text:** `#878787`
+
+---
+
+## 📦 Running in Codespaces (Development)
+
+If using GitHub Codespaces for development:
+
+```bash
+# 1. Start MySQL
+sudo mysqld --user=$USER --datadir=/var/lib/mysql --socket=/var/run/mysqld/mysqld.sock &
+
+# 2. Import database
+mysql -uroot < database/schema.sql
+
+# 3. Start PHP backend on port 5000
+cd backend && /usr/bin/php8.3 -S 0.0.0.0:5000 -t . &
+
+# 4. Start React frontend
+cd frontend
+npm install
+npm start
+```
+
+Frontend proxies `/api/*` to port 5000 (configured in `package.json`).
 
 ---
 
@@ -308,16 +250,10 @@ Upload the `build/` folder to:
 
 **Rithalya Rajput**
 - GitHub: [@rithalyarajput-creator](https://github.com/rithalyarajput-creator)
-- Website: [rithalaupdate.wordpress.com](https://rithalaupdate.wordpress.com/)
+- Brand: **Amshine** Jewellery
 
 ---
 
 ## 📄 License
 
-Open source under the [MIT License](LICENSE).
-
----
-
-## ⭐ Support
-
-If you like this project, give it a ⭐ on GitHub!
+MIT License

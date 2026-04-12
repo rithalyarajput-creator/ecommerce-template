@@ -15,8 +15,11 @@ const Admin = () => {
     // Product form
     const [showProdForm, setShowProdForm] = useState(false);
     const [editProdId, setEditProdId] = useState(null);
-    const [prodForm, setProdForm] = useState({ name: '', description: '', price: '', sale_price: '', category_id: '', stock: '', featured: false, brand: '' });
+    const [prodForm, setProdForm] = useState({ name: '', description: '', price: '', sale_price: '', category_id: '', subcategory_id: '', sub_subcategory_id: '', stock: '', featured: false, brand: '', meesho_link: '', flipkart_link: '', amazon_link: '' });
     const [prodImage, setProdImage] = useState(null);
+    const [prodExtraImages, setProdExtraImages] = useState([]);
+    const [subcategories, setSubcategories] = useState([]);
+    const [subSubcategories, setSubSubcategories] = useState([]);
 
     // Category form
     const [showCatForm, setShowCatForm] = useState(false);
@@ -41,6 +44,14 @@ const Admin = () => {
     const fetchCategories = async () => {
         try { const { data } = await API.get('/api/categories.php?action=list'); setCategories(data); } catch (err) { console.error(err); }
     };
+    const fetchSubcategories = async (catId) => {
+        if (!catId) return setSubcategories([]);
+        try { const { data } = await API.get(`/api/subcategories.php?action=list&category_id=${catId}`); setSubcategories(data); } catch (err) { console.error(err); }
+    };
+    const fetchSubSubcategories = async (subId) => {
+        if (!subId) return setSubSubcategories([]);
+        try { const { data } = await API.get(`/api/subcategories.php?action=sub-sub&subcategory_id=${subId}`); setSubSubcategories(data); } catch (err) { console.error(err); }
+    };
     const fetchOrders = async () => {
         try { const { data } = await API.get('/api/orders.php?action=all'); setOrders(data); } catch (err) { console.error(err); }
     };
@@ -59,6 +70,9 @@ const Admin = () => {
         const formData = new FormData();
         Object.keys(prodForm).forEach(key => formData.append(key, prodForm[key]));
         if (prodImage) formData.append('image', prodImage);
+        if (prodExtraImages.length > 0) {
+            prodExtraImages.forEach(img => formData.append('images[]', img));
+        }
 
         try {
             if (editProdId) {
@@ -70,8 +84,9 @@ const Admin = () => {
             }
             setShowProdForm(false);
             setEditProdId(null);
-            setProdForm({ name: '', description: '', price: '', sale_price: '', category_id: '', stock: '', featured: false, brand: '' });
+            setProdForm({ name: '', description: '', price: '', sale_price: '', category_id: '', subcategory_id: '', sub_subcategory_id: '', stock: '', featured: false, brand: '', meesho_link: '', flipkart_link: '', amazon_link: '' });
             setProdImage(null);
+            setProdExtraImages([]);
             fetchProducts();
         } catch (err) { toast.error('Error saving product'); }
     };
@@ -85,9 +100,25 @@ const Admin = () => {
     };
 
     const editProduct = (p) => {
-        setProdForm({ name: p.name, description: p.description || '', price: p.price, sale_price: p.sale_price || '', category_id: p.category_id || '', stock: p.stock, featured: p.featured === '1' || p.featured === 1, brand: p.brand || '' });
+        setProdForm({
+            name: p.name,
+            description: p.description || '',
+            price: p.price,
+            sale_price: p.sale_price || '',
+            category_id: p.category_id || '',
+            subcategory_id: p.subcategory_id || '',
+            sub_subcategory_id: p.sub_subcategory_id || '',
+            stock: p.stock,
+            featured: p.featured === '1' || p.featured === 1,
+            brand: p.brand || '',
+            meesho_link: p.meesho_link || '',
+            flipkart_link: p.flipkart_link || '',
+            amazon_link: p.amazon_link || ''
+        });
         setEditProdId(p.id);
         setShowProdForm(true);
+        if (p.category_id) fetchSubcategories(p.category_id);
+        if (p.subcategory_id) fetchSubSubcategories(p.subcategory_id);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -201,7 +232,7 @@ const Admin = () => {
                     <div className="admin-content">
                         <div className="tab-header">
                             <div><p className="tab-subtitle">{products.length} products in store</p></div>
-                            <button className="btn-add" onClick={() => { setShowProdForm(!showProdForm); setEditProdId(null); setProdForm({ name: '', description: '', price: '', sale_price: '', category_id: '', stock: '', featured: false, brand: '' }); }}>
+                            <button className="btn-add" onClick={() => { setShowProdForm(!showProdForm); setEditProdId(null); setProdForm({ name: '', description: '', price: '', sale_price: '', category_id: '', subcategory_id: '', sub_subcategory_id: '', stock: '', featured: false, brand: '', meesho_link: '', flipkart_link: '', amazon_link: '' }); setProdImage(null); setProdExtraImages([]); }}>
                                 <FiPlus /> {showProdForm ? 'Cancel' : 'Add Product'}
                             </button>
                         </div>
@@ -237,9 +268,25 @@ const Admin = () => {
                                     <div className="form-row">
                                         <div className="form-group">
                                             <label>Category</label>
-                                            <select value={prodForm.category_id} onChange={(e) => setProdForm({ ...prodForm, category_id: e.target.value })}>
+                                            <select value={prodForm.category_id} onChange={(e) => { setProdForm({ ...prodForm, category_id: e.target.value, subcategory_id: '', sub_subcategory_id: '' }); fetchSubcategories(e.target.value); }}>
                                                 <option value="">Select Category</option>
                                                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Subcategory</label>
+                                            <select value={prodForm.subcategory_id} onChange={(e) => { setProdForm({ ...prodForm, subcategory_id: e.target.value, sub_subcategory_id: '' }); fetchSubSubcategories(e.target.value); }}>
+                                                <option value="">Select Subcategory</option>
+                                                {subcategories.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>Sub-Subcategory</label>
+                                            <select value={prodForm.sub_subcategory_id} onChange={(e) => setProdForm({ ...prodForm, sub_subcategory_id: e.target.value })}>
+                                                <option value="">Select Sub-Subcategory</option>
+                                                {subSubcategories.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                             </select>
                                         </div>
                                         <div className="form-group">
@@ -249,12 +296,31 @@ const Admin = () => {
                                     </div>
                                     <div className="form-row">
                                         <div className="form-group">
-                                            <label>Product Image</label>
+                                            <label>Main Product Image</label>
                                             <input type="file" accept="image/*" onChange={(e) => setProdImage(e.target.files[0])} />
                                         </div>
-                                        <div className="form-group checkbox-group">
-                                            <label><input type="checkbox" checked={prodForm.featured} onChange={(e) => setProdForm({ ...prodForm, featured: e.target.checked })} /> Mark as Featured</label>
+                                        <div className="form-group">
+                                            <label>Additional Images (multiple)</label>
+                                            <input type="file" accept="image/*" multiple onChange={(e) => setProdExtraImages(Array.from(e.target.files))} />
                                         </div>
+                                    </div>
+                                    <div className="form-group checkbox-group">
+                                        <label><input type="checkbox" checked={prodForm.featured} onChange={(e) => setProdForm({ ...prodForm, featured: e.target.checked })} /> Mark as Featured Product</label>
+                                    </div>
+                                    <h4 style={{margin: '12px 0 4px', color: '#212121', fontWeight: 600, fontSize: '0.95rem'}}>External Shopping Links (Optional)</h4>
+                                    <div className="form-row">
+                                        <div className="form-group">
+                                            <label>🛒 Meesho Link</label>
+                                            <input type="url" placeholder="https://meesho.com/..." value={prodForm.meesho_link} onChange={(e) => setProdForm({ ...prodForm, meesho_link: e.target.value })} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>🛍️ Flipkart Link</label>
+                                            <input type="url" placeholder="https://flipkart.com/..." value={prodForm.flipkart_link} onChange={(e) => setProdForm({ ...prodForm, flipkart_link: e.target.value })} />
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>📦 Amazon Link</label>
+                                        <input type="url" placeholder="https://amazon.in/..." value={prodForm.amazon_link} onChange={(e) => setProdForm({ ...prodForm, amazon_link: e.target.value })} />
                                     </div>
                                     <button type="submit" className="btn-submit">{editProdId ? 'Update Product' : 'Add Product'}</button>
                                 </form>

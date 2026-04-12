@@ -1,16 +1,22 @@
 -- TopMTop E-Commerce Database Schema
+-- Complete database with subcategories, multiple images, external links
+
 CREATE DATABASE IF NOT EXISTS topmtop_db;
 USE topmtop_db;
 
+DROP TABLE IF EXISTS product_images;
 DROP TABLE IF EXISTS wishlist;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS cart;
 DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS sub_subcategories;
+DROP TABLE IF EXISTS subcategories;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS users;
 
+-- Users Table
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -25,6 +31,7 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Categories (Level 1)
 CREATE TABLE categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -33,23 +40,63 @@ CREATE TABLE categories (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Subcategories (Level 2)
+CREATE TABLE subcategories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    category_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    image VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+);
+
+-- Sub-subcategories (Level 3)
+CREATE TABLE sub_subcategories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    subcategory_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    image VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (subcategory_id) REFERENCES subcategories(id) ON DELETE CASCADE
+);
+
+-- Products Table (with external links)
 CREATE TABLE products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    description TEXT,
+    description LONGTEXT,
     price DECIMAL(10, 2) NOT NULL,
     sale_price DECIMAL(10, 2),
     category_id INT,
+    subcategory_id INT,
+    sub_subcategory_id INT,
     image VARCHAR(500),
     stock INT DEFAULT 0,
     rating DECIMAL(3, 2) DEFAULT 0,
     num_reviews INT DEFAULT 0,
     featured BOOLEAN DEFAULT FALSE,
     brand VARCHAR(100),
+    meesho_link VARCHAR(1000),
+    flipkart_link VARCHAR(1000),
+    amazon_link VARCHAR(1000),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
+    FOREIGN KEY (subcategory_id) REFERENCES subcategories(id) ON DELETE SET NULL,
+    FOREIGN KEY (sub_subcategory_id) REFERENCES sub_subcategories(id) ON DELETE SET NULL
 );
 
+-- Product Images (multiple images per product)
+CREATE TABLE product_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    image_url VARCHAR(500) NOT NULL,
+    sort_order INT DEFAULT 0,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+-- Cart
 CREATE TABLE cart (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -60,6 +107,7 @@ CREATE TABLE cart (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
+-- Orders
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -107,44 +155,79 @@ CREATE TABLE wishlist (
     UNIQUE KEY unique_wishlist (user_id, product_id)
 );
 
+-- ===============================
 -- Default Admin (password: admin123)
+-- ===============================
 INSERT INTO users (name, email, password, role) VALUES
 ('Admin', 'admin@topmtop.com', '$2y$10$LqtASLndnG83iwecenhFt.eFktDdt6S.Nb5fAwSapr33STXVMbsVu', 'admin');
 
--- Categories with images
-INSERT INTO categories (name, description, image) VALUES
-('Electronics', 'Latest electronic gadgets and devices', 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400'),
-('Fashion', 'Trendy clothing and accessories', 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400'),
-('Home & Kitchen', 'Home decor and kitchen essentials', 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400'),
-('Mobiles', 'Latest smartphones and accessories', 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400'),
-('Beauty', 'Beauty and personal care', 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400'),
-('Sports', 'Sports and fitness equipment', 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400'),
-('Books', 'Best selling books', 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400'),
-('Appliances', 'Home appliances', 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=400');
+-- ===============================
+-- Categories - Only Jewellery for now
+-- ===============================
+INSERT INTO categories (id, name, description, image) VALUES
+(1, 'Jewellery', 'Traditional and modern Indian jewellery for all occasions', '/uploads/products/p1_1.png');
 
--- 24 Products with real image URLs
-INSERT INTO products (name, description, price, sale_price, category_id, image, stock, rating, num_reviews, featured, brand) VALUES
-('Apple iPhone 15 Pro Max 256GB', 'Titanium design, A17 Pro chip, 48MP Pro camera system, ProMotion display', 159900.00, 139900.00, 4, 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=600', 25, 4.8, 2547, TRUE, 'Apple'),
-('Samsung Galaxy S24 Ultra', '6.8 inch Dynamic AMOLED 2X, 200MP camera, S Pen, 5000mAh battery', 129999.00, 109999.00, 4, 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=600', 40, 4.7, 1832, TRUE, 'Samsung'),
-('Sony WH-1000XM5 Wireless Headphones', 'Industry-leading noise cancellation, 30hr battery, crystal clear hands-free calling', 34990.00, 24990.00, 1, 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600', 50, 4.6, 3421, TRUE, 'Sony'),
-('Apple MacBook Air M2 13.6 inch', 'Apple M2 chip, 8GB RAM, 256GB SSD, Liquid Retina display, 18hr battery', 114900.00, 99900.00, 1, 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600', 15, 4.9, 876, TRUE, 'Apple'),
-('Noise ColorFit Pro 4 Smart Watch', '1.85 inch display, Bluetooth calling, 100+ sports modes, SpO2, 7-day battery', 3999.00, 1999.00, 1, 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600', 120, 4.3, 5632, TRUE, 'Noise'),
-('Nike Air Max 270 Running Shoes', 'Mens running shoes with Max Air unit, breathable mesh, lightweight design', 12995.00, 8995.00, 2, 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600', 80, 4.5, 2103, TRUE, 'Nike'),
-('Levis 511 Slim Fit Mens Jeans', 'Classic slim fit, 5-pocket styling, cotton blend fabric, zip fly closure', 3499.00, 1749.00, 2, 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600', 200, 4.2, 1456, FALSE, 'Levis'),
-('Fabindia Cotton Kurti for Women', 'Elegant embroidered cotton kurti, round neck, 3/4 sleeve, knee length', 1999.00, 1299.00, 2, 'https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=600', 150, 4.4, 876, TRUE, 'Fabindia'),
-('LG 1.5 Ton 5 Star Split AC', 'Dual Inverter, Convertible 6-in-1 Cooling, HD Filter with Anti-Virus Protection', 55990.00, 39990.00, 8, 'https://images.unsplash.com/photo-1631545308456-19a60f5bf53a?w=600', 20, 4.5, 432, TRUE, 'LG'),
-('Samsung 253L Double Door Refrigerator', 'Frost Free, Digital Inverter, Convertible 5-in-1, 10 Year Warranty', 32990.00, 24990.00, 8, 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=600', 30, 4.4, 654, FALSE, 'Samsung'),
-('Prestige Nakshatra Plus Induction Cooktop', '1900W, 7 preset menus, feather touch buttons, auto voltage regulator', 4595.00, 2495.00, 3, 'https://images.unsplash.com/photo-1585515320310-259814833e62?w=600', 100, 4.3, 1234, FALSE, 'Prestige'),
-('Hawkins Contura Hard Anodised Pressure Cooker 5L', 'Black color, flat bottom, 5-year warranty, ISI certified', 3175.00, 2245.00, 3, 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600', 75, 4.6, 987, FALSE, 'Hawkins'),
-('Lakme 9 to 5 Primer + Matte Powder Foundation', 'Long lasting, matte finish, all-day coverage, SPF 20, natural beige', 625.00, 450.00, 5, 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600', 300, 4.2, 2134, FALSE, 'Lakme'),
-('Mamaearth Vitamin C Face Wash', 'With Vitamin C and Turmeric for skin illumination, 100ml, no sulfates', 399.00, 279.00, 5, 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=600', 500, 4.5, 8762, TRUE, 'Mamaearth'),
-('boAt Airdopes 141 Bluetooth Earbuds', '42H playtime, IWP technology, IPX4 water resistance, Bluetooth v5.1', 1499.00, 999.00, 1, 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600', 400, 4.1, 15623, TRUE, 'boAt'),
-('Cosco Volleyball Official Size 4', 'Synthetic rubber, 18 panel hand stitched, for indoor and outdoor', 699.00, 449.00, 6, 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600', 60, 4.0, 234, FALSE, 'Cosco'),
-('Yonex Mavis 350 Nylon Shuttlecock (Pack of 6)', 'Professional grade, consistent flight, durable nylon feathers, white', 899.00, 649.00, 6, 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=600', 150, 4.4, 543, FALSE, 'Yonex'),
-('Atomic Habits by James Clear', 'Tiny Changes, Remarkable Results - International Bestseller, Paperback', 799.00, 399.00, 7, 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600', 200, 4.8, 12543, TRUE, 'Random House'),
-('Philips HD9200/90 Air Fryer', '4.1L, Rapid Air Technology, 80% less oil, QuickClean basket, digital display', 12995.00, 7995.00, 8, 'https://images.unsplash.com/photo-1585515320310-259814833e62?w=600', 45, 4.5, 1876, TRUE, 'Philips'),
-('Bajaj Majesty RX-11 Rice Cooker', '1.8 Litre, 700W, automatic cooking, keep warm function, 2 year warranty', 2299.00, 1499.00, 8, 'https://images.unsplash.com/photo-1585515320310-259814833e62?w=600', 85, 4.2, 654, FALSE, 'Bajaj'),
-('Realme Narzo 70 Pro 5G 128GB', 'Dimensity 7050, 120Hz AMOLED, 5000mAh, 67W fast charging', 19999.00, 17999.00, 4, 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600', 100, 4.3, 3456, FALSE, 'Realme'),
-('Dell Inspiron 15 3520 Laptop', 'Intel i5 12th gen, 8GB RAM, 512GB SSD, 15.6 inch FHD, Windows 11', 52990.00, 42990.00, 1, 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=600', 25, 4.4, 987, FALSE, 'Dell'),
-('Puma Softride Rift Running Shoes', 'SoftRide technology, Premium cushioning, Running shoes for men', 5499.00, 2749.00, 6, 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600', 90, 4.3, 654, FALSE, 'Puma'),
-('Amazon Echo Dot 5th Gen', 'Smart speaker with Alexa, Bigger vibrant sound, Tap to snooze, Charcoal', 5499.00, 3499.00, 1, 'https://images.unsplash.com/photo-1543512214-318c7553f230?w=600', 150, 4.6, 4532, TRUE, 'Amazon');
+-- ===============================
+-- Subcategories under Jewellery
+-- ===============================
+INSERT INTO subcategories (id, category_id, name, description, image) VALUES
+(1, 1, 'Necklace', 'Beautiful necklaces including chokers, long necklaces, and sets', '/uploads/products/p1_1.png'),
+(2, 1, 'Earrings', 'Jhumka, studs, danglers and more', '/uploads/products/p1_1.png'),
+(3, 1, 'Mangalsutra', 'Traditional mangalsutra designs', '/uploads/products/p6_1.png'),
+(4, 1, 'Bridal Sets', 'Complete bridal jewellery sets', '/uploads/products/p7_1.png');
+
+-- ===============================
+-- Sub-subcategories
+-- ===============================
+INSERT INTO sub_subcategories (id, subcategory_id, name, description) VALUES
+(1, 1, 'Kundan Necklace', 'Traditional kundan style necklaces'),
+(2, 1, 'Temple Jewellery', 'Antique temple-inspired designs'),
+(3, 1, 'Zircon/Diamond', 'American diamond and zircon necklaces'),
+(4, 1, 'Enamel/Meenakari', 'Meenakari and enamel painted jewellery'),
+(5, 3, 'Traditional Mangalsutra', 'Classic mangalsutra designs'),
+(6, 4, 'Wedding Set', 'Complete bridal jewellery sets');
+
+-- ===============================
+-- 7 Amshine Jewellery Products
+-- ===============================
+INSERT INTO products (id, name, description, price, sale_price, category_id, subcategory_id, sub_subcategory_id, image, stock, rating, num_reviews, featured, brand, meesho_link, flipkart_link, amazon_link) VALUES
+
+(1, 'Amshine Gold Plated Kundan Jhumka Necklace Set with Red & Green Stones',
+'Traditional jewellery has always been an important part of Indian fashion and culture. Among the most admired styles are kundan necklace sets, known for their intricate craftsmanship and timeless appeal. The Amshine Gold Plated Kundan Necklace Set is crafted to combine traditional Indian craftsmanship with a refined and stylish look, making it a perfect accessory for festive occasions, weddings, and cultural celebrations.\n\nThis necklace set is designed to complement a wide range of ethnic outfits such as sarees, lehengas, and salwar suits. With detailed stone work and a classic temple-style structure, it adds sophistication and elegance to any traditional look.\n\nTraditional Design with Elegant Craftsmanship\nThe necklace features an intricate floral pattern with a beautifully detailed central pendant. The carefully placed red and green kundan stones create a balanced and graceful appearance that works perfectly with both traditional and modern ethnic fashion.\n\nPremium Stone and Kundan Detailing\nDecorated with kundan-style stones along with green and ruby colored accents. The combination of these stones adds depth and visual appeal to the design. The gold-plated finish further enhances the luxurious look.\n\nPerfect for Weddings and Festive Occasions\nThis necklace set is popular for weddings, festivals, and traditional events. It can be paired with sarees, lehengas, anarkalis, or other traditional dresses.\n\nProduct Highlights\n• Elegant traditional kundan necklace design\n• Gold plated finish for a luxurious appearance\n• Red and green colored stone detailing\n• Matching jhumka earrings included\n• Suitable for weddings, festivals, and special occasions\n• Lightweight design for comfortable wear\n\nCare Instructions\n• Store in a dry and clean jewellery box\n• Avoid direct contact with water, perfume, and chemicals\n• Wipe gently with a soft cloth after use\n• Keep separate from other jewellery to prevent scratches',
+899.00, 499.00, 1, 1, 1, '/uploads/products/p1_1.png', 50, 4.7, 342, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+(2, 'Amshine Silver Plated Double Layer Zircon Necklace Set with Teardrop Pendants',
+'Elegant and modern, the Amshine Silver Plated Double Layer Zircon Necklace Set brings glamour and grace together. Designed with two delicate layers of sparkling stones and beautiful teardrop pendants, this set is perfect for parties, cocktails, and special events.\n\nContemporary Design for Modern Women\nThe two-layer design creates a stunning visual effect, making this necklace ideal for Western wear, gowns, and evening outfits. The matching earrings complete the look with elegance.\n\nPremium American Diamond Quality\nThe necklace features premium quality zircon (American diamond) stones that shine beautifully under any lighting. The silver-plated finish ensures durability and a clean, classy appearance.\n\nPerfect for Special Occasions\n• Parties and get-togethers\n• Engagement ceremonies\n• Reception events\n• Cocktail evenings\n• Anniversary celebrations\n\nProduct Highlights\n• Double layer necklace design\n• Premium zircon stones throughout\n• Teardrop pendants for added elegance\n• Silver plated finish\n• Lightweight and comfortable\n• Perfect for Indo-western and Western outfits\n\nCare Instructions\n• Store in a dry, clean jewellery box\n• Avoid water, perfume, and chemicals\n• Clean with a soft cloth after each use\n• Keep separately from other jewellery',
+799.00, 449.00, 1, 1, 3, '/uploads/products/p2_1.png', 45, 4.6, 256, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+(3, 'Amshine Lotus Meenakari Enamel Necklace Set with Matching Earrings',
+'Handcrafted with love, the Amshine Lotus Meenakari Enamel Necklace Set celebrates the rich art of Indian meenakari. Each lotus motif is carefully painted in vibrant red enamel with green accents, creating a striking contrast against the gold-toned chain.\n\nTraditional Indian Art\nMeenakari is an ancient Indian craft of coloring the surfaces of metals with vibrant enamel paint. This necklace showcases the beautiful lotus flower, symbolizing purity and beauty.\n\nUnique and Eye-Catching Design\nThe lotus pattern repeats along the necklace, creating a statement piece that stands out from ordinary jewellery. The matching stud earrings complete the ethnic look.\n\nPerfect for Traditional Events\n• Festivals like Diwali, Karva Chauth\n• Traditional pujas and rituals\n• Ethnic parties and gatherings\n• Temple visits\n• Cultural celebrations\n\nProduct Highlights\n• Handcrafted lotus meenakari design\n• Vibrant red and green enamel work\n• Gold-toned chain and base\n• Matching lotus stud earrings\n• Traditional yet trendy look\n• Suitable for all age groups\n\nCare Instructions\n• Store in a soft cloth pouch\n• Avoid water and sweat contact\n• Wipe gently with dry cloth\n• Handle enamel area with care',
+699.00, 379.00, 1, 1, 4, '/uploads/products/p3_1.png', 60, 4.8, 423, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+(4, 'Amshine Antique Gold Temple Necklace Set with Pearl Drops & Jhumka',
+'Inspired by the rich heritage of South Indian temple jewellery, the Amshine Antique Gold Temple Necklace Set is a stunning piece that brings royal elegance to any outfit. The intricate detailing with pearl drops and matching jhumka earrings makes it a perfect choice for weddings and traditional ceremonies.\n\nRoyal Temple Design\nThe necklace features traditional South Indian temple motifs with floral patterns and small stones. The antique gold finish gives it an authentic vintage look that is highly prized in Indian jewellery.\n\nElegant Pearl Detailing\nPearl drops hang gracefully from the necklace, adding movement and charm. The pearls also appear in the matching jhumka earrings, creating a cohesive traditional look.\n\nPerfect for Weddings & Traditional Events\n• Bridal wear (as secondary jewellery)\n• Wedding functions\n• Traditional South Indian events\n• Classical dance performances\n• Temple visits\n\nProduct Highlights\n• Antique gold plated finish\n• South Indian temple-style design\n• Pearl drops throughout\n• Traditional floral motifs\n• Matching pearl jhumka earrings\n• Adjustable thread closure\n• Lightweight and comfortable\n\nCare Instructions\n• Store in a dry jewellery box\n• Avoid contact with moisture and chemicals\n• Clean gently with soft dry cloth\n• Keep pearls away from perfume',
+949.00, 599.00, 1, 1, 2, '/uploads/products/p4_1.png', 35, 4.9, 189, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+(5, 'Amshine Silver Plated Bridal Zircon Leaf Necklace Set',
+'Designed for the modern bride, the Amshine Silver Plated Bridal Zircon Leaf Necklace Set is a masterpiece of delicate design and sparkling beauty. The leaf-inspired pattern with premium zircon stones creates a sophisticated look perfect for bridal and special occasions.\n\nDelicate Leaf-Inspired Design\nThe intricate leaf pattern creates a natural, flowing design that wraps gracefully around the neck. Each zircon stone is carefully set to catch and reflect light beautifully.\n\nPremium Quality Zircon Stones\nThe necklace features high-quality zircon (American diamond) stones that rival the shine of real diamonds. The silver-plated finish ensures a pristine white appearance.\n\nPerfect for Bridal Wear\n• Reception and sangeet events\n• Engagement ceremonies\n• Wedding photography\n• Cocktail parties\n• Anniversary celebrations\n\nProduct Highlights\n• Delicate leaf design pattern\n• Premium zircon stone detailing\n• Silver plated finish\n• Matching earrings included\n• Lightweight and elegant\n• Perfect for reception and parties\n• Goes well with gowns and lehengas\n\nCare Instructions\n• Store in a velvet pouch\n• Avoid chemicals and perfume\n• Clean with soft cloth\n• Keep in dry place',
+1099.00, 649.00, 1, 4, 6, '/uploads/products/p5_1.png', 25, 4.8, 178, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+(6, 'Amshine Traditional Gold Plated Mangalsutra with Crystal Pendant',
+'The Amshine Traditional Gold Plated Mangalsutra is a beautiful piece of bridal jewellery that symbolizes love, commitment, and marriage. Crafted with attention to detail, this mangalsutra features a delicate fan-shaped pendant with a clear crystal centerpiece.\n\nSymbol of Sacred Marriage\nThe mangalsutra holds deep cultural significance in Indian marriages, representing the sacred bond between husband and wife. This piece combines tradition with contemporary elegance.\n\nElegant Pendant Design\nThe fan-shaped pendant with intricate goldwork and a shining crystal at the center creates a stunning focal point. The traditional black and gold beaded chain adds authenticity.\n\nPerfect for Daily Wear & Special Occasions\n• Everyday wear by married women\n• Wedding ceremonies\n• Religious festivals\n• Anniversary celebrations\n• Traditional gatherings\n\nProduct Highlights\n• Traditional black and gold bead chain\n• Fan-shaped gold plated pendant\n• Clear crystal centerpiece\n• Lightweight for daily wear\n• Secure clasp closure\n• Symbol of marriage\n• Suitable for all age groups\n\nCare Instructions\n• Remove before bathing\n• Avoid perfume and chemicals\n• Clean with soft cloth\n• Store separately to avoid tangling',
+599.00, 299.00, 1, 3, 5, '/uploads/products/p6_1.png', 80, 4.7, 567, FALSE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in'),
+
+(7, 'Amshine Gold Plated Bridal Zircon Necklace Set with Maang Tikka',
+'Complete your bridal look with the Amshine Gold Plated Bridal Zircon Necklace Set featuring matching earrings and maang tikka. This stunning 3-piece set is designed for brides who want to make a statement on their special day.\n\nComplete Bridal Set\nThis set includes everything needed for a traditional bridal look - a statement necklace, matching earrings, and a maang tikka for the forehead. All pieces feature coordinated design elements.\n\nSparkling Round Zircon Stones\nLarge round zircon stones are the highlight of this set, each surrounded by intricate gold detailing. The stones sparkle beautifully, creating a royal look worthy of any bride.\n\nPerfect for Wedding Day\n• Main wedding ceremony\n• Reception events\n• Bridal photography\n• Engagement party\n• Sangeet ceremony\n\nProduct Highlights\n• 3-piece complete bridal set (Necklace + Earrings + Maang Tikka)\n• Large round zircon stones\n• Gold plated finish\n• Traditional yet stunning design\n• Adjustable closure\n• Perfect for wedding day\n• Statement jewellery piece\n\nCare Instructions\n• Store in bridal jewellery box\n• Handle with care\n• Avoid water and chemicals\n• Use soft cloth to clean\n• Store each piece separately',
+1299.00, 749.00, 1, 4, 6, '/uploads/products/p7_1.png', 20, 4.9, 134, TRUE, 'Amshine', 'https://meesho.com', 'https://flipkart.com', 'https://amazon.in');
+
+-- ===============================
+-- Product Images (Multiple per product)
+-- ===============================
+INSERT INTO product_images (product_id, image_url, sort_order) VALUES
+(1, '/uploads/products/p1_1.png', 0), (1, '/uploads/products/p1_2.png', 1), (1, '/uploads/products/p1_3.png', 2), (1, '/uploads/products/p1_4.png', 3),
+(2, '/uploads/products/p2_1.png', 0), (2, '/uploads/products/p2_2.png', 1), (2, '/uploads/products/p2_3.png', 2), (2, '/uploads/products/p2_4.png', 3),
+(3, '/uploads/products/p3_1.png', 0), (3, '/uploads/products/p3_2.png', 1), (3, '/uploads/products/p3_3.png', 2), (3, '/uploads/products/p3_4.png', 3),
+(4, '/uploads/products/p4_1.png', 0), (4, '/uploads/products/p4_2.png', 1), (4, '/uploads/products/p4_3.png', 2), (4, '/uploads/products/p4_4.png', 3),
+(5, '/uploads/products/p5_1.png', 0), (5, '/uploads/products/p5_2.png', 1), (5, '/uploads/products/p5_3.png', 2), (5, '/uploads/products/p5_4.png', 3),
+(6, '/uploads/products/p6_1.png', 0), (6, '/uploads/products/p6_2.png', 1), (6, '/uploads/products/p6_3.png', 2), (6, '/uploads/products/p6_4.png', 3),
+(7, '/uploads/products/p7_1.png', 0), (7, '/uploads/products/p7_2.png', 1), (7, '/uploads/products/p7_3.png', 2), (7, '/uploads/products/p7_4.png', 3);

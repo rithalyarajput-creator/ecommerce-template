@@ -9,8 +9,21 @@
 .filter-group button:hover { background: #f5f5f5; color: #2874f0; }
 .filter-group button.active { background: #2874f0; color: #fff; }
 
+.category-item { margin-bottom: 2px; }
+.category-toggle { display: flex !important; justify-content: space-between; align-items: center; font-weight: 500; }
+.category-toggle > span { flex: 1; cursor: pointer; padding: 2px 0; }
+.category-toggle > span:hover { color: #2874f0; }
+.category-toggle svg { font-size: 0.95rem; color: #878787; margin-left: 8px; }
+
+.subcategory-list { padding: 4px 0 6px 14px; border-left: 2px solid #f0f0f0; margin-left: 8px; }
+.subcategory-btn { padding: 5px 8px !important; font-size: 0.8rem !important; color: #555 !important; display: block; width: 100%; text-align: left; background: none; border: none; border-radius: 2px; cursor: pointer; margin-bottom: 1px; }
+.subcategory-btn:hover { background: #e3f2fd !important; color: #2874f0 !important; }
+.subcategory-btn.active { background: #2874f0 !important; color: #fff !important; }
+
+.product-count { color: #878787; font-size: 0.85rem; font-weight: 400; margin-left: auto; }
+
 .products-main { background: #fff; border-radius: 2px; padding: 20px; }
-.products-header { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+.products-header { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: baseline; gap: 12px; }
 .products-header h2 { font-size: 1.2rem; color: #212121; font-weight: 600; }
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
 .no-products { text-align: center; padding: 60px; color: #878787; font-size: 1.1rem; }

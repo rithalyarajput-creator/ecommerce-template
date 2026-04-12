@@ -12,13 +12,17 @@ if ($method === 'GET' && $action === 'list') {
     $limit = intval($_GET['limit'] ?? 12);
     $offset = ($page - 1) * $limit;
     $category = $_GET['category'] ?? '';
+    $subcategory = $_GET['subcategory'] ?? '';
+    $sub_subcategory = $_GET['sub_subcategory'] ?? '';
     $search = $_GET['search'] ?? '';
     $sort = $_GET['sort'] ?? '';
 
-    $query = "SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE 1=1";
+    $query = "SELECT p.*, c.name as category_name, s.name as subcategory_name FROM products p LEFT JOIN categories c ON p.category_id = c.id LEFT JOIN subcategories s ON p.subcategory_id = s.id WHERE 1=1";
     $params = [];
 
     if ($category) { $query .= " AND p.category_id = ?"; $params[] = $category; }
+    if ($subcategory) { $query .= " AND p.subcategory_id = ?"; $params[] = $subcategory; }
+    if ($sub_subcategory) { $query .= " AND p.sub_subcategory_id = ?"; $params[] = $sub_subcategory; }
     if ($search) { $query .= " AND (p.name LIKE ? OR p.description LIKE ?)"; $params[] = "%$search%"; $params[] = "%$search%"; }
 
     if ($sort === 'price_low') $query .= " ORDER BY p.price ASC";
@@ -26,7 +30,7 @@ if ($method === 'GET' && $action === 'list') {
     elseif ($sort === 'rating') $query .= " ORDER BY p.rating DESC";
     else $query .= " ORDER BY p.created_at DESC";
 
-    $countStmt = $db->prepare(str_replace("p.*, c.name as category_name", "COUNT(*) as total", explode(" ORDER BY", $query)[0]));
+    $countStmt = $db->prepare(str_replace("p.*, c.name as category_name, s.name as subcategory_name", "COUNT(*) as total", explode(" ORDER BY", $query)[0]));
     $countStmt->execute($params);
     $total = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 

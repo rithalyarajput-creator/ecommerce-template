@@ -1,0 +1,15 @@
+.hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 80px 20px 40px; text-align: center; color: #fff; }
+.hero-content { max-width: 700px; margin: 0 auto; }
+.hero h1 { font-size: 3rem; margin-bottom: 20px; line-height: 1.2; }
+.hero-brand { color: #fff; }
+.hero-m { color: #e94560; }
+.hero p { font-size: 1.1rem; color: #8892b0; margin-bottom: 30px; line-height: 1.6; }
+.hero-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+.btn-shop { padding: 14px 40px; background: #e94560; color: #fff; text-decoration: none; border-radius: 8px; font-size: 1rem; font-weight: 600; }
+.btn-shop:hover { background: #d63851; }
+.btn-new { padding: 14px 40px; border: 2px solid #e94560; color: #e94560; text-decoration: none; border-radius: 8px; font-size: 1rem; font-weight: 600; transition: all 0.3s; }
+.btn-new:hover { background: #e94560; color: #fff; }
+.hero-features { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); }
+.feature { display: flex; align-items: center; gap: 10px; color: #ccd6f6; font-size: 0.95rem; }
+.feature-icon { font-size: 1.5rem; }
+@media (max-width: 768px) { .hero h1 { font-size: 2rem; } .hero-features { gap: 20px; } }

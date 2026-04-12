@@ -1,0 +1,29 @@
+.product-detail { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+.detail-container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: #fff; border-radius: 12px; padding: 30px; box-shadow: 0 2px 15px rgba(0,0,0,0.08); }
+.detail-image { border-radius: 12px; overflow: hidden; background: #f8f9fa; }
+.detail-image img { width: 100%; height: 100%; object-fit: cover; }
+.detail-category { color: #e94560; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 8px; }
+.detail-info h1 { font-size: 1.8rem; color: #1a1a2e; margin-bottom: 15px; }
+.detail-rating { display: flex; align-items: center; gap: 5px; margin-bottom: 20px; color: #666; }
+.star-filled { color: #ffc107; }
+.detail-price { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+.detail-price .price { font-size: 2rem; font-weight: 700; color: #1a1a2e; }
+.detail-price .original { font-size: 1.2rem; color: #999; text-decoration: line-through; }
+.detail-price .discount { background: #e94560; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+.detail-description { color: #666; line-height: 1.8; margin-bottom: 20px; }
+.stock-info { margin-bottom: 20px; }
+.in-stock { color: #27ae60; font-weight: 600; }
+.out-stock { color: #e94560; font-weight: 600; }
+.quantity-selector { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+.quantity-selector button { width: 36px; height: 36px; border: 1px solid #ddd; background: #fff; border-radius: 8px; cursor: pointer; }
+.quantity-selector span { font-size: 1.1rem; font-weight: 600; }
+.detail-actions { display: flex; gap: 15px; }
+.detail-actions .btn-add-cart { flex: 1; padding: 14px; background: #e94560; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.detail-actions .btn-add-cart:disabled { background: #ccc; }
+.detail-actions .btn-wishlist { padding: 14px 20px; border: 2px solid #e94560; background: #fff; color: #e94560; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.reviews-section { margin-top: 40px; }
+.reviews-section h2 { font-size: 1.5rem; color: #1a1a2e; margin-bottom: 20px; }
+.review-card { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
+.review-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.review-rating { color: #ffc107; }
+@media (max-width: 768px) { .detail-container { grid-template-columns: 1fr; } }

@@ -1,0 +1,7 @@
+.profile-page { max-width: 600px; margin: 40px auto; padding: 0 20px; }
+.profile-card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.08); }
+.profile-card h2 { color: #1a1a2e; margin-bottom: 25px; }
+.profile-card input { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 12px; font-size: 0.95rem; outline: none; }
+.profile-card input:focus { border-color: #e94560; }
+.profile-card .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.profile-card button { width: 100%; padding: 14px; background: #e94560; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 10px; }

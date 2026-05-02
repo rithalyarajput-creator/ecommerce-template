@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { FiUsers, FiPackage, FiShoppingBag, FiDollarSign, FiPlus, FiTrash2, FiEdit, FiTag, FiHome, FiCheckCircle, FiDownload, FiGift, FiUserCheck, FiClock, FiAlertTriangle, FiTrendingUp, FiFilter, FiEye, FiX, FiSearch, FiChevronRight, FiChevronDown, FiFolder, FiFolderPlus } from 'react-icons/fi';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { FiUsers, FiPackage, FiShoppingBag, FiDollarSign, FiPlus, FiTrash2, FiEdit, FiTag, FiHome, FiCheckCircle, FiDownload, FiGift, FiUserCheck, FiClock, FiAlertTriangle, FiTrendingUp, FiFilter, FiEye, FiX, FiSearch, FiChevronRight, FiChevronDown, FiFolder, FiFolderPlus, FiUpload, FiFileText } from 'react-icons/fi';
 import API, { API_URL } from '../../utils/api';
 import { toast } from 'react-toastify';
 import './Admin.css';
@@ -53,6 +53,13 @@ const Admin = () => {
     // Leads filters + detail modal
     const [leadFilter, setLeadFilter] = useState({ status: '', search: '' });
     const [selectedLead, setSelectedLead] = useState(null);
+
+    // Excel Import/Export
+    const [showExcelPanel, setShowExcelPanel] = useState(false);
+    const [excelFile, setExcelFile] = useState(null);
+    const [importLoading, setImportLoading] = useState(false);
+    const [importResult, setImportResult] = useState(null);
+    const excelInputRef = useRef(null);
 
     const fetchDashboard = async () => {
         try { const { data } = await API.get('/api/admin.php?action=dashboard'); setStats(data); } catch (err) { console.error(err); }
@@ -462,6 +469,100 @@ const Admin = () => {
         fetchUsers();
     };
 
+    // --- Excel Export ---
+    const exportProductsExcel = () => {
+        if (products.length === 0) { toast.info('No products to export'); return; }
+
+        const headers = [
+            'id', 'name', 'brand', 'description', 'price', 'sale_price',
+            'stock', 'featured', 'category_name', 'subcategory_name', 'sub_subcategory_name',
+            'meesho_link', 'flipkart_link', 'amazon_link', 'rating', 'num_reviews'
+        ];
+
+        const rows = products.map(p => [
+            p.id, p.name, p.brand || '', (p.description || '').replace(/\n/g, ' '),
+            p.price, p.sale_price || '', p.stock,
+            p.featured === '1' || p.featured === 1 ? 'YES' : 'NO',
+            p.category_name || '', p.subcategory_name || '', p.sub_subcategory_name || '',
+            p.meesho_link || '', p.flipkart_link || '', p.amazon_link || '',
+            p.rating || 0, p.num_reviews || 0
+        ]);
+
+        // Build CSV with BOM for Excel UTF-8
+        const escape = (v) => {
+            const s = String(v);
+            return s.includes(',') || s.includes('"') || s.includes('\n')
+                ? `"${s.replace(/"/g, '""')}"` : s;
+        };
+        const csv = '﻿' + [headers, ...rows].map(r => r.map(escape).join(',')).join('\n');
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `amshine_products_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success(`Exported ${products.length} products!`);
+    };
+
+    // --- Excel Template Download ---
+    const downloadExcelTemplate = () => {
+        const headers = [
+            'name', 'brand', 'description', 'price', 'sale_price',
+            'stock', 'featured', 'category_id', 'subcategory_id', 'sub_subcategory_id',
+            'meesho_link', 'flipkart_link', 'amazon_link'
+        ];
+        const example = [
+            'Gold Kundan Necklace', 'Amshine', 'Beautiful gold plated kundan necklace',
+            '1299', '999', '50', 'YES', '1', '1', '1',
+            'https://meesho.com/...', 'https://flipkart.com/...', 'https://amazon.in/...'
+        ];
+        const notes = [
+            '* Required', '* Required', 'Optional - product details',
+            '* Required - original price', 'Optional - sale price (leave empty if no discount)',
+            '* Required - quantity', 'YES or NO', '* Required - use category ID number',
+            'Optional - subcategory ID', 'Optional - sub-subcategory ID',
+            'Optional', 'Optional', 'Optional'
+        ];
+
+        const csv = '﻿' + [headers, example, notes].map(r =>
+            r.map(v => v.includes(',') ? `"${v}"` : v).join(',')
+        ).join('\n');
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'product_import_template.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.info('Template downloaded! Fill it and import.');
+    };
+
+    // --- Excel Import ---
+    const handleExcelImport = async () => {
+        if (!excelFile) { toast.error('Please select a CSV file'); return; }
+        setImportLoading(true);
+        setImportResult(null);
+        try {
+            const fd = new FormData();
+            fd.append('file', excelFile);
+            const { data } = await API.post('/api/excel-import.php?action=import', fd);
+            setImportResult(data);
+            if (data.success > 0) {
+                toast.success(`${data.success} products imported successfully!`);
+                fetchProducts(); fetchProductStats();
+            }
+            if (data.errors?.length > 0) toast.warning(`${data.errors.length} rows had errors`);
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Import failed');
+        }
+        setImportLoading(false);
+        setExcelFile(null);
+        if (excelInputRef.current) excelInputRef.current.value = '';
+    };
+
     return (
         <div className="admin-page">
             <aside className="admin-sidebar">
@@ -572,10 +673,111 @@ const Admin = () => {
 
                         <div className="tab-header">
                             <div><p className="tab-subtitle">{products.length} products in store</p></div>
-                            <button className="btn-add" onClick={() => { setShowProdForm(!showProdForm); setEditProdId(null); setProdForm(emptyProd); setProdImage(null); setProdExtraImages([]); }}>
-                                <FiPlus /> {showProdForm ? 'Cancel' : 'Add Product'}
-                            </button>
+                            <div style={{display:'flex',gap:'8px',flexWrap:'wrap'}}>
+                                <button className="btn-excel-export" onClick={exportProductsExcel}>
+                                    <FiDownload /> Export Excel
+                                </button>
+                                <button className="btn-excel-import" onClick={() => { setShowExcelPanel(!showExcelPanel); setImportResult(null); }}>
+                                    <FiUpload /> Import Excel
+                                </button>
+                                <button className="btn-add" onClick={() => { setShowProdForm(!showProdForm); setEditProdId(null); setProdForm(emptyProd); setProdImage(null); setProdExtraImages([]); }}>
+                                    <FiPlus /> {showProdForm ? 'Cancel' : 'Add Product'}
+                                </button>
+                            </div>
                         </div>
+
+                        {showExcelPanel && (
+                            <div className="dashboard-card excel-import-panel">
+                                <h3 className="card-title"><FiFileText /> Bulk Import Products via Excel / CSV</h3>
+                                <div className="excel-info-box">
+                                    <div className="excel-info-item">
+                                        <strong>Step 1:</strong> Download the template CSV file
+                                        <button className="btn-template" onClick={downloadExcelTemplate}><FiDownload /> Download Template</button>
+                                    </div>
+                                    <div className="excel-info-item">
+                                        <strong>Step 2:</strong> Fill in your products in Excel/Google Sheets (save as CSV)
+                                    </div>
+                                    <div className="excel-info-item">
+                                        <strong>Step 3:</strong> Upload the filled CSV below
+                                    </div>
+                                </div>
+
+                                <div className="excel-columns-info">
+                                    <h4>Required Columns:</h4>
+                                    <div className="col-tags">
+                                        <span className="col-tag required">name *</span>
+                                        <span className="col-tag required">brand *</span>
+                                        <span className="col-tag required">price *</span>
+                                        <span className="col-tag required">stock *</span>
+                                        <span className="col-tag required">category_id *</span>
+                                        <span className="col-tag optional">sale_price</span>
+                                        <span className="col-tag optional">description</span>
+                                        <span className="col-tag optional">subcategory_id</span>
+                                        <span className="col-tag optional">sub_subcategory_id</span>
+                                        <span className="col-tag optional">featured (YES/NO)</span>
+                                        <span className="col-tag optional">meesho_link</span>
+                                        <span className="col-tag optional">flipkart_link</span>
+                                        <span className="col-tag optional">amazon_link</span>
+                                    </div>
+                                </div>
+
+                                <div className="excel-cats-ref">
+                                    <h4>Your Category IDs (for reference):</h4>
+                                    <div className="col-tags">
+                                        {categories.map(c => (
+                                            <span key={c.id} className="col-tag cat-id">ID {c.id}: {c.name}</span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="excel-upload-area">
+                                    <label className="upload-drop-zone" htmlFor="excel-file-input">
+                                        <FiUpload style={{fontSize:'2rem',color:'#2874f0'}} />
+                                        <strong>{excelFile ? excelFile.name : 'Click to select CSV file'}</strong>
+                                        <small>Supported: .csv (Excel → Save As CSV)</small>
+                                        <input
+                                            id="excel-file-input"
+                                            ref={excelInputRef}
+                                            type="file"
+                                            accept=".csv,text/csv"
+                                            style={{display:'none'}}
+                                            onChange={(e) => { setExcelFile(e.target.files[0]); setImportResult(null); }}
+                                        />
+                                    </label>
+                                    {excelFile && (
+                                        <button className="btn-submit" onClick={handleExcelImport} disabled={importLoading}>
+                                            {importLoading ? '⏳ Importing...' : <><FiUpload /> Import {excelFile.name}</>}
+                                        </button>
+                                    )}
+                                </div>
+
+                                {importResult && (
+                                    <div className="import-result">
+                                        <div className="import-stats">
+                                            <div className="import-stat success">✅ {importResult.success} Imported</div>
+                                            <div className="import-stat error">❌ {importResult.errors?.length || 0} Errors</div>
+                                            <div className="import-stat total">📦 {importResult.total} Total Rows</div>
+                                        </div>
+                                        {importResult.errors?.length > 0 && (
+                                            <div className="import-errors">
+                                                <h4>Error Details:</h4>
+                                                {importResult.errors.map((e, i) => (
+                                                    <div key={i} className="import-error-row">Row {e.row}: {e.message}</div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {importResult.imported?.length > 0 && (
+                                            <div className="import-success-list">
+                                                <h4>Successfully Imported:</h4>
+                                                {importResult.imported.map((p, i) => (
+                                                    <div key={i} className="import-success-row">✓ {p.name}</div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         {showProdForm && (
                             <div className="dashboard-card">

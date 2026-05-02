@@ -244,3 +244,47 @@
 .input-with-btn input { flex: 1; }
 .btn-generate { padding: 0 14px; background: #ff9f00; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.82rem; white-space: nowrap; transition: background 0.15s; }
 .btn-generate:hover { background: #f57c00; }
+
+/* ===== Excel Export / Import ===== */
+.btn-excel-export { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; background: #1a7a4a; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.88rem; transition: background 0.15s; }
+.btn-excel-export:hover { background: #155e38; }
+
+.btn-excel-import { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; background: #7b1fa2; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.88rem; transition: background 0.15s; }
+.btn-excel-import:hover { background: #6a1b9a; }
+
+.excel-import-panel { border: 2px dashed #7b1fa2; background: #fdf6ff; }
+.excel-import-panel .card-title { color: #7b1fa2; }
+
+.excel-info-box { background: #fff; border-radius: 6px; padding: 16px; margin-bottom: 16px; border: 1px solid #e0e0e0; display: flex; flex-direction: column; gap: 10px; }
+.excel-info-item { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: #424242; }
+.excel-info-item strong { color: #7b1fa2; min-width: 60px; }
+
+.btn-template { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: #2874f0; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 0.82rem; font-weight: 600; margin-left: 10px; transition: background 0.15s; }
+.btn-template:hover { background: #1a5dc7; }
+
+.excel-columns-info, .excel-cats-ref { margin-bottom: 14px; }
+.excel-columns-info h4, .excel-cats-ref h4 { font-size: 0.88rem; color: #172337; font-weight: 600; margin-bottom: 8px; }
+
+.col-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.col-tag { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; font-family: monospace; }
+.col-tag.required { background: #fce4ec; color: #c62828; border: 1px solid #ef9a9a; }
+.col-tag.optional { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+.col-tag.cat-id { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+
+.excel-upload-area { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 16px; }
+.upload-drop-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 28px; border: 2px dashed #7b1fa2; border-radius: 8px; cursor: pointer; background: #fff; transition: all 0.2s; }
+.upload-drop-zone:hover { background: #f3e5f5; border-color: #6a1b9a; }
+.upload-drop-zone strong { font-size: 0.95rem; color: #172337; }
+.upload-drop-zone small { font-size: 0.8rem; color: #878787; }
+
+.import-result { margin-top: 16px; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; }
+.import-stats { display: flex; gap: 0; border-bottom: 1px solid #e0e0e0; }
+.import-stat { flex: 1; padding: 12px; text-align: center; font-weight: 600; font-size: 0.9rem; }
+.import-stat.success { background: #e8f5e9; color: #2e7d32; }
+.import-stat.error { background: #fce4ec; color: #c62828; }
+.import-stat.total { background: #e3f2fd; color: #1565c0; }
+
+.import-errors, .import-success-list { padding: 12px 16px; }
+.import-errors h4, .import-success-list h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; }
+.import-error-row { background: #fce4ec; color: #c62828; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; margin-bottom: 4px; }
+.import-success-row { color: #2e7d32; font-size: 0.82rem; padding: 3px 0; border-bottom: 1px solid #f0f0f0; }

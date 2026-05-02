@@ -104,7 +104,7 @@ const Admin = () => {
         try { const { data } = await API.get('/api/admin.php?action=users'); setUsers(data); } catch (err) { console.error(err); }
     };
     const fetchCoupons = async () => {
-        try { const { data } = await API.get('/api/coupons.php?action=list'); setCoupons(data); } catch (err) { console.error(err); }
+        try { const { data } = await API.get('/api/coupons.php?action=list'); setCoupons(Array.isArray(data) ? data : []); } catch (err) { console.error(err); }
     };
     const fetchLeads = useCallback(async () => {
         try {
@@ -1255,7 +1255,7 @@ const Admin = () => {
                 {tab === 'coupons' && (
                     <div className="admin-content">
                         <div className="tab-header">
-                            <div><p className="tab-subtitle">{coupons.length} coupons • {coupons.filter(c => parseInt(c.active) === 1).length} active</p></div>
+                            <div><p className="tab-subtitle">{coupons.length} coupons • {(coupons || []).filter(c => parseInt(c.active) === 1).length} active</p></div>
                             <button className="btn-add" onClick={() => {
                                 if (showCoupForm) { closeCoupForm(); }
                                 else { resetCoupForm(); setShowCoupForm(true); }

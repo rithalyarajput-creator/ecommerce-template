@@ -45,4 +45,17 @@
     .auth-links { flex-direction: column; }
     .btn-login, .btn-register { color: #fff !important; background: #2874f0; text-align: center; padding: 10px; }
     .btn-register { background: #ff9f00; }
+    .btn-sell { background: #7b1fa2 !important; color: #fff !important; text-align: center; padding: 10px; }
 }
+
+/* Seller nav link */
+.seller-nav-link { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 4px; color: #fff !important; font-weight: 600; }
+.seller-nav-link:hover { background: rgba(255,255,255,0.25) !important; }
+
+/* Role badge inside nav */
+.nav-role-badge { font-size: 0.62rem; font-weight: 700; padding: 1px 6px; border-radius: 8px; margin-left: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+.nav-role-badge.seller { background: #f3e5f5; color: #7b1fa2; }
+.nav-role-badge.admin  { background: #fce4ec; color: #c62828; }
+
+/* Sell button for guests */
+.btn-sell { padding: 6px 16px; background: #7b1fa2; border-radius: 2px; color: #fff !important; font-weight: 600; font-size: 0.9rem; }

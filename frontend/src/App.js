@@ -17,6 +17,8 @@ import Profile from './pages/Profile/Profile';
 import Orders from './pages/Orders/Orders';
 import Wishlist from './pages/Wishlist/Wishlist';
 import Admin from './pages/Admin/Admin';
+import SellerDashboard from './pages/SellerDashboard/SellerDashboard';
+import BecomeSeller from './pages/BecomeSeller/BecomeSeller';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -29,6 +31,14 @@ const AdminRoute = ({ children }) => {
     const { user, loading } = useAuth();
     if (loading) return <div className="loading">Loading...</div>;
     return user?.role === 'admin' ? children : <Navigate to="/" />;
+};
+
+const SellerRoute = ({ children }) => {
+    const { user, loading } = useAuth();
+    if (loading) return <div className="loading">Loading...</div>;
+    if (!user) return <Navigate to="/login" />;
+    if (user.role !== 'seller' && user.role !== 'admin') return <Navigate to="/become-seller" />;
+    return children;
 };
 
 function App() {
@@ -45,12 +55,14 @@ function App() {
                                 <Route path="/product/:id" element={<ProductDetail />} />
                                 <Route path="/login" element={<Login />} />
                                 <Route path="/register" element={<Register />} />
+                                <Route path="/become-seller" element={<BecomeSeller />} />
                                 <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
                                 <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
                                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                                 <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
                                 <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
                                 <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+                                <Route path="/seller" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
                             </Routes>
                         </main>
                         <Footer />

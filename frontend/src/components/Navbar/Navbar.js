@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiHeart, FiUser, FiMenu, FiX, FiSearch } from 'react-icons/fi';
+import { FiShoppingCart, FiHeart, FiUser, FiMenu, FiX, FiSearch, FiTruck } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import './Navbar.css';
@@ -17,6 +17,9 @@ const Navbar = () => {
         if (search.trim()) { navigate(`/products?search=${search}`); setSearch(''); }
     };
 
+    const isSeller = user?.role === 'seller';
+    const isAdmin  = user?.role === 'admin';
+
     return (
         <nav className="navbar">
             <div className="navbar-container">
@@ -25,32 +28,49 @@ const Navbar = () => {
                 </Link>
 
                 <form className="navbar-search" onSubmit={handleSearch}>
-                    <input type="text" placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                    <input type="text" placeholder="Search jewellery..." value={search} onChange={(e) => setSearch(e.target.value)} />
                     <button type="submit"><FiSearch /></button>
                 </form>
 
                 <div className={`navbar-links ${menuOpen ? 'active' : ''}`}>
                     <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
                     <Link to="/products" onClick={() => setMenuOpen(false)}>Products</Link>
+
                     {user ? (
                         <>
-                            <Link to="/wishlist" onClick={() => setMenuOpen(false)}><FiHeart /> Wishlist</Link>
-                            <Link to="/cart" className="cart-link" onClick={() => setMenuOpen(false)}>
-                                <FiShoppingCart /> Cart
-                                {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-                            </Link>
+                            {/* Seller gets seller dashboard link, not cart */}
+                            {isSeller ? (
+                                <Link to="/seller" className="seller-nav-link" onClick={() => setMenuOpen(false)}>
+                                    <FiTruck /> Seller Panel
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link to="/wishlist" onClick={() => setMenuOpen(false)}><FiHeart /> Wishlist</Link>
+                                    <Link to="/cart" className="cart-link" onClick={() => setMenuOpen(false)}>
+                                        <FiShoppingCart /> Cart
+                                        {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+                                    </Link>
+                                </>
+                            )}
+
                             <div className="user-menu">
-                                <button className="user-btn"><FiUser /> {user.name}</button>
+                                <button className="user-btn">
+                                    <FiUser /> {user.name}
+                                    {isSeller && <span className="nav-role-badge seller">Seller</span>}
+                                    {isAdmin  && <span className="nav-role-badge admin">Admin</span>}
+                                </button>
                                 <div className="dropdown">
-                                    <Link to="/profile">My Profile</Link>
-                                    <Link to="/orders">My Orders</Link>
-                                    {user.role === 'admin' && <Link to="/admin">Admin Panel</Link>}
+                                    {!isSeller && <Link to="/profile">My Profile</Link>}
+                                    {!isSeller && <Link to="/orders">My Orders</Link>}
+                                    {isSeller  && <Link to="/seller">Seller Dashboard</Link>}
+                                    {isAdmin   && <Link to="/admin">Admin Panel</Link>}
                                     <button onClick={logout}>Logout</button>
                                 </div>
                             </div>
                         </>
                     ) : (
                         <div className="auth-links">
+                            <Link to="/become-seller" className="btn-sell">Sell</Link>
                             <Link to="/login" className="btn-login">Login</Link>
                             <Link to="/register" className="btn-register">Register</Link>
                         </div>

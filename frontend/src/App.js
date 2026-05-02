@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { LoginPopupProvider } from './context/LoginPopupContext';
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 import Home from './pages/Home/Home';
@@ -46,28 +47,30 @@ function App() {
         <Router>
             <AuthProvider>
                 <CartProvider>
-                    <div className="App">
-                        <Navbar />
-                        <main className="main-content">
-                            <Routes>
-                                <Route path="/" element={<Home />} />
-                                <Route path="/products" element={<Products />} />
-                                <Route path="/product/:id" element={<ProductDetail />} />
-                                <Route path="/login" element={<Login />} />
-                                <Route path="/register" element={<Register />} />
-                                <Route path="/become-seller" element={<BecomeSeller />} />
-                                <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
-                                <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-                                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                                <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-                                <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
-                                <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-                                <Route path="/seller" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
-                            </Routes>
-                        </main>
-                        <Footer />
-                        <ToastContainer position="bottom-right" autoClose={3000} />
-                    </div>
+                    <LoginPopupProvider>
+                        <div className="App">
+                            <Navbar />
+                            <main className="main-content">
+                                <Routes>
+                                    <Route path="/" element={<Home />} />
+                                    <Route path="/products" element={<Products />} />
+                                    <Route path="/product/:id" element={<ProductDetail />} />
+                                    <Route path="/login" element={<Login />} />
+                                    <Route path="/register" element={<Register />} />
+                                    <Route path="/become-seller" element={<BecomeSeller />} />
+                                    <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+                                    <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+                                    <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                                    <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+                                    <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+                                    <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+                                    <Route path="/seller" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
+                                </Routes>
+                            </main>
+                            <Footer />
+                            <ToastContainer position="bottom-right" autoClose={3000} />
+                        </div>
+                    </LoginPopupProvider>
                 </CartProvider>
             </AuthProvider>
         </Router>

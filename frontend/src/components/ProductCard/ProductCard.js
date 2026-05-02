@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom';
 import { FiShoppingCart, FiStar } from 'react-icons/fi';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useLoginPopup } from '../../context/LoginPopupContext';
 import { API_URL } from '../../utils/api';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
     const { user } = useAuth();
+    const { showLoginPopup } = useLoginPopup();
 
     const discount = product.sale_price
         ? Math.round(((product.price - product.sale_price) / product.price) * 100)
@@ -17,7 +19,7 @@ const ProductCard = ({ product }) => {
     const handleAddToCart = (e) => {
         e.preventDefault();
         if (user) addToCart(product.id);
-        else alert('Please login to add items to cart');
+        else showLoginPopup(() => addToCart(product.id));
     };
 
     const getImageUrl = () => {

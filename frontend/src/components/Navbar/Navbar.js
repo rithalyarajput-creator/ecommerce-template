@@ -38,7 +38,6 @@ const Navbar = () => {
 
                     {user ? (
                         <>
-                            {/* Seller gets seller dashboard link, not cart */}
                             {isSeller ? (
                                 <Link to="/seller" className="seller-nav-link" onClick={() => setMenuOpen(false)}>
                                     <FiTruck /> Seller Panel
@@ -52,7 +51,6 @@ const Navbar = () => {
                                     </Link>
                                 </>
                             )}
-
                             <div className="user-menu">
                                 <button className="user-btn">
                                     <FiUser /> {user.name}
@@ -60,8 +58,8 @@ const Navbar = () => {
                                     {isAdmin  && <span className="nav-role-badge admin">Admin</span>}
                                 </button>
                                 <div className="dropdown">
-                                    {!isSeller && <Link to="/profile">My Profile</Link>}
-                                    {!isSeller && <Link to="/orders">My Orders</Link>}
+                                    {!isSeller && !isAdmin && <Link to="/profile">My Profile</Link>}
+                                    {!isSeller && !isAdmin && <Link to="/orders">My Orders</Link>}
                                     {isSeller  && <Link to="/seller">Seller Dashboard</Link>}
                                     {isAdmin   && <Link to="/admin">Admin Panel</Link>}
                                     <button onClick={logout}>Logout</button>
@@ -70,9 +68,12 @@ const Navbar = () => {
                         </>
                     ) : (
                         <div className="auth-links">
-                            <Link to="/become-seller" className="btn-sell">Sell</Link>
-                            <Link to="/login" className="btn-login">Login</Link>
-                            <Link to="/register" className="btn-register">Register</Link>
+                            <Link to="/become-seller" className="btn-sell" onClick={() => setMenuOpen(false)}>
+                                Become a Seller
+                            </Link>
+                            <Link to="/login" className="btn-login" onClick={() => setMenuOpen(false)}>
+                                Sign In
+                            </Link>
                         </div>
                     )}
                 </div>

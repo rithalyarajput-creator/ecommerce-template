@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { FiShoppingCart, FiHeart, FiStar, FiMinus, FiPlus, FiExternalLink, FiMessageCircle, FiX, FiSend } from 'react-icons/fi';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useLoginPopup } from '../../context/LoginPopupContext';
 import API, { API_URL } from '../../utils/api';
 import { toast } from 'react-toastify';
 import ProductCard from '../../components/ProductCard/ProductCard';
@@ -20,6 +21,7 @@ const ProductDetail = () => {
     const [similarProducts, setSimilarProducts] = useState([]);
     const { addToCart } = useCart();
     const { user } = useAuth();
+    const { showLoginPopup } = useLoginPopup();
 
     useEffect(() => {
         const fetch = async () => {
@@ -55,9 +57,9 @@ const ProductDetail = () => {
     const images = product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []);
 
     const addWishlist = async () => {
-        if (!user) return alert('Please login');
+        if (!user) { showLoginPopup(() => addWishlist()); return; }
         await API.post('/api/wishlist.php?action=add', { product_id: product.id });
-        alert('Added to wishlist!');
+        toast.success('Added to wishlist!');
     };
 
     const submitEnquiry = async (e) => {
@@ -141,7 +143,7 @@ const ProductDetail = () => {
                     </div>
 
                     <div className="detail-actions">
-                        <button className="btn-add-cart" onClick={() => user ? addToCart(product.id, quantity) : alert('Please login')} disabled={product.stock === 0}>
+                        <button className="btn-add-cart" onClick={() => user ? addToCart(product.id, quantity) : showLoginPopup(() => addToCart(product.id, quantity))} disabled={product.stock === 0}>
                             <FiShoppingCart /> Add to Cart
                         </button>
                         <button className="btn-wishlist" onClick={addWishlist}><FiHeart /> Wishlist</button>

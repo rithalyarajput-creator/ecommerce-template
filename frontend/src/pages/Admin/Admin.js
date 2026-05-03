@@ -72,9 +72,12 @@ const Admin = () => {
     const fetchDashboard = async () => {
         try { const { data } = await API.get('/api/admin.php?action=dashboard'); setStats(data); } catch (err) { console.error(err); }
     };
-    const fetchProducts = async () => {
-        try { const { data } = await API.get('/api/products.php?action=list&limit=500'); setProducts(Array.isArray(data.products) ? data.products : []); } catch (err) { console.error(err); }
-    };
+    const fetchProducts = useCallback(async () => {
+        try {
+            const { data } = await API.get('/api/products.php?action=list&limit=500');
+            setProducts(Array.isArray(data.products) ? data.products : []);
+        } catch (err) { console.error('fetchProducts error:', err); }
+    }, []);
     const fetchProductStats = async () => {
         try { const { data } = await API.get('/api/admin.php?action=product-analytics'); setProductStats(data); } catch (err) { console.error(err); }
     };
@@ -159,7 +162,8 @@ const Admin = () => {
             }
             setShowProdForm(false); setEditProdId(null); setProdForm(emptyProd);
             setProdImage(null); setProdExtraImages([]);
-            fetchProducts(); fetchProductStats();
+            await fetchProducts(); fetchProductStats();
+            setTimeout(fetchProducts, 1500);
         } catch (err) { toast.error(err.response?.data?.message || 'Error saving product — check console'); console.error(err.response?.data || err); }
     };
 

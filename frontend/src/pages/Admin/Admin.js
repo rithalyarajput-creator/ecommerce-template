@@ -843,8 +843,16 @@ const Admin = () => {
                                         <div className="form-group"><label>Brand</label>
                                             <input placeholder="e.g., Amshine" value={prodForm.brand} onChange={(e) => setProdForm({ ...prodForm, brand: e.target.value })} /></div>
                                     </div>
-                                    <div className="form-group"><label>Description</label>
-                                        <textarea placeholder="Product description..." value={prodForm.description} onChange={(e) => setProdForm({ ...prodForm, description: e.target.value })} /></div>
+                                    <div className="form-group"><label>Description <span style={{fontWeight:400,color:'#999',fontSize:'0.78rem'}}>(supports HTML — h3, b, ul, li, p)</span></label>
+                                        <div className="rich-toolbar">
+                                            {[['<b>','</b>','B'],['<i>','</i>','I'],['<u>','</u>','U'],['<h3>','</h3>','H3'],['<h4>','</h4>','H4']].map(([o,c,label]) => (
+                                                <button key={label} type="button" onClick={() => { const ta = document.getElementById('prod-desc'); const s=ta.selectionStart,e=ta.selectionEnd,v=ta.value; const newVal=v.slice(0,s)+o+v.slice(s,e)+c+v.slice(e); setProdForm(f=>({...f,description:newVal})); }} title={label}>{label}</button>
+                                            ))}
+                                            {[['<ul>\n  <li>','</li>\n</ul>','• List'],['<p>','</p>','P']].map(([o,c,label]) => (
+                                                <button key={label} type="button" onClick={() => { const ta = document.getElementById('prod-desc'); const s=ta.selectionStart,e=ta.selectionEnd,v=ta.value; const newVal=v.slice(0,s)+o+v.slice(s,e)+c+v.slice(e); setProdForm(f=>({...f,description:newVal})); }}>{label}</button>
+                                            ))}
+                                        </div>
+                                        <textarea id="prod-desc" placeholder="Product description... (you can use HTML tags or the toolbar above)" value={prodForm.description} onChange={(e) => setProdForm({ ...prodForm, description: e.target.value })} rows={8} style={{fontFamily:'monospace',fontSize:'0.85rem'}} /></div>
                                     <div className="form-row">
                                         <div className="form-group"><label>Price (₹) *</label>
                                             <input type="number" placeholder="Original price" value={prodForm.price} onChange={(e) => setProdForm({ ...prodForm, price: e.target.value })} required /></div>

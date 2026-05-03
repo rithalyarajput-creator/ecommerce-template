@@ -168,7 +168,7 @@ const ProductDetail = () => {
                             {Object.entries(variationGroups).map(([attrName, items]) => (
                                 <div key={attrName} className="variation-attr">
                                     <p className="variation-attr-label">
-                                        {attrName}: <strong>{selectedVariations[attrName] || <span style={{color:'#999',fontWeight:400'}}>Select</span>}</strong>
+                                        {attrName}: <strong>{selectedVariations[attrName] || <span style={{color:'#999',fontWeight:400}}>Select</span>}</strong>
                                     </p>
                                     <div className="variation-options">
                                         {items.map(v => (

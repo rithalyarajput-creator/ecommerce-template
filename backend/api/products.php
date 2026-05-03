@@ -7,43 +7,41 @@ $db = (new Database())->connect();
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? 'list';
 
-// Save upload and convert to WebP for smaller size and faster loading
+// Save uploaded image — try WebP conversion, fallback to original format
 function saveAsWebP($tmpPath, $origName) {
     $uploadDir = '../uploads/products/';
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-    $filename = time() . '_' . bin2hex(random_bytes(4)) . '.webp';
-    $targetPath = $uploadDir . $filename;
-
     $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
-    $img = null;
-    if ($ext === 'jpg' || $ext === 'jpeg') {
-        $img = @imagecreatefromjpeg($tmpPath);
-    } elseif ($ext === 'png') {
-        $img = @imagecreatefrompng($tmpPath);
+    if (!in_array($ext, ['jpg','jpeg','png','webp','gif'])) $ext = 'jpg';
+
+    // Try WebP conversion only if GD supports it
+    $webpSupported = function_exists('imagewebp') && (imagetypes() & IMG_WEBP);
+
+    if ($webpSupported && in_array($ext, ['jpg','jpeg','png','webp'])) {
+        $img = null;
+        if ($ext === 'jpg' || $ext === 'jpeg') $img = @imagecreatefromjpeg($tmpPath);
+        elseif ($ext === 'png') {
+            $img = @imagecreatefrompng($tmpPath);
+            if ($img) { imagepalettetotruecolor($img); imagealphablending($img, true); imagesavealpha($img, true); }
+        }
+        elseif ($ext === 'webp') $img = @imagecreatefromwebp($tmpPath);
+
         if ($img) {
-            imagepalettetotruecolor($img);
-            imagealphablending($img, true);
-            imagesavealpha($img, true);
-        }
-    } elseif ($ext === 'webp') {
-        // Already webp, just move
-        if (move_uploaded_file($tmpPath, $targetPath)) return '/uploads/products/' . $filename;
-        return null;
-    }
-
-    if ($img) {
-        if (imagewebp($img, $targetPath, 85)) {
+            $filename = time() . '_' . bin2hex(random_bytes(4)) . '.webp';
+            $targetPath = $uploadDir . $filename;
+            if (imagewebp($img, $targetPath, 85)) {
+                imagedestroy($img);
+                return '/uploads/products/' . $filename;
+            }
             imagedestroy($img);
-            return '/uploads/products/' . $filename;
         }
-        imagedestroy($img);
     }
 
-    // Fallback - save as-is
-    $fallbackName = time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
-    if (move_uploaded_file($tmpPath, $uploadDir . $fallbackName)) {
-        return '/uploads/products/' . $fallbackName;
+    // Always-working fallback: just move the file as-is
+    $filename = time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+    if (move_uploaded_file($tmpPath, $uploadDir . $filename)) {
+        return '/uploads/products/' . $filename;
     }
     return null;
 }

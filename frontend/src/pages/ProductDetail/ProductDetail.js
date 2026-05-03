@@ -165,29 +165,45 @@ const ProductDetail = () => {
                     {/* ── Variations ── */}
                     {Object.keys(variationGroups).length > 0 && (
                         <div className="variations-selector">
-                            {Object.entries(variationGroups).map(([attrName, items]) => (
-                                <div key={attrName} className="variation-attr">
-                                    <p className="variation-attr-label">
-                                        {attrName}: <strong>{selectedVariations[attrName] || <span style={{color:'#999',fontWeight:400}}>Select</span>}</strong>
-                                    </p>
-                                    <div className="variation-options">
-                                        {items.map(v => (
-                                            <button
-                                                key={v.id}
-                                                className={`var-option-btn ${selectedVariations[attrName] === v.attribute_value ? 'selected' : ''} ${parseInt(v.stock) === 0 ? 'out-of-stock' : ''}`}
-                                                onClick={() => selectVariation(attrName, v)}
-                                                title={parseInt(v.stock) === 0 ? 'Out of stock' : v.attribute_value}
-                                            >
-                                                {v.image
-                                                    ? <img src={getImgUrl(v.image)} alt={v.attribute_value} className="var-option-img" />
-                                                    : <span className="var-option-text">{v.attribute_value}</span>
+                            {Object.entries(variationGroups).map(([attrName, items]) => {
+                                const isColor = attrName.toLowerCase().includes('color') || attrName.toLowerCase().includes('colour');
+                                const isImage = items.some(v => v.image);
+                                return (
+                                    <div key={attrName} className="variation-attr">
+                                        <p className="variation-attr-label">
+                                            Select {attrName}: <strong>{selectedVariations[attrName] || ''}</strong>
+                                        </p>
+                                        <div className="variation-options">
+                                            {items.map(v => {
+                                                const isSelected = selectedVariations[attrName] === v.attribute_value;
+                                                const outOfStock = parseInt(v.stock) === 0;
+                                                if (isImage && v.image) {
+                                                    return (
+                                                        <button key={v.id} className={`var-opt-img-btn ${isSelected ? 'selected' : ''} ${outOfStock ? 'oos' : ''}`} onClick={() => selectVariation(attrName, v)} title={v.attribute_value}>
+                                                            <img src={getImgUrl(v.image)} alt={v.attribute_value} />
+                                                            {outOfStock && <span className="oos-line" />}
+                                                        </button>
+                                                    );
                                                 }
-                                                {!v.image && v.price && <small>₹{parseFloat(v.price).toLocaleString('en-IN')}</small>}
-                                            </button>
-                                        ))}
+                                                if (isColor) {
+                                                    return (
+                                                        <button key={v.id} className={`var-opt-color-btn ${isSelected ? 'selected' : ''} ${outOfStock ? 'oos' : ''}`} onClick={() => selectVariation(attrName, v)} title={v.attribute_value}>
+                                                            <span className="color-dot" style={{background: v.attribute_value.toLowerCase()}} />
+                                                            <span>{v.attribute_value}</span>
+                                                        </button>
+                                                    );
+                                                }
+                                                return (
+                                                    <button key={v.id} className={`var-opt-box-btn ${isSelected ? 'selected' : ''} ${outOfStock ? 'oos' : ''}`} onClick={() => selectVariation(attrName, v)} title={outOfStock ? 'Out of stock' : v.attribute_value}>
+                                                        {v.attribute_value}
+                                                        {outOfStock && <span className="oos-line" />}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
 

@@ -23,6 +23,7 @@ const Admin = () => {
 
     // Product form
     const [showProdForm, setShowProdForm] = useState(false);
+    const [descHtmlMode, setDescHtmlMode] = useState(false);
     const [editProdId, setEditProdId] = useState(null);
     const emptyProd = { name: '', description: '', price: '', sale_price: '', category_id: '', subcategory_id: '', sub_subcategory_id: '', stock: '', featured: false, brand: '', meesho_link: '', flipkart_link: '', amazon_link: '' };
     const [prodForm, setProdForm] = useState(emptyProd);
@@ -843,16 +844,47 @@ const Admin = () => {
                                         <div className="form-group"><label>Brand</label>
                                             <input placeholder="e.g., Amshine" value={prodForm.brand} onChange={(e) => setProdForm({ ...prodForm, brand: e.target.value })} /></div>
                                     </div>
-                                    <div className="form-group"><label>Description <span style={{fontWeight:400,color:'#999',fontSize:'0.78rem'}}>(supports HTML — h3, b, ul, li, p)</span></label>
-                                        <div className="rich-toolbar">
-                                            {[['<b>','</b>','B'],['<i>','</i>','I'],['<u>','</u>','U'],['<h3>','</h3>','H3'],['<h4>','</h4>','H4']].map(([o,c,label]) => (
-                                                <button key={label} type="button" onClick={() => { const ta = document.getElementById('prod-desc'); const s=ta.selectionStart,e=ta.selectionEnd,v=ta.value; const newVal=v.slice(0,s)+o+v.slice(s,e)+c+v.slice(e); setProdForm(f=>({...f,description:newVal})); }} title={label}>{label}</button>
-                                            ))}
-                                            {[['<ul>\n  <li>','</li>\n</ul>','• List'],['<p>','</p>','P']].map(([o,c,label]) => (
-                                                <button key={label} type="button" onClick={() => { const ta = document.getElementById('prod-desc'); const s=ta.selectionStart,e=ta.selectionEnd,v=ta.value; const newVal=v.slice(0,s)+o+v.slice(s,e)+c+v.slice(e); setProdForm(f=>({...f,description:newVal})); }}>{label}</button>
-                                            ))}
+                                    <div className="form-group">
+                                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+                                            <label style={{margin:0}}>Description</label>
+                                            <div style={{display:'flex',gap:4}}>
+                                                <button type="button" className={`desc-toggle-btn ${!descHtmlMode?'active':''}`} onClick={()=>setDescHtmlMode(false)}>Normal</button>
+                                                <button type="button" className={`desc-toggle-btn ${descHtmlMode?'active':''}`} onClick={()=>setDescHtmlMode(true)}>&lt;/&gt; HTML</button>
+                                            </div>
                                         </div>
-                                        <textarea id="prod-desc" placeholder="Product description... (you can use HTML tags or the toolbar above)" value={prodForm.description} onChange={(e) => setProdForm({ ...prodForm, description: e.target.value })} rows={8} style={{fontFamily:'monospace',fontSize:'0.85rem'}} /></div>
+                                        {descHtmlMode ? (
+                                            <textarea id="prod-desc" placeholder="Type HTML here: <h3>Title</h3><p>Description</p><ul><li>Point</li></ul>" value={prodForm.description} onChange={(e) => setProdForm({ ...prodForm, description: e.target.value })} rows={10} style={{fontFamily:'monospace',fontSize:'0.83rem',background:'#1e1e2e',color:'#cdd6f4',border:'1px solid #444',borderRadius:6,padding:10,width:'100%',boxSizing:'border-box'}} />
+                                        ) : (
+                                            <div className="desc-editor-wrap">
+                                                <div className="rich-toolbar">
+                                                    {[['<b>','</b>','B','bold'],['<i>','</i>','I','italic'],['<u>','</u>','U','underline'],['<h3>','</h3>','H3',''],['<h4>','</h4>','H4',''],['<p>','</p>','¶ P','']].map(([o,c,label]) => (
+                                                        <button key={label} type="button" onClick={() => {
+                                                            const ta=document.getElementById('prod-desc-normal');
+                                                            const s=ta.selectionStart,en=ta.selectionEnd,v=ta.value;
+                                                            const nv=v.slice(0,s)+o+v.slice(s,en)+c+v.slice(en);
+                                                            setProdForm(f=>({...f,description:nv}));
+                                                            setTimeout(()=>{ta.selectionStart=ta.selectionEnd=s+o.length+en-s;ta.focus();},0);
+                                                        }}>{label}</button>
+                                                    ))}
+                                                    <button type="button" onClick={() => {
+                                                        const ta=document.getElementById('prod-desc-normal');
+                                                        const s=ta.selectionStart,en=ta.selectionEnd,v=ta.value;
+                                                        const nv=v.slice(0,s)+'<ul>\n  <li>'+v.slice(s,en)+'</li>\n</ul>'+v.slice(en);
+                                                        setProdForm(f=>({...f,description:nv}));
+                                                    }}>• List</button>
+                                                </div>
+                                                <div className="desc-split">
+                                                    <textarea id="prod-desc-normal" placeholder="Write description here... select text and click toolbar buttons to format" value={prodForm.description} onChange={(e) => setProdForm({ ...prodForm, description: e.target.value })} rows={8} />
+                                                    {prodForm.description && (
+                                                        <div className="desc-preview">
+                                                            <p className="desc-preview-label">Preview</p>
+                                                            <div dangerouslySetInnerHTML={{__html: prodForm.description}} />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                     <div className="form-row">
                                         <div className="form-group"><label>Price (₹) *</label>
                                             <input type="number" placeholder="Original price" value={prodForm.price} onChange={(e) => setProdForm({ ...prodForm, price: e.target.value })} required /></div>

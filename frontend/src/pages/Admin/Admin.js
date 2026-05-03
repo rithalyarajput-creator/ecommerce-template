@@ -73,7 +73,7 @@ const Admin = () => {
         try { const { data } = await API.get('/api/admin.php?action=dashboard'); setStats(data); } catch (err) { console.error(err); }
     };
     const fetchProducts = async () => {
-        try { const { data } = await API.get('/api/products.php?action=list&limit=200'); setProducts(data.products); } catch (err) { console.error(err); }
+        try { const { data } = await API.get('/api/products.php?action=list&limit=500'); setProducts(Array.isArray(data.products) ? data.products : []); } catch (err) { console.error(err); }
     };
     const fetchProductStats = async () => {
         try { const { data } = await API.get('/api/admin.php?action=product-analytics'); setProductStats(data); } catch (err) { console.error(err); }
@@ -932,30 +932,32 @@ const Admin = () => {
 
                                 {showVarForm && (
                                     <form onSubmit={handleVarSubmit} className="var-form">
-                                        <div className="var-form-grid">
-                                            <div className="admin-form-group">
-                                                <label>Attribute Name <span style={{color:'#999',fontWeight:400}}>(e.g. Color, Size)</span></label>
+                                        <div className="var-form-row">
+                                            <div className="var-field">
+                                                <label>Attribute <span className="hint">e.g. Color, Size</span></label>
                                                 <input type="text" placeholder="Color" value={varForm.attribute_name} onChange={e => setVarForm({...varForm, attribute_name: e.target.value})} required />
                                             </div>
-                                            <div className="admin-form-group">
-                                                <label>Value <span style={{color:'#999',fontWeight:400}}>(e.g. Red, XL)</span></label>
+                                            <div className="var-field">
+                                                <label>Value <span className="hint">e.g. Red, XL</span></label>
                                                 <input type="text" placeholder="Red" value={varForm.attribute_value} onChange={e => setVarForm({...varForm, attribute_value: e.target.value})} required />
                                             </div>
-                                            <div className="admin-form-group">
-                                                <label>Price <span style={{color:'#999',fontWeight:400}}>(optional — leave blank to use main price)</span></label>
-                                                <input type="number" placeholder="e.g. 499" value={varForm.price} onChange={e => setVarForm({...varForm, price: e.target.value})} />
+                                            <div className="var-field">
+                                                <label>Price <span className="hint">blank = main price</span></label>
+                                                <input type="number" placeholder="499" value={varForm.price} onChange={e => setVarForm({...varForm, price: e.target.value})} />
                                             </div>
-                                            <div className="admin-form-group">
+                                            <div className="var-field">
                                                 <label>Stock</label>
                                                 <input type="number" min="0" value={varForm.stock} onChange={e => setVarForm({...varForm, stock: e.target.value})} required />
                                             </div>
-                                            <div className="admin-form-group" style={{gridColumn:'1/-1'}}>
-                                                <label>Variation Image <span style={{color:'#999',fontWeight:400}}>(this image shows when customer selects this option)</span></label>
+                                        </div>
+                                        <div className="var-image-row">
+                                            <label>Variation Image <span className="hint">— shows when customer picks this option</span></label>
+                                            <div style={{display:'flex',alignItems:'center',gap:12,marginTop:6}}>
                                                 <input type="file" accept="image/*" onChange={e => setVarImage(e.target.files[0])} />
-                                                {varImage && <p style={{fontSize:'0.78rem',color:'#4caf50',margin:'4px 0 0'}}>✓ {varImage.name}</p>}
+                                                {varImage && <span style={{fontSize:'0.78rem',color:'#4caf50'}}>✓ {varImage.name}</span>}
                                             </div>
                                         </div>
-                                        <button type="submit" className="btn-submit" style={{marginTop:12}}>{editVarId ? 'Update Variation' : 'Save Variation'}</button>
+                                        <button type="submit" className="btn-submit" style={{marginTop:14}}>{editVarId ? 'Update Variation' : 'Save Variation'}</button>
                                     </form>
                                 )}
 

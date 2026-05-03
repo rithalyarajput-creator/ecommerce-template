@@ -160,7 +160,7 @@ const Admin = () => {
             setShowProdForm(false); setEditProdId(null); setProdForm(emptyProd);
             setProdImage(null); setProdExtraImages([]);
             fetchProducts(); fetchProductStats();
-        } catch (err) { toast.error('Error saving product'); }
+        } catch (err) { toast.error(err.response?.data?.message || 'Error saving product — check console'); console.error(err.response?.data || err); }
     };
 
     const deleteProduct = async (id) => {
@@ -934,23 +934,23 @@ const Admin = () => {
                                     <form onSubmit={handleVarSubmit} className="var-form">
                                         <div className="var-form-grid">
                                             <div className="admin-form-group">
-                                                <label>Attribute Name</label>
-                                                <input type="text" placeholder="e.g. Color, Size, Material" value={varForm.attribute_name} onChange={e => setVarForm({...varForm, attribute_name: e.target.value})} required />
+                                                <label>Attribute Name <span style={{color:'#999',fontWeight:400}}>(e.g. Color, Size)</span></label>
+                                                <input type="text" placeholder="Color" value={varForm.attribute_name} onChange={e => setVarForm({...varForm, attribute_name: e.target.value})} required />
                                             </div>
                                             <div className="admin-form-group">
-                                                <label>Value</label>
-                                                <input type="text" placeholder="e.g. Red, XL, Gold" value={varForm.attribute_value} onChange={e => setVarForm({...varForm, attribute_value: e.target.value})} required />
+                                                <label>Value <span style={{color:'#999',fontWeight:400}}>(e.g. Red, XL)</span></label>
+                                                <input type="text" placeholder="Red" value={varForm.attribute_value} onChange={e => setVarForm({...varForm, attribute_value: e.target.value})} required />
                                             </div>
                                             <div className="admin-form-group">
-                                                <label>Price (optional, overrides main price)</label>
-                                                <input type="number" placeholder="Leave blank to use product price" value={varForm.price} onChange={e => setVarForm({...varForm, price: e.target.value})} />
+                                                <label>Price <span style={{color:'#999',fontWeight:400}}>(optional — leave blank to use main price)</span></label>
+                                                <input type="number" placeholder="e.g. 499" value={varForm.price} onChange={e => setVarForm({...varForm, price: e.target.value})} />
                                             </div>
                                             <div className="admin-form-group">
                                                 <label>Stock</label>
                                                 <input type="number" min="0" value={varForm.stock} onChange={e => setVarForm({...varForm, stock: e.target.value})} required />
                                             </div>
-                                            <div className="admin-form-group">
-                                                <label>Variation Image</label>
+                                            <div className="admin-form-group" style={{gridColumn:'1/-1'}}>
+                                                <label>Variation Image <span style={{color:'#999',fontWeight:400}}>(this image shows when customer selects this option)</span></label>
                                                 <input type="file" accept="image/*" onChange={e => setVarImage(e.target.files[0])} />
                                                 {varImage && <p style={{fontSize:'0.78rem',color:'#4caf50',margin:'4px 0 0'}}>✓ {varImage.name}</p>}
                                             </div>

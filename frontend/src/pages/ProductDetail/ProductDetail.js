@@ -84,9 +84,9 @@ const ProductDetail = () => {
     };
 
     const externalLinks = [
-        { name: 'Meesho', url: product.meesho_link, color: '#ad2c6e', icon: '🛒' },
-        { name: 'Flipkart', url: product.flipkart_link, color: '#2874f0', icon: '🛍️' },
-        { name: 'Amazon', url: product.amazon_link, color: '#ff9900', icon: '📦' }
+        { name: 'Meesho', url: product.meesho_link, logo: '/meesho.png', bg: '#fce4ec' },
+        { name: 'Flipkart', url: product.flipkart_link, logo: '/flipkart.png', bg: '#e3f2fd' },
+        { name: 'Amazon', url: product.amazon_link, logo: '/amazon.png', bg: '#fff8e1' }
     ].filter(l => l.url && l.url.trim() !== '');
 
     return (
@@ -155,10 +155,9 @@ const ProductDetail = () => {
                             <h4>Also Available On:</h4>
                             <div className="link-buttons">
                                 {externalLinks.map(link => (
-                                    <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="external-btn" style={{ background: link.color }}>
-                                        <span className="link-icon">{link.icon}</span>
-                                        Buy on {link.name}
-                                        <FiExternalLink />
+                                    <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="external-btn-logo" style={{ background: link.bg }}>
+                                        <img src={link.logo} alt={link.name} className="platform-logo" />
+                                        <FiExternalLink className="ext-icon" />
                                     </a>
                                 ))}
                             </div>

@@ -853,35 +853,34 @@ const Admin = () => {
                                             </div>
                                         </div>
                                         {descHtmlMode ? (
-                                            <textarea id="prod-desc" placeholder="Type HTML here: <h3>Title</h3><p>Description</p><ul><li>Point</li></ul>" value={prodForm.description} onChange={(e) => setProdForm({ ...prodForm, description: e.target.value })} rows={10} style={{fontFamily:'monospace',fontSize:'0.83rem',background:'#1e1e2e',color:'#cdd6f4',border:'1px solid #444',borderRadius:6,padding:10,width:'100%',boxSizing:'border-box'}} />
+                                            <textarea placeholder="<h3>Heading</h3><p>Description</p><ul><li>Point</li></ul>" value={prodForm.description} onChange={(e) => setProdForm({ ...prodForm, description: e.target.value })} rows={10} style={{fontFamily:'monospace',fontSize:'0.83rem',background:'#1e1e2e',color:'#cdd6f4',border:'1px solid #444',borderRadius:6,padding:10,width:'100%',boxSizing:'border-box'}} />
                                         ) : (
                                             <div className="desc-editor-wrap">
                                                 <div className="rich-toolbar">
-                                                    {[['<b>','</b>','B','bold'],['<i>','</i>','I','italic'],['<u>','</u>','U','underline'],['<h3>','</h3>','H3',''],['<h4>','</h4>','H4',''],['<p>','</p>','¶ P','']].map(([o,c,label]) => (
-                                                        <button key={label} type="button" onClick={() => {
-                                                            const ta=document.getElementById('prod-desc-normal');
-                                                            const s=ta.selectionStart,en=ta.selectionEnd,v=ta.value;
-                                                            const nv=v.slice(0,s)+o+v.slice(s,en)+c+v.slice(en);
-                                                            setProdForm(f=>({...f,description:nv}));
-                                                            setTimeout(()=>{ta.selectionStart=ta.selectionEnd=s+o.length+en-s;ta.focus();},0);
-                                                        }}>{label}</button>
+                                                    {[['bold','B'],['italic','I'],['underline','U']].map(([cmd,label])=>(
+                                                        <button key={label} type="button" onMouseDown={(e)=>{e.preventDefault();document.execCommand(cmd);}}><b style={cmd==='bold'?{fontWeight:900}:cmd==='italic'?{fontStyle:'italic'}:{textDecoration:'underline'}}>{label}</b></button>
                                                     ))}
-                                                    <button type="button" onClick={() => {
-                                                        const ta=document.getElementById('prod-desc-normal');
-                                                        const s=ta.selectionStart,en=ta.selectionEnd,v=ta.value;
-                                                        const nv=v.slice(0,s)+'<ul>\n  <li>'+v.slice(s,en)+'</li>\n</ul>'+v.slice(en);
-                                                        setProdForm(f=>({...f,description:nv}));
-                                                    }}>• List</button>
+                                                    <span className="toolbar-sep"/>
+                                                    {[['h3','H3'],['h4','H4'],['p','P']].map(([tag,label])=>(
+                                                        <button key={tag} type="button" onMouseDown={(e)=>{e.preventDefault();document.execCommand('formatBlock',false,tag);}}>{label}</button>
+                                                    ))}
+                                                    <span className="toolbar-sep"/>
+                                                    <button type="button" onMouseDown={(e)=>{e.preventDefault();document.execCommand('insertUnorderedList');}}>• List</button>
+                                                    <button type="button" onMouseDown={(e)=>{e.preventDefault();document.execCommand('insertOrderedList');}}>1. List</button>
                                                 </div>
-                                                <div className="desc-split">
-                                                    <textarea id="prod-desc-normal" placeholder="Write description here... select text and click toolbar buttons to format" value={prodForm.description} onChange={(e) => setProdForm({ ...prodForm, description: e.target.value })} rows={8} />
-                                                    {prodForm.description && (
-                                                        <div className="desc-preview">
-                                                            <p className="desc-preview-label">Preview</p>
-                                                            <div dangerouslySetInnerHTML={{__html: prodForm.description}} />
-                                                        </div>
-                                                    )}
-                                                </div>
+                                                <div
+                                                    className="desc-contenteditable"
+                                                    contentEditable
+                                                    suppressContentEditableWarning
+                                                    onInput={(e) => setProdForm(f=>({...f, description: e.currentTarget.innerHTML}))}
+                                                    dangerouslySetInnerHTML={undefined}
+                                                    ref={el => {
+                                                        if (el && el.innerHTML !== prodForm.description && document.activeElement !== el) {
+                                                            el.innerHTML = prodForm.description || '';
+                                                        }
+                                                    }}
+                                                    data-placeholder="Type your description here... Select text and use toolbar for formatting"
+                                                />
                                             </div>
                                         )}
                                     </div>

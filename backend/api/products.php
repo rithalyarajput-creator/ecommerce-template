@@ -165,7 +165,72 @@ if ($method === 'GET' && $action === 'detail') {
     $rev->execute([$id]);
     $product['reviews'] = $rev->fetchAll(PDO::FETCH_ASSOC);
 
+    $varStmt = $db->prepare("SELECT * FROM product_variations WHERE product_id = ? ORDER BY attribute_name, sort_order ASC");
+    $varStmt->execute([$id]);
+    $product['variations'] = $varStmt->fetchAll(PDO::FETCH_ASSOC);
+
     echo json_encode($product);
+    exit();
+}
+
+// ── Variations CRUD ──────────────────────────────────────────────────────────
+
+if ($method === 'GET' && $action === 'variations') {
+    $product_id = $_GET['product_id'] ?? 0;
+    $stmt = $db->prepare("SELECT * FROM product_variations WHERE product_id = ? ORDER BY attribute_name, sort_order ASC");
+    $stmt->execute([$product_id]);
+    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+    exit();
+}
+
+if ($method === 'POST' && $action === 'add-variation') {
+    requireAdmin();
+    $product_id = $_POST['product_id'] ?? 0;
+    $attribute_name = $_POST['attribute_name'] ?? '';
+    $attribute_value = $_POST['attribute_value'] ?? '';
+    $price = $_POST['price'] !== '' ? $_POST['price'] : null;
+    $stock = $_POST['stock'] ?? 0;
+    $sort_order = $_POST['sort_order'] ?? 0;
+
+    $image = null;
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+        $image = saveAsWebP($_FILES['image']['tmp_name'], $_FILES['image']['name']);
+    }
+
+    $stmt = $db->prepare("INSERT INTO product_variations (product_id, attribute_name, attribute_value, price, stock, image, sort_order) VALUES (?,?,?,?,?,?,?)");
+    $stmt->execute([$product_id, $attribute_name, $attribute_value, $price, $stock, $image, $sort_order]);
+    echo json_encode(['message' => 'Variation added', 'id' => $db->lastInsertId()]);
+    exit();
+}
+
+if ($method === 'POST' && $action === 'update-variation') {
+    requireAdmin();
+    $id = $_GET['id'] ?? 0;
+    $attribute_name = $_POST['attribute_name'] ?? '';
+    $attribute_value = $_POST['attribute_value'] ?? '';
+    $price = $_POST['price'] !== '' ? $_POST['price'] : null;
+    $stock = $_POST['stock'] ?? 0;
+
+    $existing = $db->prepare("SELECT image FROM product_variations WHERE id = ?");
+    $existing->execute([$id]);
+    $row = $existing->fetch(PDO::FETCH_ASSOC);
+    $image = $row['image'] ?? null;
+
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+        $image = saveAsWebP($_FILES['image']['tmp_name'], $_FILES['image']['name']);
+    }
+
+    $stmt = $db->prepare("UPDATE product_variations SET attribute_name=?, attribute_value=?, price=?, stock=?, image=? WHERE id=?");
+    $stmt->execute([$attribute_name, $attribute_value, $price, $stock, $image, $id]);
+    echo json_encode(['message' => 'Variation updated']);
+    exit();
+}
+
+if ($method === 'DELETE' && $action === 'delete-variation') {
+    requireAdmin();
+    $id = $_GET['id'] ?? 0;
+    $db->prepare("DELETE FROM product_variations WHERE id = ?")->execute([$id]);
+    echo json_encode(['message' => 'Variation deleted']);
     exit();
 }
 

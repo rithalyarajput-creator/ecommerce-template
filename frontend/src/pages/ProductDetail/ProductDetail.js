@@ -19,6 +19,7 @@ const ProductDetail = () => {
     const [enquireForm, setEnquireForm] = useState({ name: '', email: '', phone: '', message: '' });
     const [submittingEnquire, setSubmittingEnquire] = useState(false);
     const [similarProducts, setSimilarProducts] = useState([]);
+    const [selectedVariations, setSelectedVariations] = useState({});
     const { addToCart } = useCart();
     const { user } = useAuth();
     const { showLoginPopup } = useLoginPopup();
@@ -55,6 +56,37 @@ const ProductDetail = () => {
     };
 
     const images = product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []);
+
+    // Variations: group by attribute_name
+    const variationGroups = (product.variations || []).reduce((acc, v) => {
+        if (!acc[v.attribute_name]) acc[v.attribute_name] = [];
+        acc[v.attribute_name].push(v);
+        return acc;
+    }, {});
+
+    // Find selected variation for current selection
+    const selectedVar = Object.keys(selectedVariations).length > 0
+        ? (product.variations || []).find(v =>
+            Object.entries(selectedVariations).every(([attr, val]) =>
+                v.attribute_name === attr && v.attribute_value === val
+            )
+          )
+        : null;
+
+    const displayPrice = selectedVar?.price ? parseFloat(selectedVar.price) : (product.sale_price ? parseFloat(product.sale_price) : parseFloat(product.price));
+    const displayOriginal = selectedVar?.price ? null : (product.sale_price ? parseFloat(product.price) : null);
+    const displayDiscount = displayOriginal ? Math.round(((parseFloat(product.price) - displayPrice) / parseFloat(product.price)) * 100) : discount;
+
+    const selectVariation = (attrName, value, varItem) => {
+        setSelectedVariations(prev => ({ ...prev, [attrName]: value }));
+        if (varItem?.image) setSelectedImage(-1); // signal to show variation image
+    };
+
+    const getMainImage = () => {
+        if (selectedVar?.image) return getImgUrl(selectedVar.image);
+        if (images.length > 0 && selectedImage >= 0) return getImgUrl(images[selectedImage]);
+        return getImgUrl(images[0]);
+    };
 
     const addWishlist = async () => {
         if (!user) { showLoginPopup(() => addWishlist()); return; }
@@ -94,17 +126,21 @@ const ProductDetail = () => {
             <div className="detail-container">
                 <div className="detail-gallery">
                     <div className="main-image">
-                        <img src={getImgUrl(images[selectedImage])} alt={product.name} />
+                        <img src={getMainImage()} alt={product.name} />
                     </div>
-                    {images.length > 1 && (
-                        <div className="thumbnails">
-                            {images.map((img, i) => (
-                                <div key={i} className={`thumb ${selectedImage === i ? 'active' : ''}`} onClick={() => setSelectedImage(i)}>
-                                    <img src={getImgUrl(img)} alt={`${product.name} ${i + 1}`} />
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    <div className="thumbnails">
+                        {images.map((img, i) => (
+                            <div key={i} className={`thumb ${selectedImage === i && !selectedVar?.image ? 'active' : ''}`} onClick={() => { setSelectedImage(i); setSelectedVariations({}); }}>
+                                <img src={getImgUrl(img)} alt={`${product.name} ${i + 1}`} />
+                            </div>
+                        ))}
+                        {(product.variations || []).filter(v => v.image).map(v => (
+                            <div key={`var-${v.id}`} className={`thumb ${selectedVar?.id === v.id ? 'active' : ''}`} onClick={() => selectVariation(v.attribute_name, v.attribute_value, v)}>
+                                <img src={getImgUrl(v.image)} alt={v.attribute_value} />
+                                <span className="thumb-label">{v.attribute_value}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="detail-info">
@@ -120,18 +156,41 @@ const ProductDetail = () => {
                     </div>
 
                     <div className="detail-price">
-                        {product.sale_price ? (
-                            <>
-                                <span className="price">₹{parseFloat(product.sale_price).toLocaleString('en-IN')}</span>
-                                <span className="original">₹{parseFloat(product.price).toLocaleString('en-IN')}</span>
-                                <span className="discount">{discount}% off</span>
-                            </>
-                        ) : <span className="price">₹{parseFloat(product.price).toLocaleString('en-IN')}</span>}
+                        <span className="price">₹{displayPrice.toLocaleString('en-IN')}</span>
+                        {displayOriginal && <span className="original">₹{displayOriginal.toLocaleString('en-IN')}</span>}
+                        {displayDiscount > 0 && displayOriginal && <span className="discount">{displayDiscount}% off</span>}
                     </div>
 
                     <div className="stock-info">
-                        {product.stock > 0 ? <span className="in-stock">✓ In Stock ({product.stock} available)</span> : <span className="out-stock">✗ Out of Stock</span>}
+                        {selectedVar
+                            ? (selectedVar.stock > 0 ? <span className="in-stock">✓ In Stock ({selectedVar.stock} available)</span> : <span className="out-stock">✗ Out of Stock</span>)
+                            : (product.stock > 0 ? <span className="in-stock">✓ In Stock ({product.stock} available)</span> : <span className="out-stock">✗ Out of Stock</span>)
+                        }
                     </div>
+
+                    {Object.keys(variationGroups).length > 0 && (
+                        <div className="variations-selector">
+                            {Object.entries(variationGroups).map(([attrName, items]) => (
+                                <div key={attrName} className="variation-attr">
+                                    <p className="variation-attr-label">{attrName}: <strong>{selectedVariations[attrName] || 'Select'}</strong></p>
+                                    <div className="variation-options">
+                                        {items.map(v => (
+                                            <button
+                                                key={v.id}
+                                                className={`var-option-btn ${selectedVariations[attrName] === v.attribute_value ? 'selected' : ''} ${v.stock === 0 ? 'out-of-stock' : ''}`}
+                                                onClick={() => selectVariation(attrName, v.attribute_value, v)}
+                                                title={v.stock === 0 ? 'Out of stock' : ''}
+                                            >
+                                                {v.image && <img src={getImgUrl(v.image)} alt={v.attribute_value} className="var-option-img" />}
+                                                <span>{v.attribute_value}</span>
+                                                {v.price && <small>₹{parseFloat(v.price).toLocaleString('en-IN')}</small>}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
                     <div className="quantity-selector">
                         <label>Quantity:</label>

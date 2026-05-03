@@ -33,6 +33,14 @@ const Admin = () => {
     const [editProductImages, setEditProductImages] = useState([]);
     const [editMainImage, setEditMainImage] = useState('');
 
+    // Variations
+    const [variations, setVariations] = useState([]);
+    const emptyVar = { attribute_name: '', attribute_value: '', price: '', stock: 0 };
+    const [varForm, setVarForm] = useState(emptyVar);
+    const [varImage, setVarImage] = useState(null);
+    const [editVarId, setEditVarId] = useState(null);
+    const [showVarForm, setShowVarForm] = useState(false);
+
     // Category tree + form
     const [categoryTree, setCategoryTree] = useState([]);
     const [expandedCats, setExpandedCats] = useState({});
@@ -177,7 +185,49 @@ const Admin = () => {
             const { data: fullImgs } = await API.get(`/api/products.php?action=list-images&product_id=${p.id}`);
             setEditProductImages(fullImgs || []);
         } catch (err) { setEditProductImages([]); }
+        fetchVariations(p.id);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const fetchVariations = async (productId) => {
+        try {
+            const { data } = await API.get(`/api/products.php?action=variations&product_id=${productId}`);
+            setVariations(Array.isArray(data) ? data : []);
+        } catch (err) { setVariations([]); }
+    };
+
+    const handleVarSubmit = async (e) => {
+        e.preventDefault();
+        const fd = new FormData();
+        fd.append('product_id', editProdId);
+        fd.append('attribute_name', varForm.attribute_name);
+        fd.append('attribute_value', varForm.attribute_value);
+        fd.append('price', varForm.price);
+        fd.append('stock', varForm.stock);
+        if (varImage) fd.append('image', varImage);
+        try {
+            if (editVarId) {
+                await API.post(`/api/products.php?action=update-variation&id=${editVarId}`, fd);
+                toast.success('Variation updated!');
+            } else {
+                await API.post('/api/products.php?action=add-variation', fd);
+                toast.success('Variation added!');
+            }
+            setVarForm(emptyVar); setVarImage(null); setEditVarId(null); setShowVarForm(false);
+            fetchVariations(editProdId);
+        } catch (err) { toast.error('Error saving variation'); }
+    };
+
+    const deleteVariation = async (id) => {
+        if (!window.confirm('Delete this variation?')) return;
+        await API.delete(`/api/products.php?action=delete-variation&id=${id}`);
+        toast.success('Deleted!');
+        fetchVariations(editProdId);
+    };
+
+    const editVariation = (v) => {
+        setVarForm({ attribute_name: v.attribute_name, attribute_value: v.attribute_value, price: v.price || '', stock: v.stock });
+        setEditVarId(v.id); setVarImage(null); setShowVarForm(true);
     };
 
     const deleteExistingImage = async (imgId) => {
@@ -865,6 +915,81 @@ const Admin = () => {
                                         <input type="url" placeholder="https://amazon.in/..." value={prodForm.amazon_link} onChange={(e) => setProdForm({ ...prodForm, amazon_link: e.target.value })} /></div>
                                     <button type="submit" className="btn-submit">{editProdId ? 'Update Product' : 'Add Product'}</button>
                                 </form>
+                            </div>
+                        )}
+
+                        {editProdId && (
+                            <div className="dashboard-card variations-section">
+                                <div className="variations-header">
+                                    <div>
+                                        <h3 style={{margin:0}}>Product Variations</h3>
+                                        <p style={{color:'#878787',fontSize:'0.82rem',margin:'2px 0 0'}}>Add Color, Size or any attribute with separate image & stock</p>
+                                    </div>
+                                    <button className="btn-add" onClick={() => { setShowVarForm(!showVarForm); setVarForm(emptyVar); setEditVarId(null); setVarImage(null); }}>
+                                        {showVarForm ? 'Cancel' : '+ Add Variation'}
+                                    </button>
+                                </div>
+
+                                {showVarForm && (
+                                    <form onSubmit={handleVarSubmit} className="var-form">
+                                        <div className="var-form-grid">
+                                            <div className="admin-form-group">
+                                                <label>Attribute Name</label>
+                                                <input type="text" placeholder="e.g. Color, Size, Material" value={varForm.attribute_name} onChange={e => setVarForm({...varForm, attribute_name: e.target.value})} required />
+                                            </div>
+                                            <div className="admin-form-group">
+                                                <label>Value</label>
+                                                <input type="text" placeholder="e.g. Red, XL, Gold" value={varForm.attribute_value} onChange={e => setVarForm({...varForm, attribute_value: e.target.value})} required />
+                                            </div>
+                                            <div className="admin-form-group">
+                                                <label>Price (optional, overrides main price)</label>
+                                                <input type="number" placeholder="Leave blank to use product price" value={varForm.price} onChange={e => setVarForm({...varForm, price: e.target.value})} />
+                                            </div>
+                                            <div className="admin-form-group">
+                                                <label>Stock</label>
+                                                <input type="number" min="0" value={varForm.stock} onChange={e => setVarForm({...varForm, stock: e.target.value})} required />
+                                            </div>
+                                            <div className="admin-form-group">
+                                                <label>Variation Image</label>
+                                                <input type="file" accept="image/*" onChange={e => setVarImage(e.target.files[0])} />
+                                                {varImage && <p style={{fontSize:'0.78rem',color:'#4caf50',margin:'4px 0 0'}}>✓ {varImage.name}</p>}
+                                            </div>
+                                        </div>
+                                        <button type="submit" className="btn-submit" style={{marginTop:12}}>{editVarId ? 'Update Variation' : 'Save Variation'}</button>
+                                    </form>
+                                )}
+
+                                {variations.length > 0 ? (
+                                    <div className="variations-list">
+                                        {Object.entries(variations.reduce((acc, v) => {
+                                            if (!acc[v.attribute_name]) acc[v.attribute_name] = [];
+                                            acc[v.attribute_name].push(v);
+                                            return acc;
+                                        }, {})).map(([attrName, items]) => (
+                                            <div key={attrName} className="variation-group">
+                                                <p className="variation-group-label">{attrName}</p>
+                                                <div className="variation-chips">
+                                                    {items.map(v => (
+                                                        <div key={v.id} className="variation-chip">
+                                                            {v.image && <img src={`${API_URL}${v.image}`} alt={v.attribute_value} className="var-thumb" />}
+                                                            <div className="var-chip-info">
+                                                                <strong>{v.attribute_value}</strong>
+                                                                <span>Stock: {v.stock}</span>
+                                                                {v.price && <span>₹{parseFloat(v.price).toLocaleString('en-IN')}</span>}
+                                                            </div>
+                                                            <div className="var-chip-actions">
+                                                                <button onClick={() => editVariation(v)}><FiEdit /></button>
+                                                                <button onClick={() => deleteVariation(v.id)} className="del"><FiTrash2 /></button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p style={{color:'#bbb',textAlign:'center',padding:'20px 0',fontSize:'0.85rem'}}>No variations yet. Add Color, Size etc.</p>
+                                )}
                             </div>
                         )}
 
